@@ -14,16 +14,7 @@
 }
 
 
-  .opening {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 2rem;
-    text-align: center;
-    letter-spacing: 0.05em;
-    background: rgba(0, 0, 0, 0.35);
+ 
   }
 </style>
 
@@ -55,14 +46,19 @@
       padding: 24px;
       isolation: isolate;
     }
+    .opening {
+  padding: 0;
+}
+
 
     /* ====== OPENING ENVIRONMENT ====== */
     .opening {
   position: relative;
-  min-height: max(100vh, calc(100vw * 9 / 16));
+  min-height: 140vh;
   background-color: black;
   overflow: hidden;
 }
+
 
 
 
@@ -202,10 +198,15 @@
       .hint{ transition: none !important; }
     }
     .bg-image {
-  display: block;
-  width: 100%;
-  height: auto;
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  object-position: center top;
+  z-index: -4;
 }
+
 
 
 
