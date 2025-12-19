@@ -7,115 +7,164 @@
   <meta name="description" content="blanket me in inspiration" />
 
   <style>
-    :root {
-      --ink: rgba(0,0,0,.92);
-      --shadow: rgba(255,255,255,.45);
+    :root{
       --bg: #000;
+      --ink: rgba(0,0,0,.62);
+      --muted: rgba(255,255,255,.70);
     }
 
     * { box-sizing: border-box; }
     html, body { height: 100%; margin: 0; }
-    body {
+    body{
       background: var(--bg);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       overflow-x: hidden;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
 
-    /* Full-viewport stage */
-    .stage {
+    /* ===== Opening chamber ===== */
+    .opening{
       min-height: 100vh;
       display: grid;
       place-items: center;
-      padding: 0;
-      background: var(--bg);
-    }
-
-    /* 19:6 “window” */
-    .frame {
+      padding: 28px 16px;
       position: relative;
-      width: min(1200px, 100vw);        /* responsive, never wider than screen */
-      aspect-ratio: 19 / 6;             /* EXACT ratio */
-      background: #000;                 /* black bars live here */
-      overflow: hidden;
+      background: #000;
     }
 
-    /* Image integrity: never crop */
-    .frame img {
+    /* 19:6 frame (black space allowed) */
+    .frame{
+      position: relative;
+      width: min(96vw, 1600px);
+      aspect-ratio: 19 / 6;
+      background: #000;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+    }
+
+    /* Image: keep integrity (no crop), but slightly larger for presence */
+    .frame img{
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain;              /* NO CROP */
+      object-fit: contain;      /* preserves the whole image */
       object-position: center;
       display: block;
-      /* keep it crisp */
-      transform: translateZ(0);
-      image-rendering: auto;
+
+      transform: scale(1.08);   /* make it feel bigger (try 1.06–1.12) */
+      transform-origin: center;
+      image-rendering: auto;    /* keep it crisp */
     }
 
-    /* Text overlay */
-    .invocation {
+    /* Soft vignette (does NOT touch the image file; just atmosphere) */
+    .frame::after{
+      content:"";
+      position:absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(120% 85% at 50% 55%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
+      z-index: 1;
+    }
+
+    /* Invocation: centered, fades in like arriving */
+    .invocation{
       position: absolute;
       left: 50%;
-      top: 55%;
+      top: 56%;
       transform: translate(-50%, -50%);
       z-index: 2;
 
       text-align: center;
-      line-height: 1.15;
+      line-height: 1.12;
       letter-spacing: .2px;
-      font-weight: 600;
-      font-size: clamp(26px, 3.2vw, 44px);
-      max-width: 22ch;
+      font-weight: 650;
+      font-size: clamp(28px, 3.4vw, 54px);
+      max-width: 26ch;
       padding: 0 12px;
 
       color: var(--ink);
-      text-shadow: 0 0 22px var(--shadow);
+      text-shadow: 0 0 34px rgba(255,255,255,.42);
 
       opacity: 0;
-      transition: opacity 1.6s ease;
+      filter: blur(3px);
+      transition: opacity 2.2s ease, filter 2.2s ease;
+    }
+    .invocation.show{
+      opacity: 1;
+      filter: blur(0);
     }
 
-    .invocation.show { opacity: 1; }
-
-    /* Optional: tiny “scroll” hint (you can delete if you want) */
-    .hint {
+    /* Scroll hint */
+    .hint{
       position: absolute;
+      bottom: 14px;
       left: 50%;
-      bottom: 10px;
       transform: translateX(-50%);
       z-index: 2;
-      color: rgba(255,255,255,.65);
-      font-size: 12px;
-      letter-spacing: .24em;
+
+      font-size: 11px;
+      letter-spacing: .28em;
       text-transform: lowercase;
+      color: rgba(255,255,255,.72);
       opacity: 0;
-      transition: opacity 1.2s ease;
+      transition: opacity 1.8s ease;
       user-select: none;
     }
-    .hint.show { opacity: .9; }
+    .hint.show{ opacity: .92; }
+
+    /* ===== Next chamber placeholder ===== */
+    .next{
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #000;
+      color: rgba(255,255,255,.72);
+    }
+    .enter{
+      font-size: clamp(18px, 2.2vw, 26px);
+      letter-spacing: .28em;
+      text-transform: lowercase;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .invocation, .hint{ transition: none !important; }
+    }
   </style>
 </head>
 
 <body>
-  <main class="stage">
-    <section class="frame" aria-label="opening chamber">
-      <!-- IMPORTANT: keep this filename exactly the same as your repo file -->
+  <section class="opening" aria-label="Opening chamber">
+    <div class="frame" aria-label="19:6 frame">
+      <!-- IMPORTANT: make sure this filename exactly matches your repo file -->
       <img src="opening_bk.jpeg" alt="" />
-
       <div class="invocation" id="invocation">blanket me in inspiration</div>
       <div class="hint" id="hint">scroll</div>
-    </section>
-  </main>
+    </div>
+  </section>
+
+  <section class="next" aria-label="Second chamber">
+    <div class="enter">enter</div>
+  </section>
 
   <script>
     const invocation = document.getElementById("invocation");
     const hint = document.getElementById("hint");
 
     window.addEventListener("load", () => {
-      setTimeout(() => invocation.classList.add("show"), 900);  // appears sooner
-      setTimeout(() => hint.classList.add("show"), 1600);
+      setTimeout(() => invocation.classList.add("show"), 1100); // fade-in sooner
+      setTimeout(() => hint.classList.add("show"), 2400);       // hint after
     });
+
+    let hinted = true;
+    window.addEventListener("scroll", () => {
+      if (!hinted) return;
+      if (window.scrollY > 12) {
+        hint.style.opacity = "0";
+        hinted = false;
+      }
+    }, { passive: true });
   </script>
 </body>
 </html>
+
