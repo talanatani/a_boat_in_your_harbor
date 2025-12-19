@@ -31,15 +31,13 @@
     }
 
     /* 19:6 frame (black space allowed) */
-    .frame{
-      position: relative;
-      width: min(96vw, 1600px);
-      aspect-ratio: 19 / 6;
-      background: #000;
-      overflow: hidden;
-      display: grid;
-      place-items: center;
-    }
+   .frame{
+  width: min(92vw, 520px); /* portrait-friendly */
+  background: black;
+  display: grid;
+  place-items: center;
+}
+
 
     /* Image: keep integrity (no crop), but slightly larger for presence */
     .frame img{
