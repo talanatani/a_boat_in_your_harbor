@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>a boat in your harbor</title>
   <meta name="description" content="blanket me in inspiration" />
 
   <style>
@@ -68,32 +67,40 @@
     }
 
     /* Invocation: centered, fades in like arriving */
-    .invocation{
-      position: absolute;
-      left: 50%;
-      top: 56%;
-      transform: translate(-50%, -50%);
-      z-index: 2;
+  .invocation{
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 
-      text-align: center;
-      line-height: 1.12;
-      letter-spacing: .2px;
-      font-weight: 650;
-      font-size: clamp(28px, 3.4vw, 54px);
-      max-width: 26ch;
-      padding: 0 12px;
+  text-align: center;
+  line-height: 1.12;
+  letter-spacing: .2px;
+  font-weight: 650;
+  font-size: clamp(28px, 3.4vw, 54px);
+  max-width: 26ch;
+  padding: 0 12px;
 
-      color: var(--ink);
-      text-shadow: 0 0 34px rgba(255,255,255,.42);
+  /* black + clouded */
+  color: rgba(0,0,0,.55);
+  text-shadow:
+    0 0 18px rgba(255,255,255,.22),
+    0 0 44px rgba(255,255,255,.18);
 
-      opacity: 0;
-      filter: blur(3px);
-      transition: opacity 2.2s ease, filter 2.2s ease;
-    }
-    .invocation.show{
-      opacity: 1;
-      filter: blur(0);
-    }
+  /* slow emergence */
+  opacity: 0;
+  filter: blur(10px);
+  transform: translate(-50%, -50%) translateY(10px);
+  transition: opacity 6.5s ease, filter 6.5s ease, transform 6.5s ease;
+}
+
+.invocation.show{
+  opacity: 1;
+  filter: blur(0);
+  transform: translate(-50%, -50%) translateY(0);
+}
+
 
     /* Scroll hint */
     .hint{
@@ -152,7 +159,7 @@
     const hint = document.getElementById("hint");
 
     window.addEventListener("load", () => {
-      setTimeout(() => invocation.classList.add("show"), 1100); // fade-in sooner
+      setTimeout(() => invocation.classList.add("show"), 1600);
       setTimeout(() => hint.classList.add("show"), 2400);       // hint after
     });
 
