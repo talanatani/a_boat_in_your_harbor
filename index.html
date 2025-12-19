@@ -208,6 +208,27 @@
 }
 
 
+/* ===============================
+   FORCE FULL-VIEWPORT BACKGROUND
+   =============================== */
+
+section.chamber.opening {
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+section.chamber.opening > img.bg-image {
+  position: absolute;
+  inset: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: cover;
+  object-position: center top;
+  z-index: -4;
+}
 
 
   </style>
