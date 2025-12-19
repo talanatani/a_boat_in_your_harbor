@@ -13,9 +13,6 @@
   background-color: black;
 }
 
-
- 
-  }
 </style>
 
   
@@ -137,8 +134,10 @@
 
     /* ====== TEXT SYSTEM (Opening) ====== */
     .invocation{
-  position: sticky;
-  top: 45vh;
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  transform: translate(-50%, -50%) translateY(10px);
   z-index: 2;
 
   text-align: center;
@@ -150,16 +149,15 @@
   padding: 0 10px;
 
   opacity: 0;
-  transform: translateY(10px);
   transition: opacity 2.6s ease, transform 2.6s ease;
-
   text-shadow: 0 0 20px rgba(255,255,255,.08);
 }
 
-    .invocation.show{
-      opacity: 1;
-      transform: translateY(0);
-    }
+.invocation.show{
+  opacity: 1;
+  transform: translate(-50%, -50%) translateY(0);
+}
+
 
     .hint{
       position: absolute;
@@ -230,6 +228,21 @@ section.chamber.opening > img.bg-image {
   z-index: -4;
 }
 
+/* --- OPENING: full-bleed, no grid/padding constraints --- */
+section.chamber.opening{
+  display: block !important;
+  padding: 0 !important;
+  width: 100vw;
+  margin: 0;
+}
+
+/* make the image truly edge-to-edge */
+section.chamber.opening .bg-image{
+  display: block;
+  width: 100vw;
+  height: auto;
+  margin: 0;
+}
 
   </style>
 </head>
