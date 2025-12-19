@@ -9,104 +9,92 @@
     :root{
       --bg: #000;
 
-      /* 🎛️ TUNING */
-      --imgScale: 2.05;     /* matches your reference scale */
-      --drift: 28vh;        /* slow upward drift */
-      --scrollPages: 2.4;   /* length of chamber */
-      --stageMax: 1100px;   /* 👈 controls side space */
+      /* ✅ controls side breathing room */
+      --maxWidth: 1100px;      /* smaller = more side space */
+
+      /* ✅ controls how “large” it feels (zoom) */
+      --zoom: 1.0;             /* 1.0–1.15 is usually safe before blur */
+
+      /* ✅ controls invocation timing */
+      --fadeDelay: 1000ms;
+      --fadeDuration: 2400ms;
     }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; }
+    *{ box-sizing: border-box; }
+    html, body{ height: 100%; margin: 0; }
 
     body{
       background: var(--bg);
-      overflow-x: hidden;
+      color: #fff;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      overflow-x: hidden;
     }
 
-    /* ===== Scroll chamber ===== */
-    .chamber{
-      position: relative;
-      height: calc(var(--scrollPages) * 100vh);
+    /* ===== Landing ===== */
+    .landing{
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
       background: #000;
     }
 
-    /* Sticky stage (full height, no top gap) */
-    .stage{
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      background: #000;
-      overflow: hidden;
-    }
-
-    /* Centered inner stage = side breathing room */
-    .stage-inner{
+    /* Centered column with side room */
+    .wrap{
+      width: min(var(--maxWidth), calc(100vw - 64px)); /* ✅ side margins */
+      margin: 0 auto;
       position: relative;
-      height: 100%;
-      max-width: var(--stageMax);
-      margin: 0 auto;              /* 👈 centers, creates side space */
-      overflow: hidden;
     }
 
-    /* Image: top-anchored, scaled, drifting */
-    .stage-inner img{
-      position: absolute;
-      inset: 0;
+    /* Keep aspect ratio from the image itself; prevent stretching */
+    .hero{
       width: 100%;
-      height: 100%;
-
-      object-fit: cover;
-      object-position: top center;
-
-      transform:
-        translate3d(0, var(--y, 0px), 0)
-        scale(var(--imgScale));
-
+      height: auto;
+      display: block;
+      object-fit: contain; /* no crop, maximum crispness */
+      transform: scale(var(--zoom));
       transform-origin: top center;
       will-change: transform;
-      display: block;
+      image-rendering: auto;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Atmosphere */
-    .stage-inner::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background: radial-gradient(
-        120% 85% at 50% 55%,
+    /* Optional subtle vignette that doesn't soften the image */
+    .vignette{
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(120% 90% at 50% 50%,
         rgba(0,0,0,0) 55%,
-        rgba(0,0,0,.55) 100%
-      );
+        rgba(0,0,0,.55) 100%);
     }
 
-    /* Invocation */
+    /* Invocation overlay */
     .invocation{
       position: absolute;
       left: 50%;
-      top: 56%;
+      top: 52%;
       transform: translate(-50%, -50%);
-      z-index: 2;
-
       text-align: center;
       line-height: 1.12;
       letter-spacing: .2px;
       font-weight: 650;
-      font-size: clamp(28px, 3.4vw, 54px);
+      font-size: clamp(28px, 3.4vw, 56px);
       max-width: 26ch;
       padding: 0 12px;
 
-      color: rgba(0,0,0,.6);
+      /* readable without needing heavy blur */
+      color: rgba(0,0,0,.60);
       text-shadow:
         0 0 10px rgba(255,255,255,.18),
         0 0 24px rgba(255,255,255,.14);
 
       opacity: 0;
-      filter: blur(3px);
-      transform: translate(-50%, -50%) translateY(6px);
-      transition: opacity 3.2s ease, filter 3.2s ease, transform 3.2s ease;
+      filter: blur(1.5px);              /* ✅ minimal blur */
+      transform: translate(-50%, -50%) translateY(8px);
+      transition:
+        opacity var(--fadeDuration) ease,
+        filter  var(--fadeDuration) ease,
+        transform var(--fadeDuration) ease;
     }
 
     .invocation.show{
@@ -115,78 +103,33 @@
       transform: translate(-50%, -50%) translateY(0);
     }
 
-    /* Next section */
-    .next{
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: #000;
-      color: rgba(255,255,255,.72);
-    }
-
-    .enter{
-      font-size: clamp(18px, 2.2vw, 26px);
-      letter-spacing: .28em;
-      text-transform: lowercase;
+    @media (max-width: 520px){
+      .wrap{ width: calc(100vw - 36px); } /* slightly tighter on mobile */
     }
 
     @media (prefers-reduced-motion: reduce){
-      .invocation{ transition: none !important; }
-      .stage-inner img{
-        transform: scale(var(--imgScale));
-      }
+      .invocation{ transition: none !important; opacity: 1; filter: none; transform: translate(-50%,-50%); }
     }
   </style>
 </head>
 
 <body>
-  <section class="chamber" id="chamber">
-    <div class="stage">
-      <div class="stage-inner">
-        <img id="hero" src="opening_bk.jpeg" alt="" />
-        <div class="invocation" id="invocation">
-          blanket me in inspiration
-        </div>
-      </div>
-    </div>
-  </section>
+  <main class="landing" aria-label="Landing">
+    <div class="wrap">
+      <!-- ✅ crisp: no cover-crop, no forced height -->
+      <img class="hero" src="opening_bk.jpeg" alt="" />
+      <div class="vignette" aria-hidden="true"></div>
 
-  <section class="next">
-    <div class="enter">enter</div>
-  </section>
+      <div class="invocation" id="invocation">blanket me in inspiration</div>
+    </div>
+  </main>
 
   <script>
-    const chamber = document.getElementById("chamber");
-    const hero = document.getElementById("hero");
     const invocation = document.getElementById("invocation");
-
     window.addEventListener("load", () => {
-      setTimeout(() => invocation.classList.add("show"), 1000);
-      onScroll();
+      const delay = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--fadeDelay")) || 1000;
+      setTimeout(() => invocation.classList.add("show"), delay);
     });
-
-    function onScroll(){
-      const rect = chamber.getBoundingClientRect();
-      const viewportH = window.innerHeight;
-
-      const total = rect.height - viewportH;
-      const progress = Math.min(
-        1,
-        Math.max(0, (-rect.top) / (total || 1))
-      );
-
-      const driftVh = parseFloat(
-        getComputedStyle(document.documentElement)
-          .getPropertyValue("--drift")
-      ) || 0;
-
-      const driftPx = (driftVh / 100) * viewportH;
-
-      hero.style.setProperty("--y", `${-progress * driftPx}px`);
-    }
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
   </script>
 </body>
 </html>
