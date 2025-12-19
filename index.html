@@ -150,33 +150,36 @@
   </section>
 
   <script>
-    const chamber = document.getElementById("chamber");
-    const hero = document.getElementById("hero");
-    const invocation = document.getElementById("invocation");
+   const chamber = document.getElementById("chamber");
+const move = document.getElementById("move");
+const invocation = document.getElementById("invocation");
 
-    window.addEventListener("load", () => {
-      setTimeout(() => invocation.classList.add("show"), 1000);
-      onScroll();
-    });
+window.addEventListener("load", () => {
+  setTimeout(() => invocation.classList.add("show"), 1000);
+  onScroll();
+});
 
-    function onScroll(){
-      const rect = chamber.getBoundingClientRect();
-      const viewportH = window.innerHeight;
+function onScroll(){
+  const rect = chamber.getBoundingClientRect();
+  const viewportH = window.innerHeight;
 
-      const total = rect.height - viewportH;
-      const progressed = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
+  const total = rect.height - viewportH;
+  const progress = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
 
-      const driftVh = parseFloat(
-        getComputedStyle(document.documentElement).getPropertyValue("--drift")
-      ) || 0;
-      const driftPx = (driftVh / 100) * viewportH;
+  const driftVh = parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue("--drift")
+  ) || 0;
+  const driftPx = (driftVh / 100) * viewportH;
 
-      const y = (0.5 - progressed) * 2 * driftPx;
-      hero.style.setProperty("--y", `${y}px`);
-    }
+  /* ✅ no top gap at landing: start y=0, then move upward */
+  const y = -progress * driftPx;
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+  move.style.setProperty("--y", `${y}px`);
+}
+
+window.addEventListener("scroll", onScroll, { passive: true });
+window.addEventListener("resize", onScroll);
+
   </script>
 </body>
 </html>
