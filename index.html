@@ -10,13 +10,16 @@
       --bg: #000;
 
       /* ✅ TUNING KNOBS */
-      --imgScale: 1.55;      /* bigger but still crisp with contain */
-      --drift: 32vh;         /* slow drift */
-      --scrollPages: 2.4;    /* chamber length */
+      --imgScale: 1.55;
+      --drift: 32vh;
+      --scrollPages: 2.4;
 
       /* ✅ side room (not full width) */
-      --stageMax: 1100px;    /* reduce for more side space */
-      --stagePad: 56px;      /* minimum side padding on small screens */
+      --stageMax: 1100px;
+      --stagePad: 56px;
+
+      /* ✅ text placement */
+      --textTop: 18%; /* move up/down: 12% (higher) → 26% (lower) */
     }
 
     * { box-sizing: border-box; }
@@ -41,11 +44,11 @@
       height: 100vh;
       background: #000;
       display: grid;
-      place-items: start center; /* ✅ anchor to top, centered horizontally */
+      place-items: start center;
       overflow: hidden;
     }
 
-    /* ✅ centered column with side breathing room, no top padding */
+    /* centered column */
     .stage-inner{
       width: min(var(--stageMax), calc(100vw - var(--stagePad)));
       height: 100%;
@@ -53,14 +56,14 @@
       overflow: hidden;
     }
 
-    /* Full-height image, preserve integrity, scale up */
+    /* image */
     .stage-inner img{
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain;         /* ✅ crisp, no crop */
-      object-position: top center; /* ✅ touches top / anchors upward */
+      object-fit: contain;
+      object-position: top center;
       transform:
         translate3d(0, var(--y, 0px), 0)
         scale(var(--imgScale));
@@ -69,7 +72,7 @@
       display: block;
     }
 
-    /* Optional atmosphere */
+    /* atmosphere */
     .stage-inner::after{
       content:"";
       position:absolute;
@@ -78,32 +81,34 @@
       background: radial-gradient(120% 85% at 50% 55%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
     }
 
-    /* Invocation */
+    /* Invocation: now up near the portal */
     .invocation{
       position: absolute;
       left: 50%;
-      top: 56%;
+      top: var(--textTop);
       transform: translate(-50%, -50%);
       z-index: 2;
 
       text-align: center;
-      line-height: 1.12;
+      line-height: 1.08;
       letter-spacing: .2px;
       font-weight: 650;
-      font-size: clamp(28px, 3.4vw, 54px);
-      max-width: 26ch;
+      font-size: clamp(28px, 3.2vw, 56px);
+      max-width: 28ch;
       padding: 0 12px;
 
-      color: rgba(0,0,0,.58);
+      /* slightly brighter since it's over the portal glow */
+      color: rgba(0,0,0,.52);
       text-shadow:
-        0 0 10px rgba(255,255,255,.18),
-        0 0 26px rgba(255,255,255,.14);
+        0 0 10px rgba(255,255,255,.22),
+        0 0 28px rgba(255,255,255,.18);
 
       opacity: 0;
-      filter: blur(2px); /* ✅ less blurry than before */
-      transform: translate(-50%, -50%) translateY(6px);
-      transition: opacity 3.2s ease, filter 3.2s ease, transform 3.2s ease;
+      filter: blur(2px);
+      transform: translate(-50%, -50%) translateY(8px);
+      transition: opacity 3.0s ease, filter 3.0s ease, transform 3.0s ease;
     }
+
     .invocation.show{
       opacity: 1;
       filter: blur(0);
@@ -129,7 +134,7 @@
     }
 
     @media (prefers-reduced-motion: reduce){
-      .invocation{ transition: none !important; }
+      .invocation{ transition: none !important; opacity: 1; filter: none; transform: translate(-50%,-50%); }
       .stage-inner img{ transform: scale(var(--imgScale)); }
     }
   </style>
@@ -139,11 +144,8 @@
   <section class="chamber" id="chamber" aria-label="Opening chamber">
     <div class="stage" aria-label="Sticky stage">
       <div class="stage-inner">
-       <div class="move" id="move">
-  <img class="hero" src="opening_bk.jpeg" alt="" />
-  <div class="invocation" id="invocation">blanket me in inspiration</div>
-</div>
-
+        <img id="hero" src="opening_bk.jpeg" alt="" />
+        <div class="invocation" id="invocation">blanket me in inspiration</div>
       </div>
     </div>
   </section>
@@ -153,36 +155,33 @@
   </section>
 
   <script>
-   const chamber = document.getElementById("chamber");
-const move = document.getElementById("move");
-const invocation = document.getElementById("invocation");
+    const chamber = document.getElementById("chamber");
+    const hero = document.getElementById("hero");
+    const invocation = document.getElementById("invocation");
 
-window.addEventListener("load", () => {
-  setTimeout(() => invocation.classList.add("show"), 1000);
-  onScroll();
-});
+    window.addEventListener("load", () => {
+      setTimeout(() => invocation.classList.add("show"), 1000);
+      onScroll();
+    });
 
-function onScroll(){
-  const rect = chamber.getBoundingClientRect();
-  const viewportH = window.innerHeight;
+    function onScroll(){
+      const rect = chamber.getBoundingClientRect();
+      const viewportH = window.innerHeight;
 
-  const total = rect.height - viewportH;
-  const progress = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
+      const total = rect.height - viewportH;
+      const progressed = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
 
-  const driftVh = parseFloat(
-    getComputedStyle(document.documentElement).getPropertyValue("--drift")
-  ) || 0;
-  const driftPx = (driftVh / 100) * viewportH;
+      const driftVh = parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue("--drift")
+      ) || 0;
+      const driftPx = (driftVh / 100) * viewportH;
 
-  /* ✅ no top gap at landing: start y=0, then move upward */
-  const y = -progress * driftPx;
+      const y = (0.5 - progressed) * 2 * driftPx;
+      hero.style.setProperty("--y", `${y}px`);
+    }
 
-  move.style.setProperty("--y", `${y}px`);
-}
-
-window.addEventListener("scroll", onScroll, { passive: true });
-window.addEventListener("resize", onScroll);
-
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
   </script>
 </body>
 </html>
