@@ -207,42 +207,34 @@
 
 
 /* ===============================
-   FORCE FULL-VIEWPORT BACKGROUND
+   OPENING: FULL-BLEED + SCROLL REVEAL
    =============================== */
 
-section.chamber.opening {
+section.chamber.opening{
+  position: relative;
+  display: block !important;     /* kill the grid centering */
   width: 100vw;
-  min-height: 100vh;
   margin: 0;
-  padding: 0 !important;
+  padding: 0 !important;         /* remove chamber padding */
   overflow: hidden;
+
+  /* this controls how long you scroll “inside” the image */
+  min-height: 200vh;             /* try 180–240vh to taste */
 }
 
-section.chamber.opening > img.bg-image {
+/* background image spans the *entire opening chamber height* */
+section.chamber.opening .bg-image{
   position: absolute;
   inset: 0;
   width: 100vw !important;
-  height: 100vh !important;
+  height: 100% !important;       /* key change: not 100vh */
   object-fit: cover;
   object-position: center top;
   z-index: -4;
-}
-
-/* --- OPENING: full-bleed, no grid/padding constraints --- */
-section.chamber.opening{
-  display: block !important;
-  padding: 0 !important;
-  width: 100vw;
   margin: 0;
-}
-
-/* make the image truly edge-to-edge */
-section.chamber.opening .bg-image{
   display: block;
-  width: 100vw;
-  height: auto;
-  margin: 0;
 }
+
 
   </style>
 </head>
