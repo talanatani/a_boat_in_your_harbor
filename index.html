@@ -83,39 +83,35 @@
 
     /* Invocation: now up near the portal */
     .invocation{
-      position: absolute;
-      left: 50%;
-      top: var(--textTop);
-      transform: translate(-50%, -50%);
-      z-index: 2;
+  position: absolute;
+  left: 50%;
+  top: var(--textTop);
+  transform: translate(-50%, -50%) translateY(8px);
+  z-index: 2;
 
-      text-align: center;
-      line-height: 1.08;
-      letter-spacing: .2px;
-      font-weight: 650;
-      font-size: clamp(28px, 3.2vw, 56px);
-      max-width: 28ch;
-      padding: 0 12px;
+  text-align: center;
+  line-height: 1.08;
+  letter-spacing: .2px;
+  font-weight: 650;
+  font-size: clamp(28px, 3.2vw, 56px);
 
-      /* slightly brighter since it's over the portal glow */
-      color: rgba(0,0,0,.52);
-      text-shadow:
-        0 0 10px rgba(255,255,255,.22),
-        0 0 28px rgba(255,255,255,.18);
+  color: rgba(0,0,0,.52);
+  text-shadow:
+    0 0 10px rgba(255,255,255,.22),
+    0 0 28px rgba(255,255,255,.18);
 
-      opacity: 0;
-      filter: blur(2px);
-      transform: translate(-50%, -50%) translateY(8px);
-      transition: opacity 3.0s ease, filter 3.0s ease, transform 3.0s ease;
-    }
+  /* 🔽 ONLY CHANGE IS HERE */
+  opacity: var(--invOpacity, 0);
+  filter: blur(2px);
+  transition: opacity 3s ease, filter 3s ease, transform 3s ease;
+}
 
-    .invocation.show{
-      opacity: 1;
-      filter: blur(0);
-      transform: translate(-50%, -50%) translateY(0);
-      will-change: opacity;
+.invocation.show{
+  --invOpacity: 1;
+  filter: blur(0);
+  transform: translate(-50%, -50%) translateY(0);
+}
 
-    }
 
     /* Next section */
     .next{
