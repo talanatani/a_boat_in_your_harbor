@@ -87,6 +87,23 @@
       background: radial-gradient(120% 85% at 50% 55%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
     }
 
+/* ===== ICHOR (ethereal particulate field — not rain) ===== */
+.ichor{
+  position: absolute;
+  inset: 0;
+  z-index: 1;              /* image < ichor < text */
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  mix-blend-mode: screen;  /* light on black */
+  opacity: 0.42;
+
+  filter: blur(0.25px);
+}
+
+
+
     /* Invocation (Matrix / inscription mode) */
     .invocation{
       position: absolute;
@@ -158,6 +175,9 @@
     <div class="stage" aria-label="Sticky stage">
       <div class="stage-inner">
         <img id="hero" src="new_portal.jpeg" alt="" />
+        <!-- ichor (ethereal particulate field) -->
+        <canvas id="ichor" class="ichor" aria-hidden="true"></canvas>
+
         <div class="invocation" id="invocation">BLANKET ME</div>
       </div>
     </div>
@@ -216,6 +236,87 @@
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
+    // ===== ICHOR (ethereal particulate field — not rain) =====
+const ichorCanvas = document.getElementById("ichor");
+const ictx = ichorCanvas.getContext("2d", { alpha: true });
+
+let IW = 0, IH = 0, DPR2 = 1;
+let motes = [];
+let lastT = 0;
+
+function resizeIchor(){
+  const parent = ichorCanvas.parentElement.getBoundingClientRect();
+  DPR2 = Math.min(2, window.devicePixelRatio || 1);
+
+  IW = Math.floor(parent.width);
+  IH = Math.floor(parent.height);
+
+  ichorCanvas.width  = Math.floor(IW * DPR2);
+  ichorCanvas.height = Math.floor(IH * DPR2);
+  ichorCanvas.style.width  = IW + "px";
+  ichorCanvas.style.height = IH + "px";
+
+  ictx.setTransform(DPR2, 0, 0, DPR2, 0, 0);
+
+  const count = Math.floor((IW * IH) / 38000);
+  motes = Array.from({ length: Math.max(22, Math.min(95, count)) }, newMote);
+}
+
+function newMote(){
+  const r = 0.6 + Math.random() * 2.4;
+  return {
+    x: Math.random() * IW,
+    y: Math.random() * IH,
+    r,
+    vy: 0.06 + Math.random() * 0.18,     // slow downward tendency
+    vx: (Math.random() - 0.5) * 0.06,    // faint lateral drift
+    tw: 0.002 + Math.random() * 0.006,   // twinkle (breath, not sparkle)
+    ph: Math.random() * Math.PI * 2,
+    a: 0.03 + Math.random() * 0.085
+  };
+}
+
+function drawIchor(t){
+  const dt = Math.min(40, (t - lastT) || 16);
+  lastT = t;
+
+  ictx.clearRect(0, 0, IW, IH);
+
+  for (const m of motes){
+    m.y += m.vy * dt;
+    m.x += m.vx * dt;
+
+    m.ph += m.tw * dt;
+    const twinkle = 0.75 + 0.25 * Math.sin(m.ph);
+
+    // wrap
+    if (m.y > IH + 8) { m.y = -8; m.x = Math.random() * IW; }
+    if (m.x < -8) m.x = IW + 8;
+    if (m.x > IW + 8) m.x = -8;
+
+    const g = ictx.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r * 2.6);
+    g.addColorStop(0, `rgba(255,255,255,${m.a * 0.9 * twinkle})`);
+    g.addColorStop(0.35, `rgba(255,244,214,${m.a * 0.55 * twinkle})`);
+    g.addColorStop(1, `rgba(255,255,255,0)`);
+
+    ictx.fillStyle = g;
+    ictx.beginPath();
+    ictx.arc(m.x, m.y, m.r * 2.4, 0, Math.PI * 2);
+    ictx.fill();
+  }
+
+  requestAnimationFrame(drawIchor);
+}
+
+window.addEventListener("resize", resizeIchor);
+resizeIchor();
+requestAnimationFrame(drawIchor);
+
+
+window.addEventListener("resize", resizeRain);
+resizeRain();
+requestAnimationFrame(drawRain);
+
   </script>
 </body>
 </html>
