@@ -76,16 +76,19 @@
       transform-origin: top center;
       will-change: transform;
       display: block;
+      z-index: 0; /* ✅ ADD THIS LINE */
     }
 
     /* atmosphere */
-    .stage-inner::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background: radial-gradient(120% 85% at 50% 55%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
-    }
+   .stage-inner::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background: radial-gradient(120% 85% at 50% 55%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
+  z-index: 0;               /* ✅ put vignette behind */
+}
+
 
 /* ===== ICHOR (ethereal particulate field — not rain) ===== */
 .ichor{
