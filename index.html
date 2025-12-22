@@ -58,7 +58,7 @@
       height: 100%;
       position: relative;
       overflow: hidden;
-      z-index: 0; /* ✅ creates a clean stacking context */
+      z-index: 0;
     }
 
     /* image */
@@ -85,7 +85,7 @@
       inset:0;
       pointer-events:none;
       background: radial-gradient(120% 85% at 50% 55%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
-      z-index: 0; /* ✅ behind canvas + text */
+      z-index: 0;
     }
 
     /* ===== ICHOR (ethereal particulate field — not rain) ===== */
@@ -98,7 +98,7 @@
       pointer-events: none;
 
       mix-blend-mode: screen;
-      opacity: 0.75;
+      opacity: 0.60;          /* ✅ TEMP: stronger so you can see the field */
       filter: blur(0.25px);
     }
 
@@ -157,7 +157,7 @@
     @media (prefers-reduced-motion: reduce){
       .invocation{ transition: none !important; opacity: 1; transform: translate(-50%,-50%); }
       .stage-inner img{ transform: scale(var(--imgScale)); }
-      .ichor{ display: none; }
+      .ichor{ display:none; }
     }
   </style>
 </head>
@@ -204,12 +204,14 @@
 
       ictx.setTransform(DPR2, 0, 0, DPR2, 0, 0);
 
-      const count = Math.floor((IW * IH) / 38000);
-      motes = Array.from({ length: Math.max(22, Math.min(95, count)) }, newMote);
+      // ✅ CHANGED: denser field
+      const count = Math.floor((IW * IH) / 18000);
+      motes = Array.from({ length: Math.max(45, Math.min(180, count)) }, newMote);
     }
 
     function newMote(){
-      const r = 0.6 + Math.random() * 2.4;
+      // ✅ CHANGED: larger + more visible
+      const r = 1.2 + Math.random() * 3.4;
       return {
         x: Math.random() * IW,
         y: Math.random() * IH,
@@ -218,7 +220,7 @@
         vx: (Math.random() - 0.5) * 0.06,
         tw: 0.002 + Math.random() * 0.006,
         ph: Math.random() * Math.PI * 2,
-        a: 0.03 + Math.random() * 0.085
+        a: 0.07 + Math.random() * 0.14
       };
     }
 
@@ -239,7 +241,8 @@
         if (m.x < -8) m.x = IW + 8;
         if (m.x > IW + 8) m.x = -8;
 
-        const g = ictx.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r * 2.6);
+        // ✅ CHANGED: wider glow radius
+        const g = ictx.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.r * 3.6);
         g.addColorStop(0, `rgba(255,255,255,${m.a * 0.9 * twinkle})`);
         g.addColorStop(0.35, `rgba(255,244,214,${m.a * 0.55 * twinkle})`);
         g.addColorStop(1, `rgba(255,255,255,0)`);
@@ -283,7 +286,6 @@
       setTimeout(() => invocation.classList.add("show"), 1000);
       onScroll();
 
-      // ✅ start ichor after layout is ready
       resizeIchor();
       requestAnimationFrame(drawIchor);
     });
@@ -292,5 +294,7 @@
     window.addEventListener("resize", () => { onScroll(); resizeIchor(); });
   </script>
 </body>
+</html>
+
 </html>
 
