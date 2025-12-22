@@ -7,7 +7,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- ✅ add 300 for thinner text -->
+  <!-- ✅ include 300 for thinner text -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
@@ -150,7 +150,7 @@
     }
     .ceremony.rain-on .rain{ opacity: 0.85; }  /* ✅ intense */
 
-    /* Passage (updated for ethereality / expansion / glow) */
+    /* Passage (ethereal / expanded / glowy + LESS opaque) */
     .passage{
       position: relative;
       z-index: 2; /* above rain */
@@ -159,14 +159,14 @@
       padding: 0 10px;
 
       font-family: "Inter", system-ui, -apple-system, Helvetica, Arial, sans-serif;
-      font-weight: 300;                /* ✅ thinner */
-      letter-spacing: 0.055em;         /* ✅ more expansion */
-      line-height: 1.95;               /* ✅ more breath */
+      font-weight: 300;
+      letter-spacing: 0.055em;
+      line-height: 1.95;
       font-size: clamp(17px, 2.1vw, 24px);
 
-      color: rgba(255,255,255,.78);
+      /* ✅ less opaque text */
+      color: rgba(255,255,255,.62);
 
-      /* ✅ glow closer to BLANKET ME vibe */
       text-shadow:
         0 0 8px rgba(255,255,255,.16),
         0 0 18px rgba(190,220,255,.11),
@@ -178,7 +178,7 @@
       will-change: opacity, transform;
     }
 
-    /* ✅ subtle bloom behind passage (ichor/ethereal immersion) */
+    /* subtle bloom behind passage */
     .passage::before{
       content:"";
       position:absolute;
@@ -200,15 +200,15 @@
       transform: translateY(0);
     }
 
-    /* ✅ more space between each sentence (each <p>) */
+    /* ✅ more ceremonial spacing between each sentence */
     .passage p{
-      margin: 0 0 30px;               /* was 14px */
+      margin: 0 0 40px;
     }
     .passage p:last-child{
       margin-bottom: 0;
     }
 
-    /* ✅ fade OUT once past the passage */
+    /* fade OUT once past the passage */
     .passage.is-past{
       opacity: 0;
       transform: translateY(-10px);
@@ -218,32 +218,45 @@
       opacity: 0;
     }
 
-    /* Enter button: appears after passage */
+    /* ENTER: threshold moment (quieter, slower, more space) */
     .enter{
       position: relative;
       z-index: 2;
 
-      margin-top: 60px;               /* ✅ more space before enter (was 34px) */
-      padding-top: 8px;
+      margin-top: 72px;
+      padding-top: 12px;
 
-      font-size: clamp(15px, 1.6vw, 20px);
-      letter-spacing: .32em;          /* a touch more expansion */
+      font-size: clamp(14px, 1.5vw, 19px);
+      letter-spacing: .36em;
       text-transform: lowercase;
 
       font-family: "Inter", system-ui, -apple-system, Helvetica, Arial, sans-serif;
       font-weight: 300;
 
-      color: rgba(255,255,255,.64);
+      color: rgba(255,255,255,.44);
 
       text-shadow:
-        0 0 10px rgba(255,255,255,.14),
-        0 0 26px rgba(190,220,255,.08);
+        0 0 8px rgba(255,255,255,.10),
+        0 0 22px rgba(190,220,255,.06);
 
       opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 1800ms ease, transform 1800ms ease;
+      transform: translateY(14px);
+      transition:
+        opacity 2600ms ease,
+        transform 2600ms ease;
+
       user-select: none;
+      cursor: pointer;
     }
+
+    /* subtle hover, no cheesy scale */
+    .enter:hover{
+      color: rgba(255,255,255,.58);
+      text-shadow:
+        0 0 10px rgba(255,255,255,.14),
+        0 0 28px rgba(190,220,255,.08);
+    }
+
     .ceremony.enter-on .enter{
       opacity: 1;
       transform: translateY(0);
@@ -251,8 +264,8 @@
 
     @media (max-width: 520px){
       :root{ --stagePad: 28px; }
-      .passage p{ margin-bottom: 26px; }
-      .enter{ margin-top: 54px; }
+      .passage p{ margin-bottom: 36px; }
+      .enter{ margin-top: 64px; }
     }
 
     @media (prefers-reduced-motion: reduce){
@@ -286,7 +299,7 @@
         <p>we bear witness and release limitation</p>
         <p>opening to transformation</p>
 
-        <div class="enter" id="enter">enter</div>
+        <div class="enter" id="enter" role="button" tabindex="0">enter</div>
       </div>
     </div>
   </section>
@@ -296,7 +309,7 @@
     const hero = document.getElementById("hero");
     const invocation = document.getElementById("invocation");
 
-    // ===== Portal scroll drift + portal text fade (as before) =====
+    // ===== Portal scroll drift + portal text fade =====
     window.addEventListener("load", () => {
       setTimeout(() => invocation.classList.add("show"), 1000);
       onScroll();
@@ -352,14 +365,13 @@
       // 2) Slowly reveal passage
       setTimeout(() => ceremony.classList.add("text-on"), 850);
 
-      // 3) Then reveal "enter"
-      setTimeout(() => ceremony.classList.add("enter-on"), 3200);
+      // 3) Then reveal "enter" (slower threshold)
+      setTimeout(() => ceremony.classList.add("enter-on"), 3600);
     }, { threshold: 0.35 });
 
     io.observe(ceremony);
 
     // ===== Fade passage out once user scrolls past it =====
-    // (and bring it back when scrolling upward)
     const passageFadeIO = new IntersectionObserver(([entry]) => {
       const past = !entry.isIntersecting && entry.boundingClientRect.top < 0;
       if (past) passageEl.classList.add("is-past");
@@ -390,7 +402,7 @@
 
       rctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
-      // ✅ intense density
+      // intense density
       const count = Math.floor((RW * RH) / 12000);
       const n = Math.max(120, Math.min(360, count));
       drops = Array.from({ length: n }, newDrop);
@@ -448,4 +460,3 @@
   </script>
 </body>
 </html>
-
