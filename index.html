@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="BLANKET ME" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,31 +11,477 @@
 
   <style>
     :root{
-      --bg:#000;
+      --bg: #000;
+
+      /* ✅ PORTAL */
       --imgScale: 1.55;
       --drift: 32vh;
       --scrollPages: 2.4;
+
+      /* ✅ side room */
       --stageMax: 1100px;
       --stagePad: 56px;
+
+      /* ✅ portal title placement */
       --textTop: 18%;
+
+      /* ✅ FAIL-SAFE: show invocation even if JS fails */
+      --invOpacity: 1;
     }
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; margin:0; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
     body{
       background: var(--bg);
-      overflow-x:hidden;
+      overflow-x: hidden;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
       position: relative;
-      color: #fff;
     }
 
-    /* GLOBAL ICHOR (behind everything) */
+    /* ===== GLOBAL ICHOR (ENTIRE PAGE, BEHIND IMAGE) ===== */
     .ichor-field{
       position: fixed;
       inset: 0;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.9;
+
+      /* slightly more present so you *feel* it even before rain */
+      opacity: 0.85;
+      filter: blur(20px);
+
+      background:
+        radial-gradient(1200px 900px at 50% 42%,
+          rgba(210,225,255,0.14),
+          rgba(0,0,0,0) 62%
+        ),
+        radial-gradient(1400px 1000px at 50% 75%,
+          rgba(180,200,255,0.08),
+          rgba(0,0,0,0) 70%
+        );
+    }
+
+    /* ===== PORTAL CHAMBER ===== */
+    .chamber{
+      position: relative;
+      height: calc(var(--scrollPages) * 100vh);
+      background: transparent;
+      z-index: 1;
+    }
+
+    .stage{
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: grid;
+      place-items: start center;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .stage-inner{
+      width: min(var(--stageMax), calc(100vw - var(--stagePad)));
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .stage-inner img{
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: top center;
+      transform: translate3d(0, var(--y, 0px), 0) scale(var(--imgScale));
+      transform-origin: top center;
+      will-change: transform;
+      display: block;
+      z-index: 1;
+    }
+
+    .stage-inner::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background: radial-gradient(120% 85% at 50% 55%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
+      z-index: 2;
+    }
+
+    /* ===== PORTAL TITLE ===== */
+    .invocation{
+      position: absolute;
+      left: 50%;
+      top: var(--textTop);
+      transform: translate(-50%, -50%) translateY(8px);
+      z-index: 3;
+
+      font-family: "Inter", system-ui, -apple-system, Helvetica, Arial, sans-serif;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .26em;
+
+      text-align: center;
+      line-height: 1.08;
+      font-size: clamp(28px, 3.2vw, 56px);
+      max-width: 28ch;
+      padding: 0 12px;
+
+      color: rgba(255,255,255,.18);
+      text-shadow:
+        0 0 6px rgba(255,255,255,.38),
+        0 0 16px rgba(255,255,255,.22);
+
+      /* ✅ now always at least visible */
+      opacity: var(--invOpacity);
+      transition: opacity 3s ease, transform 3s ease;
+      will-change: opacity, transform;
+    }
+
+    .invocation.show{
+      transform: translate(-50%, -50%) translateY(0);
+    }
+
+    /* ===== CEREMONY ===== */
+    .ceremony{
+      min-height: 110vh;
+      background: transparent;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 80px 16px 64px;
+      z-index: 1;
+    }
+
+    .ceremony-inner{
+      width: min(var(--stageMax), calc(100vw - var(--stagePad)));
+      position: relative;
+      min-height: 70vh;
+      display: grid;
+      place-items: center;
+    }
+
+    /* rain */
+    .rain{
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      mix-blend-mode: screen;
+      opacity: 0;
+      transition: opacity 900ms ease;
+      filter: blur(0.25px);
+    }
+    .ceremony.rain-on .rain{ opacity: 0.85; }
+
+    /* ===== SPACEY / SPECTRAL PASSAGE ===== */
+    .passage{
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 56ch;
+      padding: 0 10px;
+
+      font-family: "Inter", system-ui, -apple-system, Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      letter-spacing: .22em;
+      line-height: 1.55;
+      font-size: clamp(14px, 1.55vw, 19px);
+
+      color: rgba(255,255,255,.18);
+
+      text-shadow:
+        0 0 6px rgba(255,255,255,.38),
+        0 0 18px rgba(200,220,255,.18),
+        0 0 46px rgba(180,200,255,.10);
+
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 2600ms ease, transform 2600ms ease;
+      will-change: opacity, transform;
+    }
+
+    .passage::before{
+      content:"";
+      position:absolute;
+      inset:-42px;
+      pointer-events:none;
+      background: radial-gradient(
+        circle at 50% 45%,
+        rgba(210,225,255,0.10),
+        rgba(0,0,0,0)
+      );
       filter: blur(18px);
-      back
+      opacity: 0;
+      transition: opacity 2200ms ease;
+    }
+    .ceremony.text-on .passage::before{ opacity: 0.7; }
+
+    .ceremony.text-on .passage{
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* spacing: first two lines closer, then big gaps between parts */
+    .passage p{ margin: 0 0 18px; }
+    .passage p.part{ margin-bottom: 72px; }
+    .passage p:last-child{ margin-bottom: 0; }
+
+    /* fade out once past passage */
+    .passage.is-past{
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+    }
+    .passage.is-past::before{ opacity: 0; }
+
+    /* ENTER */
+    .enter{
+      position: relative;
+      z-index: 2;
+
+      margin-top: 120px;
+      padding-top: 16px;
+
+      font-family: "Inter", system-ui, -apple-system, Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      font-size: clamp(12px, 1.25vw, 17px);
+      letter-spacing: .42em;
+      text-transform: lowercase;
+
+      color: rgba(255,255,255,.14);
+      text-shadow:
+        0 0 6px rgba(255,255,255,.22),
+        0 0 22px rgba(180,200,255,.08);
+
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 3200ms ease, transform 3200ms ease;
+
+      user-select: none;
+      cursor: pointer;
+    }
+    .ceremony.enter-on .enter{
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .enter:hover{
+      color: rgba(255,255,255,.28);
+      text-shadow:
+        0 0 8px rgba(255,255,255,.32),
+        0 0 28px rgba(190,220,255,.10);
+    }
+
+    @media (max-width: 520px){
+      :root{ --stagePad: 28px; }
+      .passage p.part{ margin-bottom: 62px; }
+      .enter{ margin-top: 110px; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .invocation, .passage, .enter{ transition: none !important; opacity: 1; transform: none; }
+      .rain{ display:none; }
+      .stage-inner img{ transform: scale(var(--imgScale)); }
+      .passage::before{ display:none; }
+      .ichor-field{ display:none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="ichor-field" aria-hidden="true"></div>
+
+  <!-- PORTAL (NO RAIN) -->
+  <section class="chamber" id="chamber" aria-label="Opening chamber">
+    <div class="stage" aria-label="Sticky stage">
+      <div class="stage-inner">
+        <img id="hero" src="new_portal.jpeg" alt="" />
+        <div class="invocation" id="invocation">BLANKET ME</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CEREMONY -->
+  <section class="ceremony" id="ceremony" aria-label="Ceremony chamber">
+    <div class="ceremony-inner">
+      <canvas id="rain" class="rain" aria-hidden="true"></canvas>
+
+      <div class="passage" id="passage" aria-label="Exhibition passage">
+        <p>we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love</p>
+        <p>forward-facing and fusing ethereality with inspiration</p>
+
+        <p class="part">we bear witness and release limitation</p>
+        <p class="part">opening to transformation</p>
+
+        <div class="enter" id="enter" role="button" tabindex="0">enter</div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // ===== Get elements (guarded so no crashes) =====
+    const chamber = document.getElementById("chamber");
+    const hero = document.getElementById("hero");
+    const invocation = document.getElementById("invocation");
+
+    const ceremony = document.getElementById("ceremony");
+    const passageEl = document.getElementById("passage");
+    const rainCanvas = document.getElementById("rain");
+
+    // ===== Portal drift + title fade =====
+    function onScroll(){
+      if (!chamber || !hero || !invocation) return;
+
+      const rect = chamber.getBoundingClientRect();
+      const viewportH = window.innerHeight;
+
+      const total = rect.height - viewportH;
+      const progress = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
+
+      const driftVh = parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue("--drift")
+      ) || 0;
+
+      const driftPx = (driftVh / 100) * viewportH;
+      const y = (0.5 - progress) * 2 * driftPx;
+      hero.style.setProperty("--y", `${y}px`);
+
+      // fade title within portal
+      const fadeStart = 0.00;
+      const fadeEnd   = 0.72;
+
+      let opacity = 1;
+      if (progress > fadeStart){
+        const t = Math.min(1, (progress - fadeStart) / (fadeEnd - fadeStart));
+        opacity = 1 - t;
+      }
+      invocation.style.setProperty("--invOpacity", opacity);
+    }
+
+    // ===== Rain canvas =====
+    const rctx = rainCanvas?.getContext("2d", { alpha: true });
+
+    let RW = 0, RH = 0, DPR = 1;
+    let drops = [];
+    let rainRAF = null;
+    let rainStarted = false;
+
+    function newDrop(){
+      return {
+        x: Math.random() * RW,
+        y: Math.random() * RH,
+        len: 18 + Math.random() * 60,
+        spd: 1.35 + Math.random() * 2.2,
+        w: 0.6 + Math.random() * 1.2,
+        a: 0.05 + Math.random() * 0.12
+      };
+    }
+
+    function resizeRain(){
+      if (!rainCanvas || !rctx) return;
+      const parent = rainCanvas.parentElement.getBoundingClientRect();
+      DPR = Math.min(2, window.devicePixelRatio || 1);
+
+      RW = Math.floor(parent.width);
+      RH = Math.floor(parent.height);
+
+      rainCanvas.width = Math.floor(RW * DPR);
+      rainCanvas.height = Math.floor(RH * DPR);
+      rainCanvas.style.width = RW + "px";
+      rainCanvas.style.height = RH + "px";
+
+      rctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+      const count = Math.floor((RW * RH) / 12000);
+      const n = Math.max(120, Math.min(360, count));
+      drops = Array.from({ length: n }, newDrop);
+    }
+
+    function drawRain(){
+      if (!rctx) return;
+      rctx.clearRect(0, 0, RW, RH);
+      rctx.lineCap = "round";
+
+      for (const d of drops){
+        d.y += d.spd;
+        if (d.y - d.len > RH){
+          d.y = -40 - Math.random() * 240;
+          d.x = Math.random() * RW;
+        }
+
+        const g = rctx.createLinearGradient(d.x, d.y, d.x, d.y + d.len);
+        g.addColorStop(0, `rgba(255,255,255,0)`);
+        g.addColorStop(0.25, `rgba(255,255,255,${d.a})`);
+        g.addColorStop(0.75, `rgba(255,255,255,${d.a * 1.25})`);
+        g.addColorStop(1, `rgba(255,255,255,0)`);
+
+        rctx.strokeStyle = g;
+        rctx.lineWidth = d.w;
+
+        rctx.beginPath();
+        rctx.moveTo(d.x, d.y);
+        rctx.lineTo(d.x, d.y + d.len);
+        rctx.stroke();
+      }
+
+      rainRAF = requestAnimationFrame(drawRain);
+    }
+
+    function startRain(){
+      if (!rainCanvas || !rctx) return;
+      resizeRain();
+      if (rainRAF) cancelAnimationFrame(rainRAF);
+      rainRAF = requestAnimationFrame(drawRain);
+    }
+
+    // ===== Start everything reliably =====
+    document.addEventListener("DOMContentLoaded", () => {
+      // show the title entrance motion (but opacity already fail-safe)
+      setTimeout(() => invocation?.classList.add("show"), 700);
+
+      // run scroll logic immediately
+      onScroll();
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll);
+
+      // rain begins when ceremony enters view
+      if (ceremony){
+        const io = new IntersectionObserver((entries) => {
+          const entry = entries[0];
+          if (!entry.isIntersecting || rainStarted) return;
+          rainStarted = true;
+
+          ceremony.classList.add("rain-on");
+          startRain();
+
+          setTimeout(() => ceremony.classList.add("text-on"), 850);
+          setTimeout(() => ceremony.classList.add("enter-on"), 3900);
+        }, { threshold: 0.35 });
+
+        io.observe(ceremony);
+      }
+
+      // fade passage out once scrolled past
+      if (passageEl){
+        const passageFadeIO = new IntersectionObserver(([entry]) => {
+          const past = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+          if (past) passageEl.classList.add("is-past");
+          else passageEl.classList.remove("is-past");
+        }, { threshold: 0.02 });
+
+        passageFadeIO.observe(passageEl);
+      }
+
+      // resize rain if started
+      window.addEventListener("resize", () => {
+        if (rainStarted) resizeRain();
+      });
+    });
+  </script>
+</body>
+</html>
