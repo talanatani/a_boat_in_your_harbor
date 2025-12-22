@@ -282,16 +282,22 @@
       invocation.style.setProperty("--invOpacity", opacity);
     }
 
-    window.addEventListener("load", () => {
-      setTimeout(() => invocation.classList.add("show"), 1000);
-      onScroll();
+    // start invocation as before
+window.addEventListener("load", () => {
+  setTimeout(() => invocation.classList.add("show"), 1000);
+  onScroll();
+});
 
-      resizeIchor();
-      requestAnimationFrame(drawIchor);
-    });
+// ✅ start ichor only AFTER image is ready
+hero.addEventListener("load", () => {
+  resizeIchor();
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", () => { onScroll(); resizeIchor(); });
+  // slight ceremonial delay so it feels like emergence
+  setTimeout(() => {
+    requestAnimationFrame(drawIchor);
+  }, 600);
+});
+
   </script>
 </body>
 </html>
