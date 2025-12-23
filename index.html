@@ -7,7 +7,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
     :root{
@@ -75,6 +75,7 @@
       opacity: .65;
     }
 
+    /* PORTAL */
     .portal{
       position: relative;
       height: calc(var(--portalPages) * 100vh);
@@ -147,6 +148,7 @@
       will-change: opacity;
     }
 
+    /* CEREMONY */
     .ceremony{
       position: relative;
       height: calc(var(--ceremonyPages) * 100vh);
@@ -224,24 +226,30 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* Desktop/mobile swap (baseline) */
-    #l1-desktop{ display:block; }
-    #l1-mobile{ display:none; }
+    /* --- l1 dual-render (desktop single-line / mobile forced breaks) --- */
+    .l1-desktop{ display:block; }
+    .l1-mobile{ display:none; }
 
-    /* heavier boundless love */
-    .bl-em{ font-weight: 500 !important; }
+    .boundless{
+      font-weight: 600; /* slightly heavier */
+    }
 
-    /* ✅ Mobile: force your exact line breaks */
+    /* Mobile: show the forced-break version */
     @media (max-width: 540px){
-      #l1-desktop{ display:none !important; }
-      #l1-mobile{
-        display:block !important;
-        white-space: normal !important;
-        max-width: 92vw !important;
-        font-size: clamp(18px, 5.2vw, 26px) !important;
-        line-height: 1.16 !important;
-        letter-spacing: .005em !important;
+      /* keep l2–l4 single-line and scaled by JS if needed */
+      .line{ white-space: nowrap; max-width:none; }
+
+      /* l1 becomes a centered 4-line block */
+      #l1{
+        white-space: normal;
+        max-width: 92vw;
+        line-height: 1.18;
+        letter-spacing: .005em;
+        font-size: clamp(20px, 6.0vw, 28px);
       }
+
+      .l1-desktop{ display:none; }
+      .l1-mobile{ display:block; }
     }
 
     .enter{
@@ -292,18 +300,19 @@
     <div class="ceremony-stage">
       <div class="ceremony-inner">
 
-        <!-- DESKTOP: single line -->
-        <div class="line s1" id="l1-desktop">
-          we imagine in this exhibition an invitation to witness our creation of new ways of experiencing
-          <span class="bl-em">boundless love</span>
-        </div>
+        <div class="line s1" id="l1">
+          <!-- Desktop: single line -->
+          <span class="l1-desktop">
+            we imagine in this exhibition an invitation to witness our creation of new ways of experiencing <span class="boundless">boundless love</span>
+          </span>
 
-        <!-- MOBILE: exact line breaks -->
-        <div class="line s1" id="l1-mobile">
-          we imagine in this exhibition<br>
-          an invitation to witness our creation<br>
-          of new ways of experiencing<br>
-          <span class="bl-em">boundless love</span>
+          <!-- Mobile: EXACT forced line breaks -->
+          <span class="l1-mobile">
+            we imagine in this exhibition<br>
+            an invitation to witness our creation<br>
+            of new ways of experiencing<br>
+            <span class="boundless">boundless love</span>
+          </span>
         </div>
 
         <div class="line s2" id="l2">forward-facing and fusing ethereality with inspiration</div>
@@ -430,13 +439,12 @@
     const invocation = document.getElementById("invocation");
 
     const ceremony = document.getElementById("ceremony");
-
-    const l1Desktop = document.getElementById("l1-desktop");
-    const l1Mobile  = document.getElementById("l1-mobile");
-    const l2 = document.getElementById("l2");
-    const l3 = document.getElementById("l3");
-    const l4 = document.getElementById("l4");
-
+    const lines = [
+      document.getElementById("l1"),
+      document.getElementById("l2"),
+      document.getElementById("l3"),
+      document.getElementById("l4"),
+    ];
     const enter = document.getElementById("enter");
 
     function smoothstep(x){
@@ -444,7 +452,7 @@
       return x*x*(3 - 2*x);
     }
 
-    function fitLine(el, maxVW = 0.92, minScale = 0.85){
+    function fitLine(el, maxVW = 0.92, minScale = 0.72){
       if (!el) return;
       el.style.transform = "translate3d(-50%,0,0) scale(1)";
 
@@ -458,11 +466,18 @@
     }
 
     function fitLines(){
-      const isMobile = window.innerWidth <= 540;
-      if (!isMobile) fitLine(l1Desktop, 0.92, 0.85);  // desktop only
-      fitLine(l2, 0.92, isMobile ? 0.80 : 0.85);
-      fitLine(l3, 0.92, isMobile ? 0.80 : 0.85);
-      fitLine(l4, 0.92, isMobile ? 0.80 : 0.85);
+      if (window.innerWidth <= 540){
+        // IMPORTANT: don't scale l1 on mobile (it uses forced <br> breaks)
+        fitLine(lines[1], 0.92, 0.75);
+        fitLine(lines[2], 0.92, 0.75);
+        fitLine(lines[3], 0.92, 0.75);
+      } else {
+        // desktop: keep l1 as a single line, scale gently only if needed
+        fitLine(lines[0], 0.92, 0.85);
+        fitLine(lines[1], 0.92, 0.85);
+        fitLine(lines[2], 0.92, 0.85);
+        fitLine(lines[3], 0.92, 0.85);
+      }
     }
 
     function portalScroll(){
@@ -478,12 +493,6 @@
       const fadeEnd = 0.78;
       const t = Math.min(1, p / fadeEnd);
       invocation.style.setProperty("--invOpacity", (1 - t).toFixed(3));
-    }
-
-    function setAlpha(el, alpha){
-      if (!el) return;
-      el.style.opacity = alpha.toFixed(3);
-      el.style.filter = `blur(${(1.2 * (1 - alpha)).toFixed(2)}px)`;
     }
 
     function ceremonyScroll(){
@@ -504,14 +513,15 @@
       const mistOpacity = (rainIn <= 0.001) ? 0 : (0.10 + rainIn * mistMax);
       mistEl.style.opacity = Math.min(0.85, mistOpacity).toFixed(3);
 
-      const steps = 4;
-      const seg = 1 / (steps + 1.35);
+      const n = lines.length;
+      const seg = 1 / (n + 1.35);
       const inStart = 0.16;
       const outStart = 0.56;
 
-      function alphaFor(i){
+      for (let i=0; i<n; i++){
         const start = i * seg;
         const local = (p - start) / (seg || 1);
+
         let alpha = 0;
 
         if (local >= inStart && local <= outStart){
@@ -522,25 +532,23 @@
           const tOut = (local - outStart) / (1 - outStart);
           alpha = 1 - smoothstep(tOut);
         }
-        return Math.max(0, Math.min(1, alpha));
+
+        alpha = Math.max(0, Math.min(1, alpha));
+        lines[i].style.opacity = alpha.toFixed(3);
+        lines[i].style.filter = `blur(${(1.2 * (1 - alpha)).toFixed(2)}px)`;
       }
 
-      const a1 = alphaFor(0);
-      setAlpha(l1Desktop, a1);
-      setAlpha(l1Mobile,  a1);
-
-      setAlpha(l2, alphaFor(1));
-      setAlpha(l3, alphaFor(2));
-      setAlpha(l4, alphaFor(3));
-
-      const enterStart = (steps * seg) + 0.08;
+      const enterStart = (n * seg) + 0.08;
       const enterAlpha = smoothstep((p - enterStart) / 0.18);
       enter.style.opacity = enterAlpha.toFixed(3);
 
       fitLines();
 
       if (p > 0.985){
-        [l1Desktop,l1Mobile,l2,l3,l4].forEach(el => setAlpha(el, 0));
+        lines.forEach(l => {
+          l.style.opacity = "0";
+          l.style.filter = "blur(1.2px)";
+        });
         enter.style.opacity = "1";
       }
     }
