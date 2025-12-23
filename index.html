@@ -224,11 +224,18 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* ✅ Desktop default: l1 is single line (desktop span only) */
-    #l1 .mobile{ display:none; }
-    #l1 .desktop{ display:inline; }
+    /* emphasis */
+    .emphasis{
+      font-weight: 500; /* subtle but present */
+    }
 
-    /* ✅ Mobile: show 2-line controlled break for l1 (and keep it BIG + readable) */
+    /* ✅ l1: desktop single-line, mobile controlled 4 lines */
+    #l1 .mobile-lines{ display:none; }
+    #l1 .desktop-line{
+      display:inline;
+      white-space:nowrap;
+    }
+
     @media (max-width: 540px){
       .line{ white-space: nowrap; max-width: none; }
 
@@ -236,12 +243,12 @@
         white-space: normal;
         max-width: 92vw;
         font-size: clamp(18px, 4.9vw, 24px);
-        line-height: 1.18;
-        letter-spacing: .005em;
+        line-height: 1.22;
+        letter-spacing: .01em;
       }
 
-      #l1 .desktop{ display:none; }
-      #l1 .mobile{ display:inline; }
+      #l1 .desktop-line{ display:none; }
+      #l1 .mobile-lines{ display:block; }
     }
 
     .enter{
@@ -292,10 +299,18 @@
     <div class="ceremony-stage">
       <div class="ceremony-inner">
 
-        <!-- ✅ l1: desktop single-line, mobile controlled 2 lines -->
+        <!-- ✅ l1: desktop single-line; mobile controlled line breaks -->
         <div class="line s1" id="l1">
-          <span class="desktop">we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love</span>
-          <span class="mobile">we imagine in this exhibition an invitation to witness our creation<br>of new ways of experiencing boundless love</span>
+          <span class="desktop-line">
+            we imagine in this exhibition an invitation to witness our creation of new ways of experiencing
+            <span class="emphasis">boundless love</span>
+          </span>
+          <span class="mobile-lines">
+            we imagine in this exhibition<br>
+            an invitation to witness our creation<br>
+            of new ways of experiencing<br>
+            <span class="emphasis">boundless love</span>
+          </span>
         </div>
 
         <div class="line s2" id="l2">forward-facing and fusing ethereality with inspiration</div>
@@ -450,7 +465,7 @@
 
     function fitLines(){
       if (window.innerWidth <= 540){
-        // l1 is controlled by HTML (2-line); do NOT scale it
+        // l1 is intentionally multi-line on mobile; do NOT scale it
         fitLine(lines[1], 0.92, 0.75);
         fitLine(lines[2], 0.92, 0.75);
         fitLine(lines[3], 0.92, 0.75);
@@ -544,7 +559,6 @@
     window.addEventListener("resize", () => { resizeOcean(); fitLines(); }, { passive:true });
     window.addEventListener("load", () => { fitLines(); onScroll(); });
 
-    // run once immediately too
     fitLines();
     onScroll();
 
