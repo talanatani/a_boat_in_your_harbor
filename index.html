@@ -224,30 +224,25 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* l1 spans: one-line on desktop, 4 fixed lines on mobile */
-    #l1 .mline{ display:inline; }
-    #l1 .mline:last-child{ margin-right:0; }
+    /* l1 “manual” line breaks + emphasis */
+    #l1 .mline{ display:block; }
+    #l1 .emph{ font-weight: 500; }
 
-    #l1 .emph{
-      font-weight: 500; /* Inter loaded up to 500 */
-      letter-spacing: .012em;
-    }
-
+    /* Mobile: exactly 3 breaks (4 lines), each line stays single-line, and allow scaling to fit */
     @media (max-width: 540px){
-      /* keep l2–l4 single-line on mobile */
       .line{ white-space: nowrap; max-width: none; }
 
-      /* l1 becomes 4 fixed lines (exact breaks), but each line stays single */
       #l1{
         white-space: normal;
         max-width: 92vw;
-        font-size: clamp(22px, 6.8vw, 34px);
+        font-size: clamp(18px, 5.8vw, 28px);
         line-height: 1.16;
-        letter-spacing: .01em;
+        letter-spacing: .004em;
       }
+
       #l1 .mline{
-        display:block;        /* forces the exact line breaks */
-        white-space: nowrap;  /* prevents extra wrapping inside each line */
+        display:block;        /* forces your breaks */
+        white-space: nowrap;  /* each line stays single-line */
       }
     }
 
@@ -299,8 +294,8 @@
     <div class="ceremony-stage">
       <div class="ceremony-inner">
 
-        <!-- l1: desktop reads as one continuous line; mobile forces 3 breaks (4 lines) -->
-        <div class="line s1" id="l1" aria-label="we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love">
+        <!-- ✅ Mobile shows exactly these 4 lines (3 breaks). Desktop remains one-line unless it must scale. -->
+        <div class="line s1" id="l1">
           <span class="mline">we imagine in this exhibition</span>
           <span class="mline">an invitation to witness our creation</span>
           <span class="mline">of new ways of experiencing</span>
@@ -444,7 +439,7 @@
       return x*x*(3 - 2*x);
     }
 
-    // Scale a line (or multi-line block) to fit within viewport width while preserving translate(-50%)
+    // Scale a single line to fit within viewport width while preserving translate(-50%)
     function fitLine(el, maxVW = 0.92, minScale = 0.72){
       if (!el) return;
 
@@ -459,10 +454,10 @@
       }
     }
 
+    // ✅ Mobile: allow l1 to scale smaller so no truncation (“cre…”)
     function fitLines(){
       if (window.innerWidth <= 540){
-        // l1 has fixed line breaks on mobile — allow gentle scaling if needed to avoid any wrap/crop
-        fitLine(lines[0], 0.92, 0.86);
+        fitLine(lines[0], 0.92, 0.58); // l1 (multi-line container) can shrink more
         fitLine(lines[1], 0.92, 0.78);
         fitLine(lines[2], 0.92, 0.78);
         fitLine(lines[3], 0.92, 0.78);
@@ -556,6 +551,7 @@
     window.addEventListener("resize", () => { resizeOcean(); fitLines(); }, { passive:true });
     window.addEventListener("load", () => { fitLines(); onScroll(); });
 
+    // run once immediately too
     fitLines();
     onScroll();
 
