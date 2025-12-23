@@ -1,313 +1,261 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="BLANKET ME" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BLANKET ME</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      --bg:#000;
+<style>
+:root{
+  --bg:#000;
+  --stageMax:1200px;
+  --stagePad:48px;
+}
 
-      --imgScale: 1.55;
-      --drift: 32vh;
-      --scrollPages: 2.6;
+/* RESET */
+*{ box-sizing:border-box; }
+html,body{ margin:0; height:100%; }
+body{
+  background:var(--bg);
+  font-family:Inter,system-ui,sans-serif;
+  color:#fff;
+  overflow-x:hidden;
+}
 
-      --stageMax: 1200px;
-      --stagePad: 56px;
+/* =====================
+   ICHOR / OCEAN RAIN
+   ===================== */
+canvas#rain{
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  opacity:.25;              /* always present */
+}
 
-      --textTop: 18%;
-      --invOpacity: 1;
+/* =====================
+   PORTAL
+   ===================== */
+.chamber{
+  height:200vh;
+  position:relative;
+  z-index:1;
+}
 
-      --ceremonyPages: 2.8;
-    }
+.stage{
+  position:sticky;
+  top:0;
+  height:100vh;
+  display:grid;
+  place-items:center;
+}
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; margin:0; }
-    body{
-      background: var(--bg);
-      overflow-x:hidden;
-      font-family: Inter, system-ui, sans-serif;
-      color:white;
-    }
+.stage-inner{
+  width:min(var(--stageMax), calc(100vw - var(--stagePad)));
+  height:100%;
+  position:relative;
+}
 
-    /* =========================
-       OCEANIC ICHOR FIELD
-       ========================= */
-    .ichor{
-      position: fixed;
-      inset: -20%;
-      z-index: 0;
-      pointer-events: none;
-      opacity: .35;
-      filter: blur(32px);
-      background:
-        radial-gradient(1400px 1200px at 50% 40%, rgba(180,200,255,.14), transparent 70%),
-        radial-gradient(1600px 1400px at 50% 75%, rgba(120,150,200,.10), transparent 75%);
-      animation: slowDrift 30s ease-in-out infinite alternate;
-    }
+.stage-inner img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
 
-    @keyframes slowDrift{
-      from{ transform: translateY(-1%) scale(1.03); }
-      to{ transform: translateY(1%) scale(1.08); }
-    }
+/* BLANKET ME — FIXED */
+.invocation{
+  position:absolute;
+  top:18%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:clamp(28px,7vw,56px);
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  white-space:nowrap;          /* ✅ single line */
+  text-align:center;
+  color:rgba(255,255,255,.18);
+  text-shadow:0 0 18px rgba(255,255,255,.35);
+}
 
-    /* =========================
-       PORTAL
-       ========================= */
-    .chamber{
-      position: relative;
-      height: calc(var(--scrollPages) * 100vh);
-      z-index: 1;
-    }
+/* mobile tweak */
+@media(max-width:520px){
+  .invocation{
+    letter-spacing:.18em;
+  }
+}
 
-    .stage{
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      display: grid;
-      place-items: start center;
-      overflow: hidden;
-    }
+/* =====================
+   CEREMONY
+   ===================== */
+.ceremony{
+  height:400vh; /* long scroll for pacing */
+  position:relative;
+  z-index:1;
+}
 
-    .stage-inner{
-      width: min(var(--stageMax), calc(100vw - var(--stagePad)));
-      height: 100%;
-      position: relative;
-    }
+.ceremony-stage{
+  position:sticky;
+  top:0;
+  height:100vh;
+  display:grid;
+  place-items:center;
+}
 
-    .stage-inner img{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit:contain;
-      transform: translateY(var(--y,0)) scale(var(--imgScale));
-      transform-origin: top center;
-    }
+.text-frame{
+  width:min(1600px, 100%);
+  padding:0 24px;
+  text-align:center;
+  position:relative;
+}
 
-    .invocation{
-      position:absolute;
-      top:var(--textTop);
-      left:50%;
-      transform:translate(-50%,-50%);
-      letter-spacing:.28em;
-      font-size:clamp(30px,3vw,56px);
-      text-transform:uppercase;
-      color:rgba(255,255,255,.18);
-      text-shadow:0 0 16px rgba(255,255,255,.35);
-      transition:opacity 2.5s ease;
-      z-index:2;
-    }
+/* SINGLE LINE DISPLAY */
+.line{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  font-size:clamp(16px,1.6vw,22px);
+  line-height:1.25;
+  letter-spacing:.01em;
+  white-space:nowrap;
 
-    /* =========================
-       CEREMONY
-       ========================= */
-    .ceremony{
-      height: calc(var(--ceremonyPages) * 100vh);
-      position: relative;
-      z-index: 1;
-    }
+  color:rgba(255,255,255,.9);
+  text-shadow:
+    0 0 2px rgba(255,255,255,.25),
+    0 0 14px rgba(200,220,255,.12);
 
-    .ceremony-stage{
-      position: sticky;
-      top:0;
-      height:100vh;
-      display:grid;
-      place-items:center;
-      overflow:hidden;
-    }
+  opacity:0;
+  transition:opacity 1.4s ease;
+}
 
-    .ceremony-inner{
-      width: min(var(--stageMax), calc(100vw - var(--stagePad)));
-      height:100%;
-      display:grid;
-      place-items:center;
-      padding:80px 0;
-      position:relative;
-    }
-
-    /* =========================
-       RAIN AS OCEAN
-       ========================= */
-    canvas.rain{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      z-index:1;
-      opacity:0;
-      transition:opacity 2.8s ease;
-      mix-blend-mode:screen;
-    }
-
-    /* =========================
-       PASSAGE
-       ========================= */
-    .passage{
-      position:relative;
-      z-index:2;
-      width:min(1800px, 100%);
-      text-align:center;
-
-      font-size:clamp(16px,1.4vw,22px);
-      line-height:1.25;
-      letter-spacing:.01em;
-
-      color:rgba(255,255,255,.9);
-      text-shadow:
-        0 0 2px rgba(255,255,255,.25),
-        0 0 12px rgba(200,220,255,.12);
-
-      opacity:0;
-      transform:translateY(12px);
-      filter:blur(1px);
-      transition:opacity 1.6s ease, transform 1.6s ease, filter 1.6s ease;
-    }
-
-    .passage p{
-      margin:0 0 7.5em; /* ✅ EVEN spacing for all lines */
-      white-space:nowrap;
-    }
-
-    .passage p:last-child{
-      margin-bottom:5.5em;
-    }
-
-    /* =========================
-       ENTER BUTTON
-       ========================= */
-    .enter{
-      display:inline-block;
-      padding:14px 28px;
-      border-radius:40px;
-      border:1px solid rgba(255,255,255,.25);
-
-      font-size:14px;
-      letter-spacing:.18em;
-      text-transform:lowercase;
-
-      color:rgba(255,255,255,.8);
-      background:rgba(255,255,255,.02);
-      backdrop-filter: blur(6px);
-
-      opacity:0;
-      transform:translateY(10px);
-      transition:all 1.4s ease;
-      cursor:pointer;
-    }
-
-    .enter:hover{
-      background:rgba(255,255,255,.06);
-      color:white;
-    }
-
-    @media(max-width:600px){
-      .passage p{ white-space:normal; margin-bottom:6em; }
-    }
-  </style>
+/* ENTER */
+.enter{
+  position:absolute;
+  top:calc(50% + 90px);
+  left:50%;
+  transform:translateX(-50%);
+  padding:12px 26px;
+  border-radius:32px;
+  border:1px solid rgba(255,255,255,.3);
+  font-size:14px;
+  letter-spacing:.18em;
+  text-transform:lowercase;
+  background:rgba(255,255,255,.04);
+  backdrop-filter:blur(6px);
+  color:rgba(255,255,255,.85);
+  opacity:0;
+  transition:opacity 1.2s ease;
+  cursor:pointer;
+}
+.enter:hover{
+  background:rgba(255,255,255,.08);
+}
+</style>
 </head>
 
 <body>
 
-  <div class="ichor"></div>
+<canvas id="rain"></canvas>
 
-  <!-- PORTAL -->
-  <section class="chamber" id="chamber">
-    <div class="stage">
-      <div class="stage-inner">
-        <img id="hero" src="new_portal.jpeg" alt="">
-        <div class="invocation" id="invocation">BLANKET ME</div>
-      </div>
+<!-- PORTAL -->
+<section class="chamber">
+  <div class="stage">
+    <div class="stage-inner">
+      <img src="new_portal.jpeg" alt="">
+      <div class="invocation">BLANKET ME</div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- CEREMONY -->
-  <section class="ceremony" id="ceremony">
-    <div class="ceremony-stage">
-      <div class="ceremony-inner">
-        <canvas id="rain" class="rain"></canvas>
+<!-- CEREMONY -->
+<section class="ceremony" id="ceremony">
+  <div class="ceremony-stage">
+    <div class="text-frame">
 
-        <div class="passage" id="passage">
-          <p>we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love</p>
-          <p>forward-facing and fusing ethereality with inspiration</p>
-          <p>we bear witness and release limitation</p>
-          <p>opening to transformation</p>
+      <div class="line">we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love</div>
+      <div class="line">forward-facing and fusing ethereality with inspiration</div>
+      <div class="line">we bear witness and release limitation</div>
+      <div class="line">opening to transformation</div>
 
-          <div class="enter" id="enter">enter</div>
-        </div>
-      </div>
+      <div class="enter" id="enter">enter</div>
+
     </div>
-  </section>
+  </div>
+</section>
 
-  <script>
-    const hero = document.getElementById("hero");
-    const invocation = document.getElementById("invocation");
-    const chamber = document.getElementById("chamber");
-    const ceremony = document.getElementById("ceremony");
-    const passage = document.getElementById("passage");
-    const enter = document.getElementById("enter");
-    const rain = document.getElementById("rain");
-    const ctx = rain.getContext("2d");
+<script>
+/* =====================
+   RAIN (OCEAN FEEL)
+   ===================== */
+const canvas = document.getElementById("rain");
+const ctx = canvas.getContext("2d");
+let w,h,drops=[];
 
-    let w,h,drops=[];
+function resize(){
+  w = canvas.width = innerWidth;
+  h = canvas.height = innerHeight;
+  drops = Array.from({length:160},()=>({
+    x:Math.random()*w,
+    y:Math.random()*h,
+    speed:.3+Math.random()*1,
+    len:40+Math.random()*80,
+    alpha:.05+Math.random()*.08
+  }));
+}
+resize();
+window.addEventListener("resize",resize);
 
-    function resize(){
-      w = rain.width = window.innerWidth;
-      h = rain.height = window.innerHeight;
-      drops = Array.from({length:140},()=>({
-        x:Math.random()*w,
-        y:Math.random()*h,
-        speed:.4+Math.random()*1.1,
-        len:30+Math.random()*80,
-        alpha:.04+Math.random()*.08
-      }));
-    }
+function draw(){
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle="rgba(255,255,255,.12)";
+  drops.forEach(d=>{
+    ctx.globalAlpha=d.alpha;
+    ctx.beginPath();
+    ctx.moveTo(d.x,d.y);
+    ctx.lineTo(d.x,d.y+d.len);
+    ctx.stroke();
+    d.y+=d.speed;
+    if(d.y>d.h){ d.y=-100; }
+  });
+  requestAnimationFrame(draw);
+}
+draw();
 
-    function draw(){
-      ctx.clearRect(0,0,w,h);
-      ctx.strokeStyle="rgba(255,255,255,.08)";
-      drops.forEach(d=>{
-        ctx.globalAlpha=d.alpha;
-        ctx.beginPath();
-        ctx.moveTo(d.x,d.y);
-        ctx.lineTo(d.x,d.y+d.len);
-        ctx.stroke();
-        d.y+=d.speed;
-        if(d.y>d.h){ d.y=-100; }
-      });
-      requestAnimationFrame(draw);
-    }
+/* =====================
+   SCROLL → LINE SEQUENCE
+   ===================== */
+const lines = document.querySelectorAll(".line");
+const ceremony = document.getElementById("ceremony");
+const enter = document.getElementById("enter");
 
-    resize();
-    draw();
-    window.addEventListener("resize",resize);
+function onScroll(){
+  const r = ceremony.getBoundingClientRect();
+  const progress = Math.min(1, Math.max(0, -r.top / (r.height - innerHeight)));
 
-    function onScroll(){
-      const pr = Math.min(1, Math.max(0, -chamber.getBoundingClientRect().top / (chamber.offsetHeight - innerHeight)));
-      hero.style.setProperty("--y", `${(0.5-pr)*window.innerHeight*0.3}px`);
-      invocation.style.opacity = 1 - pr;
+  const index = Math.floor(progress * (lines.length + 1));
 
-      const cr = Math.min(1, Math.max(0, -ceremony.getBoundingClientRect().top / (ceremony.offsetHeight - innerHeight)));
+  lines.forEach((l,i)=>{
+    l.style.opacity = i === index ? 1 : 0;
+  });
 
-      rain.style.opacity = cr * .9;
-      passage.style.opacity = Math.min(1, cr*1.2);
-      passage.style.filter = `blur(${1 - cr}px)`;
-      passage.style.transform = `translateY(${(1-cr)*12}px)`;
+  // ENTER after final line
+  enter.style.opacity = index >= lines.length ? 1 : 0;
+}
 
-      enter.style.opacity = Math.max(0, cr - .65);
-      enter.style.transform = `translateY(${(1-cr)*10}px)`;
-    }
+window.addEventListener("scroll",onScroll,{passive:true});
+onScroll();
 
-    window.addEventListener("scroll",onScroll,{passive:true});
+enter.addEventListener("click",()=>{
+  // replace with navigation
+  alert("Next chamber");
+});
+</script>
 
-    enter.addEventListener("click",()=>{
-      alert("Next chamber hook — replace with navigation");
-    });
-  </script>
 </body>
 </html>
