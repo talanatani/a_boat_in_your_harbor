@@ -5,11 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="BLANKET ME" />
 
-  <!-- cache-bust helpers (Safari/GitHub Pages can still cache HTML; use ?v=123 too) -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -229,22 +224,23 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
+    /* Desktop/mobile swap (baseline) */
     #l1-desktop{ display:block; }
     #l1-mobile{ display:none; }
 
-    .bl-em{ font-weight: 500; }
+    /* heavier boundless love */
+    .bl-em{ font-weight: 500 !important; }
 
+    /* ✅ Mobile: force your exact line breaks */
     @media (max-width: 540px){
-      .line{ white-space: nowrap; max-width: none; }
-
-      #l1-desktop{ display:none; }
+      #l1-desktop{ display:none !important; }
       #l1-mobile{
-        display:block;
-        white-space: normal;
-        max-width: 92vw;
-        font-size: clamp(18px, 5.2vw, 26px);
-        line-height: 1.16;
-        letter-spacing: .005em;
+        display:block !important;
+        white-space: normal !important;
+        max-width: 92vw !important;
+        font-size: clamp(18px, 5.2vw, 26px) !important;
+        line-height: 1.16 !important;
+        letter-spacing: .005em !important;
       }
     }
 
@@ -296,10 +292,13 @@
     <div class="ceremony-stage">
       <div class="ceremony-inner">
 
+        <!-- DESKTOP: single line -->
         <div class="line s1" id="l1-desktop">
-          we imagine in this exhibition an invitation to witness our creation of new ways of experiencing <span class="bl-em">boundless love</span>
+          we imagine in this exhibition an invitation to witness our creation of new ways of experiencing
+          <span class="bl-em">boundless love</span>
         </div>
 
+        <!-- MOBILE: exact line breaks -->
         <div class="line s1" id="l1-mobile">
           we imagine in this exhibition<br>
           an invitation to witness our creation<br>
@@ -460,7 +459,7 @@
 
     function fitLines(){
       const isMobile = window.innerWidth <= 540;
-      if (!isMobile) fitLine(l1Desktop, 0.92, 0.85);
+      if (!isMobile) fitLine(l1Desktop, 0.92, 0.85);  // desktop only
       fitLine(l2, 0.92, isMobile ? 0.80 : 0.85);
       fitLine(l3, 0.92, isMobile ? 0.80 : 0.85);
       fitLine(l4, 0.92, isMobile ? 0.80 : 0.85);
