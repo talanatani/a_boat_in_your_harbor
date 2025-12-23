@@ -55,7 +55,6 @@
       100% { transform: translate3d( 1.2%,  0.8%, 0) scale(1.07); }
     }
 
-    /* RAIN CANVAS */
     canvas#ocean{
       position: fixed;
       inset: 0;
@@ -66,7 +65,6 @@
       will-change: opacity;
     }
 
-    /* subtle vignette */
     body::after{
       content:"";
       position: fixed;
@@ -77,7 +75,6 @@
       opacity: .65;
     }
 
-    /* PORTAL */
     .portal{
       position: relative;
       height: calc(var(--portalPages) * 100vh);
@@ -150,7 +147,6 @@
       will-change: opacity;
     }
 
-    /* CEREMONY */
     .ceremony{
       position: relative;
       height: calc(var(--ceremonyPages) * 100vh);
@@ -166,7 +162,6 @@
       isolation: isolate;
     }
 
-    /* smaller void */
     .ceremony-stage::after{
       content:"";
       position:absolute;
@@ -229,11 +224,12 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* Mobile: keep everything single-line; we will scale to fit */
+    /* ✅ Mobile: keep single-line, and make l1 inherently smaller + slightly tighter */
     @media (max-width: 540px){
-      .line{
-        white-space: nowrap;
-        max-width: none;
+      .line{ white-space: nowrap; max-width: none; }
+      #l1{
+        font-size: clamp(12px, 3.1vw, 16px);
+        letter-spacing: 0em;
       }
     }
 
@@ -242,7 +238,6 @@
       left:50%;
       bottom: 8vh;
       transform: translate3d(-50%,0,0);
-
       background: none;
       border: none;
       padding: 0;
@@ -285,18 +280,12 @@
   <section class="ceremony" id="ceremony">
     <div class="ceremony-stage">
       <div class="ceremony-inner">
-
-        <!-- Single line everywhere (desktop + mobile). Mobile will scale to fit. -->
-        <div class="line s1" id="l1">
-          we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love
-        </div>
-
+        <div class="line s1" id="l1">we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love</div>
         <div class="line s2" id="l2">forward-facing and fusing ethereality with inspiration</div>
         <div class="line s3" id="l3">we bear witness and release limitation</div>
         <div class="line s4" id="l4">opening to transformation</div>
 
         <button class="enter" id="enter" type="button">enter</button>
-
       </div>
     </div>
   </section>
@@ -429,10 +418,8 @@
       return x*x*(3 - 2*x);
     }
 
-    // Scale a single line to fit within viewport width while preserving translate(-50%)
     function fitLine(el, maxVW = 0.92, minScale = 0.72){
       if (!el) return;
-
       el.style.transform = "translate3d(-50%,0,0) scale(1)";
 
       const maxW = Math.min(window.innerWidth * maxVW, 1200);
@@ -444,15 +431,14 @@
       }
     }
 
-    // ✅ Key change: scale l1 on mobile too (so it stays single-line but fits)
     function fitLines(){
       if (window.innerWidth <= 540){
-        fitLine(lines[0]); // l1
-        fitLine(lines[1]);
-        fitLine(lines[2]);
-        fitLine(lines[3]);
+        // ✅ allow l1 to shrink enough on iPhone
+        fitLine(lines[0], 0.98, 0.30);
+        fitLine(lines[1], 0.92, 0.68);
+        fitLine(lines[2], 0.92, 0.68);
+        fitLine(lines[3], 0.92, 0.68);
       } else {
-        // desktop: only gently scale if needed
         fitLine(lines[0], 0.92, 0.85);
         fitLine(lines[1], 0.92, 0.85);
         fitLine(lines[2], 0.92, 0.85);
@@ -542,9 +528,10 @@
     window.addEventListener("resize", () => { resizeOcean(); fitLines(); }, { passive:true });
     window.addEventListener("load", () => { fitLines(); onScroll(); });
 
+    // run once immediately too
+    fitLines();
     onScroll();
 
-    /* ✅ ENTER → NEW PAGE */
     enter.addEventListener("click", () => {
       window.location.href = "interior.html";
     });
