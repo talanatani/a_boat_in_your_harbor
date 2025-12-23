@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BLANKET ME — interior</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+  html,body{
+    margin:0;
+    height:100%;
+    background:#000;
+    font-family:Inter, system-ui, sans-serif;
+    color:#fff;
+    overflow:hidden;
+  }
+
+  /* rain window */
+  canvas{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    opacity:.35;
+  }
+
+  .room{
+    position:relative;
+    z-index:1;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:5vh 6vw;
+  }
+
+  .relic{
+    max-width:680px;
+    width:100%;
+    opacity:.95;
+  }
+
+  /* ----- TICKER ----- */
+  .ticker-wrap{
+    position:absolute;
+    bottom:22%;
+    width:100%;
+    overflow:hidden;
+    opacity:.7;
+  }
+  .ticker{
+    display:inline-block;
+    white-space:nowrap;
+    padding-left:100%;
+    animation: scroll 60s linear infinite;
+    font-size:14px;
+    letter-spacing:.14em;
+  }
+
+  @keyframes scroll{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-100%); }
+  }
+</style>
+</head>
+
+<body>
+
+<canvas id="rain"></canvas>
+
+<div class="room">
+  <img class="relic" src="gibran-screenshot.png" alt="">
+</div>
+
+<div class="ticker-wrap">
+  <div class="ticker">
+    i am well-able&nbsp;&nbsp;&nbsp;
+    i am valuable&nbsp;&nbsp;&nbsp;
+    i am worthy&nbsp;&nbsp;&nbsp;
+    i am worthy of love&nbsp;&nbsp;&nbsp;
+    i am a masterpiece&nbsp;&nbsp;&nbsp;
+    i am destined&nbsp;&nbsp;&nbsp;
+    i am eternal&nbsp;&nbsp;&nbsp;
+    i am a child of the creator of the universe
+  </div>
+</div>
+
+<script>
+/* very simple rain-on-glass */
+const c=document.getElementById("rain"),ctx=c.getContext("2d");
+let w,h,drops=[];
+function resize(){
+  w=c.width=window.innerWidth;
+  h=c.height=window.innerHeight;
+  drops=Array.from({length:400},()=>({
+    x:Math.random()*w,
+    y:Math.random()*h,
+    s:1+Math.random()*2
+  }));
+}
+function draw(){
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle="rgba(255,255,255,.12)";
+  drops.forEach(d=>{
+    d.y+=d.s;
+    if(d.y>h)d.y=0;
+    ctx.beginPath();
+    ctx.moveTo(d.x,d.y);
+    ctx.lineTo(d.x,d.y+6);
+    ctx.stroke();
+  });
+  requestAnimationFrame(draw);
+}
+resize(); draw();
+window.addEventListener("resize",resize);
+</script>
+
+</body>
+</html>
