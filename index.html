@@ -16,11 +16,11 @@
       --stagePad: 40px;
 
       --portalPages: 2.6;
-      --ceremonyPages: 4.6; /* longer = more gradual */
+      --ceremonyPages: 7.4; /* ✅ more scroll / more breath */
 
-      /* ichor visibility controls */
-      --mistOpacity: 0.55;
-      --rainOpacityMax: 0.55;
+      /* reveal controls */
+      --mistOpacityMax: 0.55;
+      --rainOpacityMax: 0.62;
 
       /* text */
       --textSize: clamp(16px, 1.6vw, 22px);
@@ -37,38 +37,40 @@
     }
 
     /* =========================
-       ICHOR / MIST LAYER (GUARANTEED VISIBLE)
+       ICHOR / MIST + OCEAN (hidden until ceremony)
        ========================= */
     .mist{
       position: fixed;
       inset: -20%;
       z-index: 0;
       pointer-events: none;
-      opacity: var(--mistOpacity);
+      opacity: 0;                /* ✅ hidden on portal */
       filter: blur(26px);
 
-      /* oceanic / cloud-like purification veil */
       background:
         radial-gradient(1400px 1200px at 50% 35%, rgba(210,225,255,.16), rgba(0,0,0,0) 68%),
         radial-gradient(1600px 1400px at 50% 80%, rgba(120,150,210,.12), rgba(0,0,0,0) 72%),
         radial-gradient(900px 900px at 15% 55%, rgba(180,190,215,.07), rgba(0,0,0,0) 70%),
         radial-gradient(900px 900px at 85% 45%, rgba(160,180,210,.06), rgba(0,0,0,0) 70%);
+
       animation: mistDrift 26s ease-in-out infinite alternate;
       transform: translate3d(0,0,0);
+      transition: opacity 1200ms ease;
+      will-change: opacity;
     }
     @keyframes mistDrift{
       0%   { transform: translate3d(-1.2%, -0.8%, 0) scale(1.03); }
       100% { transform: translate3d( 1.2%,  0.8%, 0) scale(1.07); }
     }
 
-    /* rain/ocean canvas (also guaranteed visible) */
     canvas#ocean{
       position: fixed;
       inset: 0;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.18; /* baseline */
+      opacity: 0;                /* ✅ hidden on portal */
       filter: blur(0.25px);
+      transition: opacity 1200ms ease;
     }
 
     /* subtle vignette */
@@ -136,14 +138,13 @@
 
       width: max-content;
       max-width: none;
-      white-space: nowrap;        /* ✅ never wrap */
+      white-space: nowrap;
       word-break: keep-all;
       overflow: visible;
 
       font-weight: 500;
       text-transform: uppercase;
 
-      /* scale down on narrow screens to prevent wrapping */
       font-size: clamp(22px, 6.2vw, 56px);
       letter-spacing: clamp(.14em, 2.2vw, .26em);
 
@@ -196,8 +197,9 @@
       letter-spacing: .01em;
       font-weight: 400;
 
-      white-space: nowrap;
-      max-width:none;
+      /* default: allow normal wrap on small screens */
+      white-space: normal;
+      max-width: 92vw;
 
       color: rgba(255,255,255,.90);
       text-shadow:
@@ -212,26 +214,26 @@
       pointer-events:none;
     }
 
+    /* force first line to be 1 line; we'll auto-fit via JS */
+    #l1{
+      white-space: nowrap;
+      max-width: none;
+      transform-origin: center;
+    }
+
     /* vertical stations */
     .s1{ top: 18%; }
     .s2{ top: 34%; }
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* MOBILE: allow wrap if absolutely necessary */
-    @media (max-width: 540px){
-      .line{
-        white-space: normal;
-        max-width: 92vw;
-      }
-    }
-
-    /* ENTER — center, ethereal glow */
+    /* ENTER — in the bottom black space */
     .enter{
       position:absolute;
       left:50%;
-      top:50%;
-      transform: translate(-50%,-50%);
+      bottom: 9vh;          /* ✅ moved into lower void */
+      top:auto;
+      transform: translateX(-50%);
 
       padding: 14px 30px;
       border-radius: 999px;
@@ -263,7 +265,7 @@
     .enter:hover{
       opacity: 1;
       filter: blur(0px);
-      transform: translate(-50%,-50%) scale(1.01);
+      transform: translateX(-50%) scale(1.01);
       border-color: rgba(255,255,255,.35);
       box-shadow:
         0 0 24px rgba(200,220,255,.14),
@@ -273,8 +275,7 @@
 </head>
 
 <body>
-  <!-- guaranteed visible ichor -->
-  <div class="mist" aria-hidden="true"></div>
+  <div class="mist" id="mist" aria-hidden="true"></div>
   <canvas id="ocean" aria-hidden="true"></canvas>
 
   <!-- PORTAL -->
@@ -308,12 +309,11 @@
 
   <script>
     /* =========================================================
-       FIXED OCEAN RAIN (this is why you had "no ichor" before)
-       - previous code often used d.h (undefined) which broke updates
-       - this version is deterministic + visible + scroll-boostable
+       OCEAN RAIN / ASH (more enveloping, less streaky)
        ========================================================= */
     const ocean = document.getElementById("ocean");
     const ctx = ocean.getContext("2d", { alpha: true });
+    const mistEl = document.getElementById("mist");
 
     let W=0, H=0, DPR=1;
     let drops = [];
@@ -331,20 +331,20 @@
 
       ctx.setTransform(DPR,0,0,DPR,0,0);
 
-      const n = Math.max(140, Math.min(360, Math.floor((W*H)/14000)));
+      const n = Math.max(160, Math.min(420, Math.floor((W*H)/13000)));
       drops = Array.from({length:n}, () => newDrop(true));
     }
 
     function newDrop(randomY){
-      const misty = Math.random() < 0.55; // some mist-streaks, some soft rain
+      const misty = Math.random() < 0.70; // ✅ more vapor, less rain-cue
       return {
         x: Math.random() * W,
         y: randomY ? Math.random() * H : (-200 - Math.random()*H),
-        len: misty ? (90 + Math.random()*220) : (50 + Math.random()*160),
-        spd: misty ? (0.35 + Math.random()*0.85) : (0.6 + Math.random()*1.3),
-        w: misty ? (1.2 + Math.random()*2.2) : (0.8 + Math.random()*1.8),
-        a: misty ? (0.018 + Math.random()*0.05) : (0.03 + Math.random()*0.08),
-        sway: (-0.18 + Math.random()*0.36)
+        len: misty ? (110 + Math.random()*260) : (70 + Math.random()*190),
+        spd: misty ? (0.25 + Math.random()*0.60) : (0.45 + Math.random()*0.90), // ✅ slower = oceanic
+        w:   misty ? (1.4 + Math.random()*2.6) : (0.9 + Math.random()*2.0),
+        a:   misty ? (0.014 + Math.random()*0.045) : (0.022 + Math.random()*0.065),
+        sway:(-0.18 + Math.random()*0.36)
       };
     }
 
@@ -363,11 +363,10 @@
         if (d.x < -60) d.x = W + 60;
         if (d.x > W + 60) d.x = -60;
 
-        // soft ocean wash look (not sharp rain)
         const g = ctx.createLinearGradient(d.x, d.y, d.x, d.y + d.len);
-        g.addColorStop(0, `rgba(255,255,255,0)`);
-        g.addColorStop(0.35, `rgba(220,235,255,${d.a})`);
-        g.addColorStop(1, `rgba(255,255,255,0)`);
+        g.addColorStop(0,   `rgba(255,255,255,0)`);
+        g.addColorStop(0.35,`rgba(220,235,255,${d.a})`);
+        g.addColorStop(1,   `rgba(255,255,255,0)`);
 
         ctx.strokeStyle = g;
         ctx.lineWidth = d.w;
@@ -383,14 +382,16 @@
     }
 
     function loop(){
-      // rainBoost is driven by scroll in onScroll()
       drawOcean(window.__rainBoost || 1);
       raf = requestAnimationFrame(loop);
     }
 
     resizeOcean();
     loop();
-    window.addEventListener("resize", resizeOcean);
+    window.addEventListener("resize", () => {
+      resizeOcean();
+      fitLine1(); // keep first line single-line after resize/rotation
+    });
 
     /* =========================================================
        PORTAL DRIFT + BLANKET ME FADE
@@ -405,12 +406,10 @@
       const total = rect.height - vh;
       const p = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
 
-      // gentle drift
       const driftPx = vh * 0.28;
       const y = (0.5 - p) * 2 * driftPx;
       hero.style.setProperty("--y", `${y}px`);
 
-      // blanket-me-like fade
       const fadeEnd = 0.78;
       const t = Math.min(1, p / fadeEnd);
       invocation.style.setProperty("--invOpacity", (1 - t).toFixed(3));
@@ -418,7 +417,6 @@
 
     /* =========================================================
        CEREMONY: ONE LINE AT A TIME, VERTICAL DESCENT
-       - previous fades out BEFORE next fades in
        ========================================================= */
     const ceremony = document.getElementById("ceremony");
     const lines = [
@@ -429,10 +427,26 @@
     ];
     const enter = document.getElementById("enter");
 
-    // helper: smoothstep
     function smoothstep(x){
       x = Math.min(1, Math.max(0, x));
       return x*x*(3 - 2*x);
+    }
+
+    // ✅ keep first line as ONE line by scaling down if needed (mobile-safe)
+    function fitLine1(){
+      const el = lines[0];
+      if (!el) return;
+
+      // reset
+      el.style.transform = "translateX(-50%) scale(1)";
+      const vw = Math.min(window.innerWidth * 0.92, 1200);
+
+      // if it overflows, scale down to fit
+      const w = el.scrollWidth;
+      if (w > vw){
+        const s = Math.max(0.72, Math.min(1, vw / w));
+        el.style.transform = `translateX(-50%) scale(${s.toFixed(3)})`;
+      }
     }
 
     function ceremonyScroll(){
@@ -441,54 +455,59 @@
       const total = rect.height - vh;
       const p = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
 
-      // make ichor/rain intensify as you enter ceremony
-      // baseline already visible; now we "open the ocean"
-      const rainIn = smoothstep((p - 0.05) / 0.35);
-      const rainOpacity = 0.18 + rainIn * (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--rainOpacityMax")) || 0.55);
-      ocean.style.opacity = rainOpacity.toFixed(3);
-      window.__rainBoost = 1 + rainIn * 1.15;
+      // ✅ transition feels inevitable: later onset + longer ramp
+      const rainIn = smoothstep((p - 0.12) / 0.42);
 
-      // LINE SEQUENCING:
-      // Each line gets a full segment; within it:
-      // - fade IN early
-      // - then fade OUT before the next segment begins
+      // reveal mist + ocean only in ceremony (no portal rain)
+      const mistMax = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--mistOpacityMax")) || 0.55;
+      mistEl.style.opacity = (rainIn * mistMax).toFixed(3);
+
+      const rainMax = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--rainOpacityMax")) || 0.62;
+      ocean.style.opacity = (rainIn * rainMax).toFixed(3);
+
+      // ocean speed: heavier as you enter
+      window.__rainBoost = 0.85 + rainIn * 1.25;
+
+      // LINE SEQUENCING: plenty of space between lines
       const n = lines.length;
-      const seg = 1 / (n + 0.75); // leave room at end for enter
-      const gapStart = 0.12;      // when fade-in begins within segment
-      const gapEnd   = 0.62;      // when fade-out begins within segment
+
+      // longer ceremony -> keep segments roomy; this leaves end room for "enter"
+      const seg = 1 / (n + 1.35);
+
+      // fade window within each segment (in early, out before next begins)
+      const inStart = 0.16;
+      const outStart = 0.56;
 
       for (let i=0; i<n; i++){
         const start = i * seg;
-        const end   = start + seg;
-
-        // normalize progress in this segment
         const local = (p - start) / (seg || 1);
 
         let alpha = 0;
 
         // fade in
-        if (local >= gapStart && local <= gapEnd){
-          const tIn = (local - gapStart) / (gapEnd - gapStart);
+        if (local >= inStart && local <= outStart){
+          const tIn = (local - inStart) / (outStart - inStart);
           alpha = smoothstep(tIn);
         }
-        // fade out (happens BEFORE next starts)
-        if (local > gapEnd){
-          const tOut = (local - gapEnd) / (1 - gapEnd);
+        // fade out (before next starts)
+        if (local > outStart){
+          const tOut = (local - outStart) / (1 - outStart);
           alpha = 1 - smoothstep(tOut);
         }
 
-        // clamp
         alpha = Math.max(0, Math.min(1, alpha));
-
         lines[i].style.opacity = alpha.toFixed(3);
         lines[i].style.filter = `blur(${(1.2 * (1 - alpha)).toFixed(2)}px)`;
       }
 
-      // ENTER: appears at the end, centered
-      const enterStart = (n * seg) + 0.02;
+      // ✅ ritual breath before enter appears
+      const enterStart = (n * seg) + 0.08;
       const enterAlpha = smoothstep((p - enterStart) / 0.18);
       enter.style.opacity = enterAlpha.toFixed(3);
       enter.style.filter = `blur(${(0.8 * (1 - enterAlpha)).toFixed(2)}px)`;
+
+      // keep line 1 as one-line at all times
+      if (enterAlpha < 0.98) fitLine1();
     }
 
     function onScroll(){
@@ -497,6 +516,10 @@
     }
 
     window.addEventListener("scroll", onScroll, { passive:true });
+    window.addEventListener("load", () => {
+      fitLine1();
+      onScroll();
+    });
     onScroll();
 
     /* ENTER BUTTON ACTION */
