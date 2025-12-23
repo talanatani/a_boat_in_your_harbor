@@ -224,32 +224,30 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* Hide mobile-only breaks on desktop */
-    .mbr{ display:none; }
+    /* l1 spans: one-line on desktop, 4 fixed lines on mobile */
+    #l1 .mline{ display:inline; }
+    #l1 .mline:last-child{ margin-right:0; }
 
-    /* Mobile-only "forced lines" inside l1 */
-    .mline{ display:inline; }
-    .emph{ font-weight: 500; } /* heavier "boundless love" */
+    #l1 .emph{
+      font-weight: 500; /* Inter loaded up to 500 */
+      letter-spacing: .012em;
+    }
 
     @media (max-width: 540px){
+      /* keep l2–l4 single-line on mobile */
+      .line{ white-space: nowrap; max-width: none; }
+
+      /* l1 becomes 4 fixed lines (exact breaks), but each line stays single */
       #l1{
-        /* allow the <br> breaks to create multiple lines,
-           but prevent Safari from wrapping inside each line */
         white-space: normal;
         max-width: 92vw;
-
-        font-size: clamp(22px, 6.2vw, 32px);
-        line-height: 1.12;
-        letter-spacing: .006em;
+        font-size: clamp(22px, 6.8vw, 34px);
+        line-height: 1.16;
+        letter-spacing: .01em;
       }
-
-      .mbr{ display:block; }
-
-      /* THIS is the key: each intended line cannot wrap */
-      .mline{
-        display:inline-block;
-        white-space: nowrap;
-        max-width: 92vw;
+      #l1 .mline{
+        display:block;        /* forces the exact line breaks */
+        white-space: nowrap;  /* prevents extra wrapping inside each line */
       }
     }
 
@@ -301,12 +299,11 @@
     <div class="ceremony-stage">
       <div class="ceremony-inner">
 
-        <!-- Desktop: renders as one line (no <br> visible)
-             Mobile: EXACTLY 3 breaks + heavier “boundless love” -->
-        <div class="line s1" id="l1">
-          <span class="mline">we imagine in this exhibition</span><br class="mbr">
-          <span class="mline">an invitation to witness our creation</span><br class="mbr">
-          <span class="mline">of new ways of experiencing</span><br class="mbr">
+        <!-- l1: desktop reads as one continuous line; mobile forces 3 breaks (4 lines) -->
+        <div class="line s1" id="l1" aria-label="we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love">
+          <span class="mline">we imagine in this exhibition</span>
+          <span class="mline">an invitation to witness our creation</span>
+          <span class="mline">of new ways of experiencing</span>
           <span class="mline emph">boundless love</span>
         </div>
 
@@ -447,6 +444,7 @@
       return x*x*(3 - 2*x);
     }
 
+    // Scale a line (or multi-line block) to fit within viewport width while preserving translate(-50%)
     function fitLine(el, maxVW = 0.92, minScale = 0.72){
       if (!el) return;
 
@@ -463,12 +461,12 @@
 
     function fitLines(){
       if (window.innerWidth <= 540){
-        // Mobile: don't scale l1 (we want your exact breaks)
-        fitLine(lines[1], 0.92, 0.75);
-        fitLine(lines[2], 0.92, 0.75);
-        fitLine(lines[3], 0.92, 0.75);
+        // l1 has fixed line breaks on mobile — allow gentle scaling if needed to avoid any wrap/crop
+        fitLine(lines[0], 0.92, 0.86);
+        fitLine(lines[1], 0.92, 0.78);
+        fitLine(lines[2], 0.92, 0.78);
+        fitLine(lines[3], 0.92, 0.78);
       } else {
-        // Desktop: scale gently if needed
         fitLine(lines[0], 0.92, 0.85);
         fitLine(lines[1], 0.92, 0.85);
         fitLine(lines[2], 0.92, 0.85);
