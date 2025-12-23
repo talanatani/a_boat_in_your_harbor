@@ -226,30 +226,33 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* --- l1 dual-render (desktop single-line / mobile forced breaks) --- */
+    /* l1 dual-render */
     .l1-desktop{ display:block; }
     .l1-mobile{ display:none; }
 
-    .boundless{
-      font-weight: 600; /* slightly heavier */
-    }
+    .boundless{ font-weight: 600; } /* slightly heavier */
 
-    /* Mobile: show the forced-break version */
+    /* Mobile: forced 4-line layout with NO extra wrapping inside lines */
     @media (max-width: 540px){
-      /* keep l2–l4 single-line and scaled by JS if needed */
       .line{ white-space: nowrap; max-width:none; }
 
-      /* l1 becomes a centered 4-line block */
       #l1{
         white-space: normal;
         max-width: 92vw;
         line-height: 1.18;
         letter-spacing: .005em;
         font-size: clamp(20px, 6.0vw, 28px);
+        transform: translate3d(-50%,0,0) scale(1);
+        transform-origin: center center;
       }
 
       .l1-desktop{ display:none; }
       .l1-mobile{ display:block; }
+
+      .l1-mobile .mline{
+        display:block;
+        white-space: nowrap;  /* ✅ prevents “we imagine in this / exhibition” */
+      }
     }
 
     .enter{
@@ -257,6 +260,7 @@
       left:50%;
       bottom: 8vh;
       transform: translate3d(-50%,0,0);
+
       background: none;
       border: none;
       padding: 0;
@@ -301,17 +305,15 @@
       <div class="ceremony-inner">
 
         <div class="line s1" id="l1">
-          <!-- Desktop: single line -->
           <span class="l1-desktop">
             we imagine in this exhibition an invitation to witness our creation of new ways of experiencing <span class="boundless">boundless love</span>
           </span>
 
-          <!-- Mobile: EXACT forced line breaks -->
-          <span class="l1-mobile">
-            we imagine in this exhibition<br>
-            an invitation to witness our creation<br>
-            of new ways of experiencing<br>
-            <span class="boundless">boundless love</span>
+          <span class="l1-mobile" aria-hidden="true">
+            <span class="mline">we imagine in this exhibition</span>
+            <span class="mline">an invitation to witness our creation</span>
+            <span class="mline">of new ways of experiencing</span>
+            <span class="mline"><span class="boundless">boundless love</span></span>
           </span>
         </div>
 
@@ -465,14 +467,46 @@
       }
     }
 
+    // ✅ Scale the l1 mobile block (based on widest line) so none of the mlines wrap
+    function fitL1Mobile(){
+      const l1 = document.getElementById("l1");
+      if (!l1) return;
+
+      if (window.innerWidth > 540){
+        // reset on desktop
+        l1.style.transform = "translate3d(-50%,0,0) scale(1)";
+        return;
+      }
+
+      const mobile = l1.querySelector(".l1-mobile");
+      if (!mobile) return;
+
+      const mlines = Array.from(mobile.querySelectorAll(".mline"));
+      if (!mlines.length) return;
+
+      // reset first
+      l1.style.transform = "translate3d(-50%,0,0) scale(1)";
+
+      // measure widest line
+      const maxW = Math.min(window.innerWidth * 0.92, 520);
+      let widest = 0;
+      for (const s of mlines){
+        widest = Math.max(widest, s.scrollWidth);
+      }
+
+      if (widest > maxW){
+        const scale = Math.max(0.80, Math.min(1, maxW / widest));
+        l1.style.transform = `translate3d(-50%,0,0) scale(${scale.toFixed(3)})`;
+      }
+    }
+
     function fitLines(){
       if (window.innerWidth <= 540){
-        // IMPORTANT: don't scale l1 on mobile (it uses forced <br> breaks)
+        fitL1Mobile(); // important: keep your exact 4 lines
         fitLine(lines[1], 0.92, 0.75);
         fitLine(lines[2], 0.92, 0.75);
         fitLine(lines[3], 0.92, 0.75);
       } else {
-        // desktop: keep l1 as a single line, scale gently only if needed
         fitLine(lines[0], 0.92, 0.85);
         fitLine(lines[1], 0.92, 0.85);
         fitLine(lines[2], 0.92, 0.85);
