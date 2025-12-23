@@ -229,22 +229,11 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* Hanging line styling (ONLY used inside l1) */
-    .hang{
-      display:block;
-      margin-top: .22em;
-      white-space: normal;
-    }
-
-    /* Mobile: keep l2–l4 single-line; allow ONLY l1 to break where we manually broke it */
+    /* Mobile: keep everything single-line; we will scale to fit */
     @media (max-width: 540px){
       .line{
         white-space: nowrap;
         max-width: none;
-      }
-      #l1{
-        white-space: normal;
-        max-width: 92vw;
       }
     }
 
@@ -297,10 +286,9 @@
     <div class="ceremony-stage">
       <div class="ceremony-inner">
 
-        <!-- Only “boundless love” hangs -->
+        <!-- Single line everywhere (desktop + mobile). Mobile will scale to fit. -->
         <div class="line s1" id="l1">
-          we imagine in this exhibition an invitation to witness our creation of new ways of experiencing
-          <span class="hang">boundless love</span>
+          we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love
         </div>
 
         <div class="line s2" id="l2">forward-facing and fusing ethereality with inspiration</div>
@@ -441,7 +429,7 @@
       return x*x*(3 - 2*x);
     }
 
-    // Scale a single line to fit within viewport width while preserving your translate(-50%)
+    // Scale a single line to fit within viewport width while preserving translate(-50%)
     function fitLine(el, maxVW = 0.92, minScale = 0.72){
       if (!el) return;
 
@@ -456,14 +444,15 @@
       }
     }
 
+    // ✅ Key change: scale l1 on mobile too (so it stays single-line but fits)
     function fitLines(){
       if (window.innerWidth <= 540){
-        // l1 is intentionally multi-line on mobile; don't scale it
+        fitLine(lines[0]); // l1
         fitLine(lines[1]);
         fitLine(lines[2]);
         fitLine(lines[3]);
       } else {
-        // desktop: scale only if needed (gentler minScale)
+        // desktop: only gently scale if needed
         fitLine(lines[0], 0.92, 0.85);
         fitLine(lines[1], 0.92, 0.85);
         fitLine(lines[2], 0.92, 0.85);
