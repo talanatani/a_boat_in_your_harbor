@@ -7,32 +7,23 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
     :root{
       --bg:#000;
 
-      /* PORTAL */
       --imgScale: 1.55;
       --drift: 32vh;
       --scrollPages: 2.6;
 
-      /* SIDE ROOM */
-      --stageMax: 1100px;
+      --stageMax: 1200px;
       --stagePad: 56px;
 
-      /* TEXT */
       --textTop: 18%;
       --invOpacity: 1;
 
-      /* CEREMONY SCROLL LENGTH (more gradual reveal) */
-      --ceremonyPages: 2.2;
-
-      /* ASH FEEL */
-      --ashOpacity: 0.58;         /* overall ash veil */
-      --ashGrain: 0.10;           /* grain strength */
-      --ashBlur: 22px;            /* softness */
+      --ceremonyPages: 2.8;
     }
 
     *{ box-sizing:border-box; }
@@ -40,78 +31,40 @@
     body{
       background: var(--bg);
       overflow-x:hidden;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      position:relative;
+      font-family: Inter, system-ui, sans-serif;
+      color:white;
     }
 
-    /* ===== ASH FIELD (ENTIRE PAGE, BEHIND IMAGE) =====
-       Replace "ichor" with ash after a burnt ceremonial sacrifice:
-       - cooler smoke + charcoal veil
-       - faint, drifting particulate grain
-    */
-    .ash-field{
+    /* =========================
+       OCEANIC ICHOR FIELD
+       ========================= */
+    .ichor{
       position: fixed;
-      inset: -12%;
+      inset: -20%;
       z-index: 0;
       pointer-events: none;
-
-      opacity: var(--ashOpacity);
-      filter: blur(var(--ashBlur));
-      mix-blend-mode: screen;
-
+      opacity: .35;
+      filter: blur(32px);
       background:
-        radial-gradient(1200px 900px at 50% 42%, rgba(210,225,255,0.07), rgba(0,0,0,0) 62%),
-        radial-gradient(1500px 1200px at 50% 70%, rgba(140,155,185,0.06), rgba(0,0,0,0) 72%),
-        radial-gradient(900px 700px at 20% 30%, rgba(120,135,165,0.05), rgba(0,0,0,0) 68%),
-        radial-gradient(1000px 900px at 85% 35%, rgba(160,170,190,0.04), rgba(0,0,0,0) 70%);
-      animation: ashDrift 24s ease-in-out infinite alternate;
-      transform: translate3d(0,0,0);
-    }
-    @keyframes ashDrift{
-      0%   { transform: translate3d(-1.4%, -1.0%, 0) scale(1.03); }
-      100% { transform: translate3d( 1.4%,  1.0%, 0) scale(1.07); }
+        radial-gradient(1400px 1200px at 50% 40%, rgba(180,200,255,.14), transparent 70%),
+        radial-gradient(1600px 1400px at 50% 75%, rgba(120,150,200,.10), transparent 75%);
+      animation: slowDrift 30s ease-in-out infinite alternate;
     }
 
-    /* Ash grain / particulate (very subtle) */
-    .ash-grain{
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events:none;
-      opacity: var(--ashGrain);
-      mix-blend-mode: overlay;
-      filter: contrast(105%) brightness(95%);
-      background-image:
-        radial-gradient(circle at 20% 30%, rgba(255,255,255,.18) 0 1px, transparent 2px),
-        radial-gradient(circle at 70% 20%, rgba(255,255,255,.12) 0 1px, transparent 2px),
-        radial-gradient(circle at 45% 60%, rgba(255,255,255,.10) 0 1px, transparent 2px),
-        radial-gradient(circle at 80% 70%, rgba(255,255,255,.08) 0 1px, transparent 2px);
-      background-size: 320px 320px;
-      animation: grainFloat 18s linear infinite;
-    }
-    @keyframes grainFloat{
-      0%   { transform: translate3d(0,0,0); }
-      100% { transform: translate3d(-160px, 120px, 0); }
+    @keyframes slowDrift{
+      from{ transform: translateY(-1%) scale(1.03); }
+      to{ transform: translateY(1%) scale(1.08); }
     }
 
-    /* Deepening vignette */
-    body::after{
-      content:"";
-      position: fixed;
-      inset: 0;
-      pointer-events:none;
-      z-index: 0;
-      background: radial-gradient(120% 90% at 50% 40%, rgba(0,0,0,0) 54%, rgba(0,0,0,.62) 100%);
-      opacity: .62;
-    }
-
-    /* ===== PORTAL CHAMBER ===== */
+    /* =========================
+       PORTAL
+       ========================= */
     .chamber{
       position: relative;
       height: calc(var(--scrollPages) * 100vh);
-      background: transparent;
       z-index: 1;
     }
+
     .stage{
       position: sticky;
       top: 0;
@@ -119,438 +72,241 @@
       display: grid;
       place-items: start center;
       overflow: hidden;
-      z-index: 1;
     }
+
     .stage-inner{
       width: min(var(--stageMax), calc(100vw - var(--stagePad)));
       height: 100%;
       position: relative;
-      overflow: hidden;
-      z-index: 1;
     }
+
     .stage-inner img{
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      object-position: top center;
-      transform: translate3d(0, var(--y, 0px), 0) scale(var(--imgScale));
-      transform-origin: top center;
-      will-change: transform;
-      display: block;
-      z-index: 1;
-    }
-    .stage-inner::after{
-      content:"";
       position:absolute;
       inset:0;
-      pointer-events:none;
-      background: radial-gradient(120% 85% at 50% 55%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
-      z-index: 2;
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      transform: translateY(var(--y,0)) scale(var(--imgScale));
+      transform-origin: top center;
     }
 
-    /* PORTAL TITLE */
     .invocation{
-      position: absolute;
-      left: 50%;
-      top: var(--textTop);
-      transform: translate(-50%, -50%) translateY(8px);
-      z-index: 3;
-
-      font-family: "Inter", system-ui, -apple-system, Helvetica, Arial, sans-serif;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: .26em;
-
-      text-align: center;
-      line-height: 1.08;
-      font-size: clamp(28px, 3.2vw, 56px);
-      max-width: 28ch;
-      padding: 0 12px;
-
-      color: rgba(255,255,255,.18);
-      text-shadow:
-        0 0 6px rgba(255,255,255,.38),
-        0 0 16px rgba(255,255,255,.22);
-
-      opacity: var(--invOpacity);
-      transition: opacity 3s ease, transform 3s ease;
-      will-change: opacity, transform;
-    }
-    .invocation.show{
-      transform: translate(-50%, -50%) translateY(0);
+      position:absolute;
+      top:var(--textTop);
+      left:50%;
+      transform:translate(-50%,-50%);
+      letter-spacing:.28em;
+      font-size:clamp(30px,3vw,56px);
+      text-transform:uppercase;
+      color:rgba(255,255,255,.18);
+      text-shadow:0 0 16px rgba(255,255,255,.35);
+      transition:opacity 2.5s ease;
+      z-index:2;
     }
 
-    /* ===== CEREMONY: longer scroll for gradual reveal ===== */
+    /* =========================
+       CEREMONY
+       ========================= */
     .ceremony{
+      height: calc(var(--ceremonyPages) * 100vh);
       position: relative;
-      height: calc(var(--ceremonyPages) * 100vh); /* ✅ more scroll distance */
-      background: transparent;
       z-index: 1;
     }
 
     .ceremony-stage{
       position: sticky;
-      top: 0;
-      height: 100vh;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
+      top:0;
+      height:100vh;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
     }
 
     .ceremony-inner{
       width: min(var(--stageMax), calc(100vw - var(--stagePad)));
-      height: 100%;
-      position: relative;
-      display: grid;
-      place-items: center;
-      padding: 90px 0 70px;
+      height:100%;
+      display:grid;
+      place-items:center;
+      padding:80px 0;
+      position:relative;
     }
 
-    /* Ash-rain canvas (hidden until we fade it in with scroll) */
-    .rain{
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 1;
-      opacity: 0;
-      transition: opacity 600ms linear;
-      filter: blur(0.35px);
-      mix-blend-mode: screen;
+    /* =========================
+       RAIN AS OCEAN
+       ========================= */
+    canvas.rain{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:1;
+      opacity:0;
+      transition:opacity 2.8s ease;
+      mix-blend-mode:screen;
     }
 
-    /* PASSAGE */
+    /* =========================
+       PASSAGE
+       ========================= */
     .passage{
-      position: relative;
-      z-index: 2;
-      text-align: center;
+      position:relative;
+      z-index:2;
+      width:min(1800px, 100%);
+      text-align:center;
 
-      /* Make first line stay one line: allow more width */
-      width: min(1800px, calc(100vw - var(--stagePad)));
-      max-width: none;
+      font-size:clamp(16px,1.4vw,22px);
+      line-height:1.25;
+      letter-spacing:.01em;
 
-      padding: 0 10px;
-
-      font-family: "Inter", system-ui, -apple-system, Helvetica, Arial, sans-serif;
-      font-weight: 400;
-      font-size: clamp(16px, 1.55vw, 22px); /* smaller, grounded */
-      line-height: 1.22;
-      letter-spacing: 0.005em;
-
-      color: rgba(255,255,255,.88);
-
-      /* subtle glow, like you asked (not ghostly) */
+      color:rgba(255,255,255,.9);
       text-shadow:
-        0 0 2px rgba(255,255,255,.22),
-        0 0 10px rgba(200,220,255,.12),
-        0 0 22px rgba(180,200,255,.05);
+        0 0 2px rgba(255,255,255,.25),
+        0 0 12px rgba(200,220,255,.12);
 
-      opacity: 0;                 /* we will drive with scroll */
-      transform: translateY(10px);
-      filter: blur(1.2px);
-      will-change: opacity, transform, filter;
-      transition: opacity 400ms linear, transform 400ms linear, filter 600ms linear;
+      opacity:0;
+      transform:translateY(12px);
+      filter:blur(1px);
+      transition:opacity 1.6s ease, transform 1.6s ease, filter 1.6s ease;
     }
 
-    /* “Blanket Me” style fade via scroll, not a single toggle */
     .passage p{
-      margin: 0 0 1.2em;
-      white-space: nowrap;        /* ✅ keep each line single-line */
-      overflow: hidden;
-      text-overflow: clip;
+      margin:0 0 7.5em; /* ✅ EVEN spacing for all lines */
+      white-space:nowrap;
     }
 
-    /* A LOT more space between parts (forces gradual scrolling) */
-    .passage p.part{
-      margin-bottom: 9.0em;       /* ✅ bigger gaps (scroll to travel) */
+    .passage p:last-child{
+      margin-bottom:5.5em;
     }
 
+    /* =========================
+       ENTER BUTTON
+       ========================= */
     .enter{
-      margin-top: 170px;
-      padding-top: 14px;
+      display:inline-block;
+      padding:14px 28px;
+      border-radius:40px;
+      border:1px solid rgba(255,255,255,.25);
 
-      font-family: "Inter", system-ui, -apple-system, Helvetica, Arial, sans-serif;
-      font-weight: 400;
-      font-size: clamp(14px, 1.1vw, 17px);
-      letter-spacing: .14em;
-      text-transform: lowercase;
+      font-size:14px;
+      letter-spacing:.18em;
+      text-transform:lowercase;
 
-      color: rgba(255,255,255,.70);
-      text-shadow:
-        0 0 2px rgba(255,255,255,.16),
-        0 0 12px rgba(200,220,255,.08);
+      color:rgba(255,255,255,.8);
+      background:rgba(255,255,255,.02);
+      backdrop-filter: blur(6px);
 
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 500ms linear, transform 500ms linear;
-      user-select: none;
-      cursor: pointer;
+      opacity:0;
+      transform:translateY(10px);
+      transition:all 1.4s ease;
+      cursor:pointer;
     }
+
     .enter:hover{
-      color: rgba(255,255,255,.90);
-      transform: translateY(-1px);
+      background:rgba(255,255,255,.06);
+      color:white;
     }
 
-    /* Fade out when leaving the ceremony section */
-    .passage.is-past{
-      opacity: 0 !important;
-      transform: translateY(-10px) !important;
-      filter: blur(1.4px) !important;
-      pointer-events:none;
-    }
-
-    @media (max-width: 520px){
-      :root{ --stagePad: 28px; }
-      .passage{
-        font-size: clamp(14px, 3.6vw, 18px);
-      }
-      .passage p{ white-space: normal; } /* mobile: allow wrapping */
-      .passage p.part{ margin-bottom: 7.6em; }
-      .enter{ margin-top: 140px; }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      .invocation, .passage, .enter{ transition: none !important; opacity: 1; transform: none; filter:none; }
-      .rain{ display:none; }
-      .stage-inner img{ transform: scale(var(--imgScale)); }
-      .ash-field, .ash-grain, body::after{ display:none; }
+    @media(max-width:600px){
+      .passage p{ white-space:normal; margin-bottom:6em; }
     }
   </style>
 </head>
 
 <body>
-  <div class="ash-field" aria-hidden="true"></div>
-  <div class="ash-grain" aria-hidden="true"></div>
+
+  <div class="ichor"></div>
 
   <!-- PORTAL -->
-  <section class="chamber" id="chamber" aria-label="Opening chamber">
-    <div class="stage" aria-label="Sticky stage">
+  <section class="chamber" id="chamber">
+    <div class="stage">
       <div class="stage-inner">
-        <img id="hero" src="new_portal.jpeg" alt="" />
+        <img id="hero" src="new_portal.jpeg" alt="">
         <div class="invocation" id="invocation">BLANKET ME</div>
       </div>
     </div>
   </section>
 
-  <!-- CEREMONY (sticky stage for gradual scroll fade) -->
-  <section class="ceremony" id="ceremony" aria-label="Ceremony chamber">
+  <!-- CEREMONY -->
+  <section class="ceremony" id="ceremony">
     <div class="ceremony-stage">
       <div class="ceremony-inner">
-        <canvas id="rain" class="rain" aria-hidden="true"></canvas>
+        <canvas id="rain" class="rain"></canvas>
 
-        <div class="passage" id="passage" aria-label="Exhibition passage">
+        <div class="passage" id="passage">
           <p>we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love</p>
-          <p class="part">forward-facing and fusing ethereality with inspiration</p>
-          <p class="part">we bear witness and release limitation</p>
-          <p class="part">opening to transformation</p>
+          <p>forward-facing and fusing ethereality with inspiration</p>
+          <p>we bear witness and release limitation</p>
+          <p>opening to transformation</p>
 
-          <div class="enter" id="enter" role="button" tabindex="0">enter</div>
+          <div class="enter" id="enter">enter</div>
         </div>
       </div>
     </div>
   </section>
 
   <script>
-    const chamber = document.getElementById("chamber");
     const hero = document.getElementById("hero");
     const invocation = document.getElementById("invocation");
-
+    const chamber = document.getElementById("chamber");
     const ceremony = document.getElementById("ceremony");
-    const passageEl = document.getElementById("passage");
-    const enterEl = document.getElementById("enter");
-    const rainCanvas = document.getElementById("rain");
-    const rctx = rainCanvas.getContext("2d", { alpha: true });
+    const passage = document.getElementById("passage");
+    const enter = document.getElementById("enter");
+    const rain = document.getElementById("rain");
+    const ctx = rain.getContext("2d");
 
-    // ===== Portal drift + Blanket Me fade (as before) =====
-    function onPortalScroll(){
-      const rect = chamber.getBoundingClientRect();
-      const viewportH = window.innerHeight;
-      const total = rect.height - viewportH;
-      const progress = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
+    let w,h,drops=[];
 
-      const driftVh = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--drift")) || 0;
-      const driftPx = (driftVh / 100) * viewportH;
-
-      const y = (0.5 - progress) * 2 * driftPx;
-      hero.style.setProperty("--y", `${y}px`);
-
-      const fadeStart = 0.00;
-      const fadeEnd   = 0.72;
-
-      let opacity = 1;
-      if (progress > fadeStart){
-        const t = Math.min(1, (progress - fadeStart) / (fadeEnd - fadeStart));
-        opacity = 1 - t;
-      }
-      invocation.style.setProperty("--invOpacity", opacity);
+    function resize(){
+      w = rain.width = window.innerWidth;
+      h = rain.height = window.innerHeight;
+      drops = Array.from({length:140},()=>({
+        x:Math.random()*w,
+        y:Math.random()*h,
+        speed:.4+Math.random()*1.1,
+        len:30+Math.random()*80,
+        alpha:.04+Math.random()*.08
+      }));
     }
 
-    // ===== Ash-Rain canvas (more like drifting ash than water) =====
-    let RW = 0, RH = 0, DPR = 1;
-    let motes = [];
-    let rainRAF = null;
-
-    function resizeRain(){
-      const parent = rainCanvas.parentElement.getBoundingClientRect();
-      DPR = Math.min(2, window.devicePixelRatio || 1);
-
-      RW = Math.floor(parent.width);
-      RH = Math.floor(parent.height);
-
-      rainCanvas.width = Math.floor(RW * DPR);
-      rainCanvas.height = Math.floor(RH * DPR);
-      rainCanvas.style.width = RW + "px";
-      rainCanvas.style.height = RH + "px";
-
-      rctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-
-      // density tuned for ash: fewer, softer, varied
-      const count = Math.floor((RW * RH) / 18000);
-      const n = Math.max(90, Math.min(220, count));
-      motes = Array.from({ length: n }, newMote);
-    }
-
-    function newMote(){
-      const isStreak = Math.random() < 0.45; // some streaks, some flecks
-      return {
-        x: Math.random() * RW,
-        y: Math.random() * RH,
-        len: isStreak ? (10 + Math.random() * 36) : (2 + Math.random() * 6),
-        spd: isStreak ? (0.65 + Math.random() * 1.25) : (0.18 + Math.random() * 0.55),
-        w: isStreak ? (0.45 + Math.random() * 0.9) : (0.6 + Math.random() * 1.4),
-        a: isStreak ? (0.03 + Math.random() * 0.08) : (0.02 + Math.random() * 0.06),
-        drift: (-0.18 + Math.random() * 0.36),   // sideways drift like smoke
-        blur: isStreak ? 0 : (0.4 + Math.random() * 1.2)
-      };
-    }
-
-    function drawAsh(){
-      rctx.clearRect(0, 0, RW, RH);
-      rctx.lineCap = "round";
-
-      for (const m of motes){
-        m.y += m.spd;
-        m.x += m.drift;
-
-        if (m.y - m.len > RH){
-          m.y = -40 - Math.random() * 240;
-          m.x = Math.random() * RW;
-        }
-        if (m.x < -40) m.x = RW + 40;
-        if (m.x > RW + 40) m.x = -40;
-
-        // ash = cooler, dimmer (not bright rain)
-        const base = 235; // near-white but subdued
-        if (m.len > 8){
-          const g = rctx.createLinearGradient(m.x, m.y, m.x, m.y + m.len);
-          g.addColorStop(0, `rgba(${base},${base},${base},0)`);
-          g.addColorStop(0.35, `rgba(${base},${base},${base},${m.a})`);
-          g.addColorStop(1, `rgba(${base},${base},${base},0)`);
-          rctx.strokeStyle = g;
-          rctx.lineWidth = m.w;
-
-          rctx.beginPath();
-          rctx.moveTo(m.x, m.y);
-          rctx.lineTo(m.x + m.drift * 6, m.y + m.len);
-          rctx.stroke();
-        } else {
-          // flecks
-          rctx.fillStyle = `rgba(${base},${base},${base},${m.a})`;
-          rctx.beginPath();
-          rctx.arc(m.x, m.y, m.w * 0.6, 0, Math.PI * 2);
-          rctx.fill();
-        }
-      }
-
-      rainRAF = requestAnimationFrame(drawAsh);
-    }
-
-    function startAsh(){
-      resizeRain();
-      if (rainRAF) cancelAnimationFrame(rainRAF);
-      rainRAF = requestAnimationFrame(drawAsh);
-    }
-
-    // ===== Ceremony scroll-driven fade (seamless portal -> ash) =====
-    function onCeremonyScroll(){
-      const rect = ceremony.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const total = rect.height - vh;
-      const p = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
-
-      // 1) Fade ash-canvas in gradually (no snap)
-      // start a little before ceremony fully enters; smooth to full by ~40%
-      const rainInStart = 0.05;
-      const rainInEnd   = 0.42;
-      let rainOpacity = 0;
-      if (p > rainInStart){
-        const t = Math.min(1, (p - rainInStart) / (rainInEnd - rainInStart));
-        rainOpacity = t;
-      }
-      rainCanvas.style.opacity = (0.86 * rainOpacity).toFixed(3);
-
-      // 2) Passage reveal like Blanket Me: slow, continuous fade
-      const textInStart = 0.22;
-      const textInEnd   = 0.62;
-      let textOpacity = 0;
-      if (p > textInStart){
-        const t = Math.min(1, (p - textInStart) / (textInEnd - textInStart));
-        textOpacity = t;
-      }
-      // ease slightly
-      const eased = textOpacity * textOpacity * (3 - 2 * textOpacity); // smoothstep
-      passageEl.style.opacity = eased.toFixed(3);
-
-      // settle blur/transform as it appears
-      const blur = (1.2 * (1 - eased));
-      passageEl.style.filter = `blur(${blur.toFixed(2)}px)`;
-      passageEl.style.transform = `translateY(${(10 * (1 - eased)).toFixed(1)}px)`;
-
-      // 3) Enter appears later, also gradual
-      const enterStart = 0.72;
-      const enterEnd   = 0.92;
-      let enterOpacity = 0;
-      if (p > enterStart){
-        const t = Math.min(1, (p - enterStart) / (enterEnd - enterStart));
-        enterOpacity = t;
-      }
-      const e2 = enterOpacity * enterOpacity * (3 - 2 * enterOpacity);
-      enterEl.style.opacity = e2.toFixed(3);
-      enterEl.style.transform = `translateY(${(10 * (1 - e2)).toFixed(1)}px)`;
-
-      // 4) Fade everything out once past section
-      // handled by isPast observer below
-    }
-
-    // ===== Fade out passage once the user scrolls past it =====
-    const passageFadeIO = new IntersectionObserver(([entry]) => {
-      const past = !entry.isIntersecting && entry.boundingClientRect.top < 0;
-      if (past) passageEl.classList.add("is-past");
-      else passageEl.classList.remove("is-past");
-    }, { threshold: 0.02 });
-
-    document.addEventListener("DOMContentLoaded", () => {
-      setTimeout(() => invocation.classList.add("show"), 700);
-
-      // portal
-      onPortalScroll();
-      window.addEventListener("scroll", onPortalScroll, { passive: true });
-
-      // ceremony
-      startAsh();                  // start ash loop; opacity is scroll-driven
-      onCeremonyScroll();
-      window.addEventListener("scroll", onCeremonyScroll, { passive: true });
-
-      window.addEventListener("resize", () => {
-        onPortalScroll();
-        onCeremonyScroll();
-        resizeRain();
+    function draw(){
+      ctx.clearRect(0,0,w,h);
+      ctx.strokeStyle="rgba(255,255,255,.08)";
+      drops.forEach(d=>{
+        ctx.globalAlpha=d.alpha;
+        ctx.beginPath();
+        ctx.moveTo(d.x,d.y);
+        ctx.lineTo(d.x,d.y+d.len);
+        ctx.stroke();
+        d.y+=d.speed;
+        if(d.y>d.h){ d.y=-100; }
       });
+      requestAnimationFrame(draw);
+    }
 
-      passageFadeIO.observe(passageEl);
+    resize();
+    draw();
+    window.addEventListener("resize",resize);
+
+    function onScroll(){
+      const pr = Math.min(1, Math.max(0, -chamber.getBoundingClientRect().top / (chamber.offsetHeight - innerHeight)));
+      hero.style.setProperty("--y", `${(0.5-pr)*window.innerHeight*0.3}px`);
+      invocation.style.opacity = 1 - pr;
+
+      const cr = Math.min(1, Math.max(0, -ceremony.getBoundingClientRect().top / (ceremony.offsetHeight - innerHeight)));
+
+      rain.style.opacity = cr * .9;
+      passage.style.opacity = Math.min(1, cr*1.2);
+      passage.style.filter = `blur(${1 - cr}px)`;
+      passage.style.transform = `translateY(${(1-cr)*12}px)`;
+
+      enter.style.opacity = Math.max(0, cr - .65);
+      enter.style.transform = `translateY(${(1-cr)*10}px)`;
+    }
+
+    window.addEventListener("scroll",onScroll,{passive:true});
+
+    enter.addEventListener("click",()=>{
+      alert("Next chamber hook — replace with navigation");
     });
   </script>
 </body>
