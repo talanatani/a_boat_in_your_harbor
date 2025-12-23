@@ -25,7 +25,7 @@
       /* ✅ portal title placement */
       --textTop: 18%;
 
-      /* ✅ FAIL-SAFE */
+      /* ✅ fail-safe visibility */
       --invOpacity: 1;
     }
 
@@ -41,20 +41,43 @@
     /* ===== GLOBAL ICHOR (ENTIRE PAGE, BEHIND IMAGE) ===== */
     .ichor-field{
       position: fixed;
-      inset: 0;
+      inset: -10%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.55;              /* ✅ present but subtle */
-      filter: blur(18px);
+      opacity: 0.58;
+      filter: blur(20px);
       background:
         radial-gradient(1200px 900px at 50% 42%,
-          rgba(210,225,255,0.10),
+          rgba(210,225,255,0.12),
           rgba(0,0,0,0) 62%
         ),
         radial-gradient(1400px 1000px at 50% 75%,
-          rgba(180,200,255,0.06),
+          rgba(180,200,255,0.07),
           rgba(0,0,0,0) 70%
+        ),
+        radial-gradient(900px 700px at 20% 30%,
+          rgba(160,190,255,0.05),
+          rgba(0,0,0,0) 65%
         );
+      /* ultra-slow drift = expansion */
+      animation: ichorDrift 22s ease-in-out infinite alternate;
+      transform: translate3d(0,0,0);
+    }
+
+    @keyframes ichorDrift{
+      0%   { transform: translate3d(-1.2%, -0.8%, 0) scale(1.02); }
+      100% { transform: translate3d( 1.2%,  0.8%, 0) scale(1.05); }
+    }
+
+    /* subtle vignette to deepen the void */
+    body::after{
+      content:"";
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      z-index: 0;
+      background: radial-gradient(120% 90% at 50% 40%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
+      opacity: .55;
     }
 
     /* ===== PORTAL CHAMBER ===== */
@@ -169,58 +192,69 @@
       z-index: 1;
       mix-blend-mode: screen;
       opacity: 0;
-      transition: opacity 900ms ease;
+      transition: opacity 1400ms ease; /* slower ramp */
       filter: blur(0.25px);
     }
-    .ceremony.rain-on .rain{ opacity: 0.85; }
+    .ceremony.rain-on .rain{ opacity: 0.86; }
 
-    /* ===== PASSAGE: CLEAN (match screenshot) ===== */
+    /* ===== PASSAGE (smaller, grounded, subtle glow) ===== */
     .passage{
       position: relative;
       z-index: 2;
       text-align: center;
 
-      /* ✅ allow the first line to run long like your screenshot */
+      /* allow long first line like your reference */
       width: min(1200px, calc(100vw - var(--stagePad)));
       max-width: none;
 
       padding: 0 10px;
       font-family: "Inter", system-ui, -apple-system, Helvetica, Arial, sans-serif;
-      font-weight: 400;                /* ✅ not ghostly */
-      letter-spacing: 0.01em;          /* ✅ normal, like screenshot */
-      line-height: 1.3;                /* ✅ tighter (your example) */
-      font-size: clamp(22px, 2.4vw, 34px);
+      font-weight: 400;
 
-      /* ✅ solid, readable */
-      color: rgba(255,255,255,.90);
+      /* ✅ smaller so it doesn't "hang" */
+      font-size: clamp(18px, 1.9vw, 26px);
 
-      /* ✅ remove glow/ghost entirely */
-      text-shadow: none;
+      /* ✅ grounded cadence */
+      line-height: 1.28;
+      letter-spacing: 0.005em;
+
+      color: rgba(255,255,255,.88);
+
+      /* ✅ subtle glow (controlled, not hazy) */
+      text-shadow:
+        0 0 2px rgba(255,255,255,.25),
+        0 0 8px rgba(200,220,255,.14),
+        0 0 18px rgba(180,200,255,.06);
 
       opacity: 0;
       transform: translateY(10px);
-      transition: opacity 2600ms ease, transform 2600ms ease;
-      will-change: opacity, transform;
+      filter: blur(1.2px); /* settles into clarity */
+      transition: opacity 2600ms ease, transform 2600ms ease, filter 2600ms ease;
+      will-change: opacity, transform, filter;
     }
 
-    /* ✅ remove the bloom layer that makes it hazy */
-    .passage::before{ content:none; }
-
+    /* tiny “breath” after reveal: presence without ghost */
     .ceremony.text-on .passage{
       opacity: 1;
       transform: translateY(0);
+      filter: blur(0px);
+      animation: settleBreath 6.5s ease-in-out 1;
+    }
+    @keyframes settleBreath{
+      0%   { opacity: 1; }
+      45%  { opacity: .92; }
+      100% { opacity: 1; }
     }
 
-    /* spacing: first block slightly separated, then large gaps */
+    /* spacing:
+       - first two lines closer
+       - ~4 lines between each "part" */
     .passage p{
       margin: 0 0 0.9em;
     }
-
-    /* ~4 lines of space between parts */
     .passage p.part{
-      margin-bottom: 4.6em;
+      margin-bottom: 4.6em; /* ~4 lines */
     }
-
     .passage p:last-child{ margin-bottom: 0; }
 
     /* fade out once past passage */
@@ -228,29 +262,31 @@
       opacity: 0;
       transform: translateY(-10px);
       pointer-events: none;
+      filter: blur(1.4px);
     }
 
-    /* ENTER */
+    /* ENTER (threshold) */
     .enter{
       position: relative;
       z-index: 2;
 
-      margin-top: 140px;
-      padding-top: 16px;
+      margin-top: 150px; /* more void before enter */
+      padding-top: 14px;
 
       font-family: "Inter", system-ui, -apple-system, Helvetica, Arial, sans-serif;
       font-weight: 400;
-      font-size: clamp(16px, 1.5vw, 22px);
-      letter-spacing: .08em;
+      font-size: clamp(15px, 1.25vw, 18px);
+      letter-spacing: .12em;
       text-transform: lowercase;
 
-      color: rgba(255,255,255,.85);
-      text-shadow: none;
+      color: rgba(255,255,255,.72);
+      text-shadow:
+        0 0 2px rgba(255,255,255,.18),
+        0 0 10px rgba(200,220,255,.10);
 
       opacity: 0;
       transform: translateY(10px);
-      transition: opacity 2400ms ease, transform 2400ms ease;
-
+      transition: opacity 2400ms ease, transform 2400ms ease, color 2400ms ease;
       user-select: none;
       cursor: pointer;
     }
@@ -258,19 +294,27 @@
       opacity: 1;
       transform: translateY(0);
     }
+    .enter:hover{
+      color: rgba(255,255,255,.90);
+      transform: translateY(-1px);
+      text-shadow:
+        0 0 3px rgba(255,255,255,.22),
+        0 0 14px rgba(200,220,255,.14);
+    }
 
     @media (max-width: 520px){
       :root{ --stagePad: 28px; }
-      .passage{ font-size: clamp(18px, 4.2vw, 24px); }
+      .passage{ font-size: clamp(16px, 4.0vw, 21px); }
       .passage p.part{ margin-bottom: 4.2em; }
-      .enter{ margin-top: 120px; }
+      .enter{ margin-top: 130px; }
     }
 
     @media (prefers-reduced-motion: reduce){
-      .invocation, .passage, .enter{ transition: none !important; opacity: 1; transform: none; }
+      .invocation, .passage, .enter{ transition: none !important; opacity: 1; transform: none; filter:none; animation:none; }
       .rain{ display:none; }
       .stage-inner img{ transform: scale(var(--imgScale)); }
       .ichor-field{ display:none; }
+      body::after{ display:none; }
     }
   </style>
 </head>
@@ -431,11 +475,15 @@
           if (!entry.isIntersecting || rainStarted) return;
           rainStarted = true;
 
+          // ramp rain in (CSS transition does the smoothing)
           ceremony.classList.add("rain-on");
           startRain();
 
-          setTimeout(() => ceremony.classList.add("text-on"), 850);
-          setTimeout(() => ceremony.classList.add("enter-on"), 3900);
+          // reveal text after rain begins
+          setTimeout(() => ceremony.classList.add("text-on"), 900);
+
+          // reveal enter later
+          setTimeout(() => ceremony.classList.add("enter-on"), 4200);
         }, { threshold: 0.35 });
 
         io.observe(ceremony);
