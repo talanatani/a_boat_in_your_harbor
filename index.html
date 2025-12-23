@@ -7,7 +7,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
     :root{
@@ -75,7 +75,6 @@
       opacity: .65;
     }
 
-    /* PORTAL */
     .portal{
       position: relative;
       height: calc(var(--portalPages) * 100vh);
@@ -148,7 +147,6 @@
       will-change: opacity;
     }
 
-    /* CEREMONY */
     .ceremony{
       position: relative;
       height: calc(var(--ceremonyPages) * 100vh);
@@ -226,33 +224,30 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* l1 dual-render */
-    .l1-desktop{ display:block; }
-    .l1-mobile{ display:none; }
+    /* Mobile-only line breaks inside l1 */
+    .mbr{ display:none; }
 
-    .boundless{ font-weight: 600; } /* slightly heavier */
+    /* Emphasis for “boundless love” */
+    .emph{
+      font-weight: 500; /* Inter 500 is loaded */
+      letter-spacing: .01em;
+    }
 
-    /* Mobile: forced 4-line layout with NO extra wrapping inside lines */
+    /* ✅ MOBILE: force EXACT 4-line layout for l1 */
     @media (max-width: 540px){
-      .line{ white-space: nowrap; max-width:none; }
+      .line{ white-space: nowrap; max-width: none; }
 
       #l1{
         white-space: normal;
         max-width: 92vw;
-        line-height: 1.18;
-        letter-spacing: .005em;
-        font-size: clamp(20px, 6.0vw, 28px);
-        transform: translate3d(-50%,0,0) scale(1);
-        transform-origin: center center;
+
+        /* Keep it readable and not tiny */
+        font-size: clamp(22px, 6.2vw, 32px);
+        line-height: 1.12;
+        letter-spacing: .006em;
       }
 
-      .l1-desktop{ display:none; }
-      .l1-mobile{ display:block; }
-
-      .l1-mobile .mline{
-        display:block;
-        white-space: nowrap;  /* ✅ prevents “we imagine in this / exhibition” */
-      }
+      .mbr{ display:block; }
     }
 
     .enter{
@@ -260,7 +255,6 @@
       left:50%;
       bottom: 8vh;
       transform: translate3d(-50%,0,0);
-
       background: none;
       border: none;
       padding: 0;
@@ -304,17 +298,12 @@
     <div class="ceremony-stage">
       <div class="ceremony-inner">
 
+        <!-- Desktop stays single-line; Mobile uses the forced 4-line breaks -->
         <div class="line s1" id="l1">
-          <span class="l1-desktop">
-            we imagine in this exhibition an invitation to witness our creation of new ways of experiencing <span class="boundless">boundless love</span>
-          </span>
-
-          <span class="l1-mobile" aria-hidden="true">
-            <span class="mline">we imagine in this exhibition</span>
-            <span class="mline">an invitation to witness our creation</span>
-            <span class="mline">of new ways of experiencing</span>
-            <span class="mline"><span class="boundless">boundless love</span></span>
-          </span>
+          we imagine in this exhibition<br class="mbr">
+          an invitation to witness our creation<br class="mbr">
+          of new ways of experiencing<br class="mbr">
+          <span class="emph">boundless love</span>
         </div>
 
         <div class="line s2" id="l2">forward-facing and fusing ethereality with inspiration</div>
@@ -454,8 +443,10 @@
       return x*x*(3 - 2*x);
     }
 
+    // Scale a single line to fit within viewport width while preserving translate(-50%)
     function fitLine(el, maxVW = 0.92, minScale = 0.72){
       if (!el) return;
+
       el.style.transform = "translate3d(-50%,0,0) scale(1)";
 
       const maxW = Math.min(window.innerWidth * maxVW, 1200);
@@ -467,46 +458,14 @@
       }
     }
 
-    // ✅ Scale the l1 mobile block (based on widest line) so none of the mlines wrap
-    function fitL1Mobile(){
-      const l1 = document.getElementById("l1");
-      if (!l1) return;
-
-      if (window.innerWidth > 540){
-        // reset on desktop
-        l1.style.transform = "translate3d(-50%,0,0) scale(1)";
-        return;
-      }
-
-      const mobile = l1.querySelector(".l1-mobile");
-      if (!mobile) return;
-
-      const mlines = Array.from(mobile.querySelectorAll(".mline"));
-      if (!mlines.length) return;
-
-      // reset first
-      l1.style.transform = "translate3d(-50%,0,0) scale(1)";
-
-      // measure widest line
-      const maxW = Math.min(window.innerWidth * 0.92, 520);
-      let widest = 0;
-      for (const s of mlines){
-        widest = Math.max(widest, s.scrollWidth);
-      }
-
-      if (widest > maxW){
-        const scale = Math.max(0.80, Math.min(1, maxW / widest));
-        l1.style.transform = `translate3d(-50%,0,0) scale(${scale.toFixed(3)})`;
-      }
-    }
-
     function fitLines(){
       if (window.innerWidth <= 540){
-        fitL1Mobile(); // important: keep your exact 4 lines
+        // Mobile: l1 is multi-line; don't scale it
         fitLine(lines[1], 0.92, 0.75);
         fitLine(lines[2], 0.92, 0.75);
         fitLine(lines[3], 0.92, 0.75);
       } else {
+        // Desktop: keep everything single-line; scale down gently if needed
         fitLine(lines[0], 0.92, 0.85);
         fitLine(lines[1], 0.92, 0.85);
         fitLine(lines[2], 0.92, 0.85);
@@ -596,6 +555,7 @@
     window.addEventListener("resize", () => { resizeOcean(); fitLines(); }, { passive:true });
     window.addEventListener("load", () => { fitLines(); onScroll(); });
 
+    // run once immediately too
     fitLines();
     onScroll();
 
