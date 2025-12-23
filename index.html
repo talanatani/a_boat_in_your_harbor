@@ -224,20 +224,25 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* ✅ Mobile: keep single-line, and make l1 inherently smaller + slightly tighter */
+    /* ✅ Desktop default: l1 is single line (desktop span only) */
+    #l1 .mobile{ display:none; }
+    #l1 .desktop{ display:inline; }
+
+    /* ✅ Mobile: show 2-line controlled break for l1 (and keep it BIG + readable) */
     @media (max-width: 540px){
-  .line{ white-space: nowrap; max-width: none; }
+      .line{ white-space: nowrap; max-width: none; }
 
-  /* Only l1 is allowed to wrap on mobile */
-  #l1{
-    white-space: normal;
-    max-width: 92vw;
-    font-size: clamp(15px, 4.2vw, 19px);
-    line-height: 1.18;
-    letter-spacing: .005em;
-  }
-}
+      #l1{
+        white-space: normal;
+        max-width: 92vw;
+        font-size: clamp(18px, 4.9vw, 24px);
+        line-height: 1.18;
+        letter-spacing: .005em;
+      }
 
+      #l1 .desktop{ display:none; }
+      #l1 .mobile{ display:inline; }
+    }
 
     .enter{
       position:absolute;
@@ -286,7 +291,13 @@
   <section class="ceremony" id="ceremony">
     <div class="ceremony-stage">
       <div class="ceremony-inner">
-        <div class="line s1" id="l1">we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love</div>
+
+        <!-- ✅ l1: desktop single-line, mobile controlled 2 lines -->
+        <div class="line s1" id="l1">
+          <span class="desktop">we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love</span>
+          <span class="mobile">we imagine in this exhibition an invitation to witness our creation<br>of new ways of experiencing boundless love</span>
+        </div>
+
         <div class="line s2" id="l2">forward-facing and fusing ethereality with inspiration</div>
         <div class="line s3" id="l3">we bear witness and release limitation</div>
         <div class="line s4" id="l4">opening to transformation</div>
@@ -438,19 +449,18 @@
     }
 
     function fitLines(){
-  if (window.innerWidth <= 540){
-    // l1 wraps on mobile; do NOT scale it
-    fitLine(lines[1], 0.92, 0.75);
-    fitLine(lines[2], 0.92, 0.75);
-    fitLine(lines[3], 0.92, 0.75);
-  } else {
-    fitLine(lines[0], 0.92, 0.85);
-    fitLine(lines[1], 0.92, 0.85);
-    fitLine(lines[2], 0.92, 0.85);
-    fitLine(lines[3], 0.92, 0.85);
-  }
-}
-
+      if (window.innerWidth <= 540){
+        // l1 is controlled by HTML (2-line); do NOT scale it
+        fitLine(lines[1], 0.92, 0.75);
+        fitLine(lines[2], 0.92, 0.75);
+        fitLine(lines[3], 0.92, 0.75);
+      } else {
+        fitLine(lines[0], 0.92, 0.85);
+        fitLine(lines[1], 0.92, 0.85);
+        fitLine(lines[2], 0.92, 0.85);
+        fitLine(lines[3], 0.92, 0.85);
+      }
+    }
 
     function portalScroll(){
       const rect = portal.getBoundingClientRect();
