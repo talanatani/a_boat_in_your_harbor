@@ -16,13 +16,11 @@
       --stagePad: 40px;
 
       --portalPages: 2.6;
-      --ceremonyPages: 7.4; /* ✅ more space between lines */
+      --ceremonyPages: 7.4; /* more scroll between lines */
 
-      /* reveal caps */
       --mistOpacityMax: 0.55;
       --rainOpacityMax: 0.55;
 
-      /* text */
       --textSize: clamp(16px, 1.6vw, 22px);
     }
 
@@ -37,16 +35,15 @@
     }
 
     /* =========================
-       ICHOR / MIST + OCEAN (HIDDEN UNTIL CEREMONY)
+       MIST + OCEAN (hidden until ceremony)
        ========================= */
     .mist{
       position: fixed;
       inset: -20%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0;                 /* ✅ no mist on portal */
+      opacity: 0;
       filter: blur(26px);
-
       background:
         radial-gradient(1400px 1200px at 50% 35%, rgba(210,225,255,.16), rgba(0,0,0,0) 68%),
         radial-gradient(1600px 1400px at 50% 80%, rgba(120,150,210,.12), rgba(0,0,0,0) 72%),
@@ -66,12 +63,12 @@
       inset: 0;
       z-index: 0;
       pointer-events: none;
-      opacity: 0;                 /* ✅ no rain on portal */
+      opacity: 0;
       filter: blur(0.25px);
       will-change: opacity;
     }
 
-    /* subtle vignette */
+    /* vignette */
     body::after{
       content:"";
       position: fixed;
@@ -126,7 +123,7 @@
       z-index:2;
     }
 
-    /* BLANKET ME — FIXED FOR MOBILE (never wraps) */
+    /* BLANKET ME (never wraps) */
     .invocation{
       position:absolute;
       left:50%;
@@ -173,10 +170,10 @@
       display:grid;
       place-items:center;
       overflow:hidden;
-      position: relative; /* ✅ needed for the void band */
+      position: relative; /* needed for void band */
     }
 
-    /* ✅ the black space at the bottom */
+    /* bottom black void band */
     .ceremony-stage::after{
       content:"";
       position:absolute;
@@ -196,10 +193,10 @@
       position:relative;
       display:grid;
       place-items:center;
-      z-index: 3; /* above stage background; below enter which is z=5 */
+      z-index: 3;
     }
 
-    /* TEXT LINES (smooth via rAF; NO CSS transitions) */
+    /* TEXT LINES — rAF handles smoothness, NO CSS transitions */
     .line{
       position:absolute;
       left:50%;
@@ -223,11 +220,13 @@
       opacity: 0;
       filter: blur(1.2px);
 
-      transition: none; /* ✅ critical: prevents jitter/glitch */
+      transition: none; /* critical */
       will-change: opacity, filter, transform;
 
       -webkit-font-smoothing: antialiased;
       text-rendering: geometricPrecision;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
 
       pointer-events:none;
       z-index: 3;
@@ -239,61 +238,46 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* MOBILE: allow wrapping for lines EXCEPT line 1 */
+    /* MOBILE: wrap lines if needed EXCEPT line 1 */
     @media (max-width: 540px){
-      .line{
-        white-space: normal;
-        max-width: 92vw;
-      }
-      #l1{
-        white-space: nowrap; /* ✅ stays 1 line */
-        max-width: none;
-      }
+      .line{ white-space: normal; max-width: 92vw; }
+      #l1{ white-space: nowrap; max-width: none; }
     }
 
-    /* ENTER — placed into the bottom black space */
+    /* ENTER — still a button, but looks like a single word */
     .enter{
       position:absolute;
       left:50%;
-      bottom: 14vh;                 /* ✅ inside the void band */
-      top:auto;
+      bottom: 14vh; /* inside the black void band */
       transform: translate3d(-50%,0,0);
 
-      padding: 14px 30px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.22);
-      background: rgba(255,255,255,.03);
-      backdrop-filter: blur(7px);
+      background: none;
+      border: none;
+      padding: 0;
 
-      font-size: 14px;
-      letter-spacing: .18em;
+      font-size: 15px;
+      letter-spacing: .22em;
       text-transform: lowercase;
       font-weight: 400;
 
       color: rgba(255,255,255,.85);
       text-shadow:
-        0 0 10px rgba(220,235,255,.18),
-        0 0 26px rgba(200,220,255,.14);
+        0 0 8px rgba(220,235,255,.18),
+        0 0 22px rgba(200,220,255,.12);
 
-      box-shadow:
-        0 0 18px rgba(200,220,255,.10),
-        inset 0 0 16px rgba(255,255,255,.05);
-
-      opacity: 0;
-      filter: blur(.8px);
-      transition: opacity 500ms linear, filter 800ms ease, transform 800ms ease;
       cursor: pointer;
       user-select:none;
-      z-index: 5;                   /* ✅ above the void band */
+
+      opacity: 0;
+      transition: opacity 400ms ease;
+
+      z-index: 6; /* above void band overlay */
     }
     .enter:hover{
       opacity: 1;
-      filter: blur(0px);
-      transform: translate3d(-50%,0,0) scale(1.01);
-      border-color: rgba(255,255,255,.35);
-      box-shadow:
-        0 0 24px rgba(200,220,255,.14),
-        inset 0 0 18px rgba(255,255,255,.06);
+    }
+    .enter:focus{
+      outline: none;
     }
   </style>
 </head>
@@ -328,12 +312,12 @@
     </div>
   </section>
 
-  <!-- NEXT CHAMBER ANCHOR (hook) -->
+  <!-- NEXT (optional anchor) -->
   <section id="next" style="height:120vh; background:#000; position:relative; z-index:1;"></section>
 
   <script>
     /* =========================================================
-       OCEAN RAIN (works + scroll-boostable)
+       OCEAN (rain/ash canvas)
        ========================================================= */
     const ocean = document.getElementById("ocean");
     const ctx = ocean.getContext("2d", { alpha: true });
@@ -341,7 +325,6 @@
 
     let W=0, H=0, DPR=1;
     let drops = [];
-    let raf = null;
 
     function resizeOcean(){
       DPR = Math.min(2, window.devicePixelRatio || 1);
@@ -407,36 +390,20 @@
 
     function loop(){
       drawOcean(window.__rainBoost || 1);
-      raf = requestAnimationFrame(loop);
+      requestAnimationFrame(loop);
     }
 
     resizeOcean();
     loop();
-    window.addEventListener("resize", resizeOcean);
+    window.addEventListener("resize", () => { resizeOcean(); fitLine1(); }, { passive:true });
 
     /* =========================================================
-       PORTAL DRIFT + BLANKET ME FADE
-       (accepts p from rAF smoother)
+       PORTAL + CEREMONY (driven by smoothed progress)
        ========================================================= */
     const hero = document.getElementById("hero");
     const portal = document.getElementById("portal");
     const invocation = document.getElementById("invocation");
 
-    function portalScroll(p){
-      const vh = window.innerHeight;
-
-      const driftPx = vh * 0.28;
-      const y = (0.5 - p) * 2 * driftPx;
-      hero.style.setProperty("--y", `${y}px`);
-
-      const fadeEnd = 0.78;
-      const t = Math.min(1, p / fadeEnd);
-      invocation.style.setProperty("--invOpacity", (1 - t).toFixed(3));
-    }
-
-    /* =========================================================
-       CEREMONY: one line at a time + smooth (accepts p)
-       ========================================================= */
     const ceremony = document.getElementById("ceremony");
     const lines = [
       document.getElementById("l1"),
@@ -451,12 +418,11 @@
       return x*x*(3 - 2*x);
     }
 
-    // ✅ keep l1 one line on mobile by scaling down if needed
+    // keep l1 as a single line on mobile by scaling down if needed
     function fitLine1(){
       const el = lines[0];
       if (!el) return;
 
-      // reset to base transform (translate3d from CSS)
       el.style.transform = "translate3d(-50%,0,0) scale(1)";
 
       const maxW = Math.min(window.innerWidth * 0.92, 1200);
@@ -468,25 +434,35 @@
       }
     }
 
+    function portalScroll(p){
+      const vh = window.innerHeight;
+
+      const driftPx = vh * 0.28;
+      const y = (0.5 - p) * 2 * driftPx;
+      hero.style.setProperty("--y", `${y}px`);
+
+      const fadeEnd = 0.78;
+      const t = Math.min(1, p / fadeEnd);
+      invocation.style.setProperty("--invOpacity", (1 - t).toFixed(3));
+    }
+
     function ceremonyScroll(p){
-      // ✅ “better” ramp: hidden on portal, then baseline + intensify in ceremony
+      // “better” ramp: no rain until ceremony begins, then baseline + intensify
       const rainIn = smoothstep((p - 0.05) / 0.35);
 
       const rainMax = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--rainOpacityMax")) || 0.55;
       const mistMax = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--mistOpacityMax")) || 0.55;
 
-      // ocean: baseline 0.18 once ceremony begins
       const rainOpacity = (rainIn <= 0.001) ? 0 : (0.18 + rainIn * rainMax);
       ocean.style.opacity = rainOpacity.toFixed(3);
       window.__rainBoost = 1 + rainIn * 1.15;
 
-      // mist: baseline + ramp
       const mistOpacity = (rainIn <= 0.001) ? 0 : (0.10 + rainIn * mistMax);
       mistEl.style.opacity = Math.min(0.85, mistOpacity).toFixed(3);
 
-      // LINE SEQUENCING (one at a time; lots of scroll space)
+      // one-line-at-a-time sequencing
       const n = lines.length;
-      const seg = 1 / (n + 1.35);  // leaves end room for enter
+      const seg = 1 / (n + 1.35);
 
       const inStart = 0.16;
       const outStart = 0.56;
@@ -511,17 +487,25 @@
         lines[i].style.filter = `blur(${(1.2 * (1 - alpha)).toFixed(2)}px)`;
       }
 
-      // ✅ breath before enter
+      // breath before enter
       const enterStart = (n * seg) + 0.08;
       const enterAlpha = smoothstep((p - enterStart) / 0.18);
       enter.style.opacity = enterAlpha.toFixed(3);
-      enter.style.filter = `blur(${(0.8 * (1 - enterAlpha)).toFixed(2)}px)`;
 
       fitLine1();
+
+      // ---- FINAL REST STATE (prevents "everything disappears") ----
+      if (p > 0.985){
+        lines.forEach(l => {
+          l.style.opacity = "0";
+          l.style.filter = "blur(1.2px)";
+        });
+        enter.style.opacity = "1";  // ✅ always visible at the end
+      }
     }
 
     /* =========================================================
-       SMOOTH SCROLL DRIVER (fixes glitchy text fades)
+       SMOOTH SCROLL DRIVER (prevents glitchy fades)
        ========================================================= */
     function getProgress(el){
       const rect = el.getBoundingClientRect();
@@ -541,7 +525,6 @@
     }
 
     function tick(){
-      // adjust smoothing here: 0.10 slower, 0.18 snappier
       __portalNow = lerp(__portalNow, __portalTarget, 0.12);
       __cerNow    = lerp(__cerNow,    __cerTarget,    0.12);
 
@@ -565,7 +548,6 @@
     }
 
     window.addEventListener("scroll", onScroll, { passive:true });
-    window.addEventListener("resize", () => { captureTargets(); onScroll(); fitLine1(); }, { passive:true });
 
     window.addEventListener("load", () => {
       fitLine1();
@@ -578,9 +560,10 @@
 
     /* ENTER BUTTON ACTION */
     enter.addEventListener("click", () => {
+      // If you want "no next yet", you can make it just glow or do nothing.
+      // For now: scroll to black anchor (safe).
       const next = document.getElementById("next");
       if (next) next.scrollIntoView({ behavior: "smooth", block: "start" });
-      // Replace with window.location.href = "next.html" if you want page navigation.
     });
   </script>
 </body>
