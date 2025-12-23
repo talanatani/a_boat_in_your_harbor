@@ -36,50 +36,46 @@
     display:grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
-    align-items:stretch;
   }
 
   .cell{
     display:flex;
     width:100%;
     height:100%;
+    padding:18px;
+    box-sizing:border-box;
   }
 
   /* anchors */
-  .lt{ justify-content:flex-start; align-items:flex-start; } /* Gibran text screenshot */
-  .rt{ justify-content:flex-end;   align-items:flex-start; } /* veiled image */
-  .lb{ justify-content:flex-start; align-items:flex-end;   } /* Adria image */
-  .rb{ justify-content:flex-end;   align-items:flex-end;   } /* Adria text screenshot */
+  .lt{ justify-content:flex-start; align-items:flex-start; }
+  .rt{ justify-content:flex-end;   align-items:flex-start; }
+  .lb{ justify-content:flex-start; align-items:flex-end;   }
+  .rb{ justify-content:flex-end;   align-items:flex-end;   }
 
-  /* media sizing */
-  .relic{
-    width:min(680px, 100%);
-    height:auto;
-    opacity:.95;
-    display:block;
-  }
-  .veil, .adriaImg{
+  /* media */
+  .relic,
+  .veil,
+  .adriaImg{
     width:min(680px, 100%);
     height:auto;
     opacity:.95;
     display:block;
   }
 
-  /* ----- TICKER (as separator, seamless loop) ----- */
+  /* ----- TICKER (clean, borderless, seamless) ----- */
   .ticker-wrap{
     position:fixed;
     left:0;
     right:0;
     top:50%;
     transform:translateY(-50%);
-    width:100%;
     overflow:hidden;
-    opacity:.7;
+    opacity:.75;
     z-index:2;
-    padding:14px 0;
-    border-top:1px solid rgba(255,255,255,0.08);
-    border-bottom:1px solid rgba(255,255,255,0.08);
     pointer-events:none;
+
+    border:none;
+    background:transparent;
   }
 
   .ticker{
@@ -90,17 +86,21 @@
   .tickerTrack{
     display:inline-flex;
     align-items:center;
-    gap: 28px;
+    gap:18px;
     width:max-content;
     will-change:transform;
-    animation:tickerScroll 40s linear infinite;
+    animation:tickerScroll 45s linear infinite;
+
     font-size:14px;
     letter-spacing:.14em;
-    padding-left: 12px; /* tiny buffer so it never kisses the edge */
+    padding-left:24px;
   }
 
   .tickerItem{ opacity:.9; }
-  .tickerSep{ opacity:.35; }
+  .tickerSep{
+    opacity:.35;
+    margin:0 10px;
+  }
 
   @keyframes tickerScroll{
     from{ transform:translateX(0); }
@@ -111,24 +111,29 @@
     .tickerTrack{ animation:none; }
   }
 
-  /* mobile: stack cleanly */
+  /* mobile */
   @media (max-width: 820px){
-    html,body{ overflow:auto; } /* allow scroll if needed on small screens */
+    html,body{ overflow:auto; }
+
     .room{
       height:auto;
       min-height:100%;
-      grid-template-columns: 1fr;
-      grid-template-rows: auto auto auto auto;
-      gap: 22px;
-      padding: 18px 16px 90px;
+      grid-template-columns:1fr;
+      grid-template-rows:auto auto auto auto;
+      padding:18px 16px 90px;
+      gap:22px;
     }
+
     .ticker-wrap{
       position:sticky;
-      top: 50vh;
-      transform: translateY(-50%);
+      top:50vh;
+      transform:translateY(-50%);
     }
-    .rt, .rb{ justify-content:flex-start; align-items:flex-start; }
-    .lb{ justify-content:flex-start; align-items:flex-start; }
+
+    .rt,.rb,.lb{
+      justify-content:flex-start;
+      align-items:flex-start;
+    }
   }
 </style>
 </head>
@@ -138,49 +143,49 @@
 <canvas id="rain"></canvas>
 
 <div class="room">
-  <!-- Left / Top: Gibran text screenshot -->
+  <!-- Left / Top -->
   <div class="cell lt">
     <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
   </div>
 
-  <!-- Right / Top: veiled image -->
+  <!-- Right / Top -->
   <div class="cell rt">
-    <img class="veil" src="IMG_7318.JPG" alt="Veiled image">
+    <img class="veil" src="IMG_7551.JPG" alt="Veiled image">
   </div>
 
-  <!-- Left / Bottom: Adria image -->
+  <!-- Left / Bottom -->
   <div class="cell lb">
     <img class="adriaImg" src="adria-image.png" alt="Adria image">
   </div>
 
-  <!-- Right / Bottom: Adria text screenshot -->
+  <!-- Right / Bottom -->
   <div class="cell rb">
     <img class="relic" src="adria-text.png" alt="Adria text screenshot">
   </div>
 </div>
 
-<!-- Ticker separator -->
+<!-- Ticker -->
 <div class="ticker-wrap" aria-label="affirmation ticker">
   <div class="ticker">
     <div class="tickerTrack" id="tickerTrack">
-      <span class="tickerItem">i am well-able</span><span class="tickerSep">✦</span>
-      <span class="tickerItem">i am valuable</span><span class="tickerSep">✦</span>
-      <span class="tickerItem">i am worthy</span><span class="tickerSep">✦</span>
-      <span class="tickerItem">i am worthy of love</span><span class="tickerSep">✦</span>
-      <span class="tickerItem">i am a masterpiece</span><span class="tickerSep">✦</span>
-      <span class="tickerItem">i am destined</span><span class="tickerSep">✦</span>
-      <span class="tickerItem">i am eternal</span><span class="tickerSep">✦</span>
-      <span class="tickerItem">i am a child of the creator of the universe</span><span class="tickerSep">✦</span>
+      <span class="tickerItem">i am well-able</span><span class="tickerSep">•</span>
+      <span class="tickerItem">i am valuable</span><span class="tickerSep">•</span>
+      <span class="tickerItem">i am worthy</span><span class="tickerSep">•</span>
+      <span class="tickerItem">i am worthy of love</span><span class="tickerSep">•</span>
+      <span class="tickerItem">i am a masterpiece</span><span class="tickerSep">•</span>
+      <span class="tickerItem">i am destined</span><span class="tickerSep">•</span>
+      <span class="tickerItem">i am eternal</span><span class="tickerSep">•</span>
+      <span class="tickerItem">i am a child of the creator of the universe</span><span class="tickerSep">•</span>
     </div>
   </div>
 </div>
 
 <script>
-/* Seamless ticker loop: duplicate the content once */
+/* Seamless ticker */
 const track = document.getElementById("tickerTrack");
-track.innerHTML = track.innerHTML + track.innerHTML;
+track.innerHTML += track.innerHTML;
 
-/* very simple rain-on-glass */
+/* rain-on-glass */
 const c=document.getElementById("rain"),ctx=c.getContext("2d");
 let w,h,drops=[];
 function resize(){
