@@ -224,30 +224,33 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* Mobile-only line breaks inside l1 */
+    /* Hide mobile-only breaks on desktop */
     .mbr{ display:none; }
 
-    /* Emphasis for “boundless love” */
-    .emph{
-      font-weight: 500; /* Inter 500 is loaded */
-      letter-spacing: .01em;
-    }
+    /* Mobile-only "forced lines" inside l1 */
+    .mline{ display:inline; }
+    .emph{ font-weight: 500; } /* heavier "boundless love" */
 
-    /* ✅ MOBILE: force EXACT 4-line layout for l1 */
     @media (max-width: 540px){
-      .line{ white-space: nowrap; max-width: none; }
-
       #l1{
+        /* allow the <br> breaks to create multiple lines,
+           but prevent Safari from wrapping inside each line */
         white-space: normal;
         max-width: 92vw;
 
-        /* Keep it readable and not tiny */
         font-size: clamp(22px, 6.2vw, 32px);
         line-height: 1.12;
         letter-spacing: .006em;
       }
 
       .mbr{ display:block; }
+
+      /* THIS is the key: each intended line cannot wrap */
+      .mline{
+        display:inline-block;
+        white-space: nowrap;
+        max-width: 92vw;
+      }
     }
 
     .enter{
@@ -298,12 +301,13 @@
     <div class="ceremony-stage">
       <div class="ceremony-inner">
 
-        <!-- Desktop stays single-line; Mobile uses the forced 4-line breaks -->
+        <!-- Desktop: renders as one line (no <br> visible)
+             Mobile: EXACTLY 3 breaks + heavier “boundless love” -->
         <div class="line s1" id="l1">
-          we imagine in this exhibition<br class="mbr">
-          an invitation to witness our creation<br class="mbr">
-          of new ways of experiencing<br class="mbr">
-          <span class="emph">boundless love</span>
+          <span class="mline">we imagine in this exhibition</span><br class="mbr">
+          <span class="mline">an invitation to witness our creation</span><br class="mbr">
+          <span class="mline">of new ways of experiencing</span><br class="mbr">
+          <span class="mline emph">boundless love</span>
         </div>
 
         <div class="line s2" id="l2">forward-facing and fusing ethereality with inspiration</div>
@@ -443,7 +447,6 @@
       return x*x*(3 - 2*x);
     }
 
-    // Scale a single line to fit within viewport width while preserving translate(-50%)
     function fitLine(el, maxVW = 0.92, minScale = 0.72){
       if (!el) return;
 
@@ -460,12 +463,12 @@
 
     function fitLines(){
       if (window.innerWidth <= 540){
-        // Mobile: l1 is multi-line; don't scale it
+        // Mobile: don't scale l1 (we want your exact breaks)
         fitLine(lines[1], 0.92, 0.75);
         fitLine(lines[2], 0.92, 0.75);
         fitLine(lines[3], 0.92, 0.75);
       } else {
-        // Desktop: keep everything single-line; scale down gently if needed
+        // Desktop: scale gently if needed
         fitLine(lines[0], 0.92, 0.85);
         fitLine(lines[1], 0.92, 0.85);
         fitLine(lines[2], 0.92, 0.85);
@@ -555,7 +558,6 @@
     window.addEventListener("resize", () => { resizeOcean(); fitLines(); }, { passive:true });
     window.addEventListener("load", () => { fitLines(); onScroll(); });
 
-    // run once immediately too
     fitLines();
     onScroll();
 
