@@ -25,7 +25,7 @@
       /* ✅ portal title placement */
       --textTop: 18%;
 
-      /* ✅ FAIL-SAFE: title visible even if JS fails */
+      /* ✅ FAIL-SAFE */
       --invOpacity: 1;
     }
 
@@ -44,15 +44,15 @@
       inset: 0;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.85;
-      filter: blur(20px);
+      opacity: 0.55;              /* ✅ present but subtle */
+      filter: blur(18px);
       background:
         radial-gradient(1200px 900px at 50% 42%,
-          rgba(210,225,255,0.14),
+          rgba(210,225,255,0.10),
           rgba(0,0,0,0) 62%
         ),
         radial-gradient(1400px 1000px at 50% 75%,
-          rgba(180,200,255,0.08),
+          rgba(180,200,255,0.06),
           rgba(0,0,0,0) 70%
         );
     }
@@ -174,28 +174,28 @@
     }
     .ceremony.rain-on .rain{ opacity: 0.85; }
 
-    /* ===== SPACEY / SPECTRAL PASSAGE ===== */
+    /* ===== PASSAGE: CLEAN (match screenshot) ===== */
     .passage{
       position: relative;
       z-index: 2;
       text-align: center;
-      max-width: 56ch;
+
+      /* ✅ allow the first line to run long like your screenshot */
+      width: min(1200px, calc(100vw - var(--stagePad)));
+      max-width: none;
+
       padding: 0 10px;
-
       font-family: "Inter", system-ui, -apple-system, Helvetica, Arial, sans-serif;
-      font-weight: 400;
-      letter-spacing: .22em;
-      line-height: 1.55;                 /* ✅ touch tighter */
-      font-size: clamp(14px, 1.55vw, 19px);
+      font-weight: 400;                /* ✅ not ghostly */
+      letter-spacing: 0.01em;          /* ✅ normal, like screenshot */
+      line-height: 1.3;                /* ✅ tighter (your example) */
+      font-size: clamp(22px, 2.4vw, 34px);
 
-      /* ✅ change: slightly stronger spectral fill */
-      color: rgba(255,255,255,.26);
+      /* ✅ solid, readable */
+      color: rgba(255,255,255,.90);
 
-      /* ✅ change: tighter glow for sharper glyphs */
-      text-shadow:
-        0 0 4px rgba(255,255,255,.42),
-        0 0 14px rgba(200,220,255,.20),
-        0 0 34px rgba(180,200,255,.12);
+      /* ✅ remove glow/ghost entirely */
+      text-shadow: none;
 
       opacity: 0;
       transform: translateY(10px);
@@ -203,39 +203,25 @@
       will-change: opacity, transform;
     }
 
-    .passage::before{
-      content:"";
-      position:absolute;
-      inset:-42px;
-      pointer-events:none;
-      background: radial-gradient(
-        circle at 50% 45%,
-        rgba(210,225,255,0.10),
-        rgba(0,0,0,0)
-      );
-      filter: blur(18px);
-      opacity: 0;
-      transition: opacity 2200ms ease;
-    }
-    .ceremony.text-on .passage::before{ opacity: 0.7; }
+    /* ✅ remove the bloom layer that makes it hazy */
+    .passage::before{ content:none; }
 
     .ceremony.text-on .passage{
       opacity: 1;
       transform: translateY(0);
     }
 
-    /* ✅ change: spacing control
-       - first two lines closer
-       - ~4 lines of space between each "part" (we treat line 1+2 as one part) */
+    /* spacing: first block slightly separated, then large gaps */
     .passage p{
-      margin: 0 0 0.9em;                /* tighter default for first 2 lines */
+      margin: 0 0 0.9em;
     }
+
+    /* ~4 lines of space between parts */
     .passage p.part{
-      margin-bottom: 5.5em;             /* ~4 lines of space at this line-height */
+      margin-bottom: 4.6em;
     }
-    .passage p:last-child{
-      margin-bottom: 0;
-    }
+
+    .passage p:last-child{ margin-bottom: 0; }
 
     /* fade out once past passage */
     .passage.is-past{
@@ -243,30 +229,27 @@
       transform: translateY(-10px);
       pointer-events: none;
     }
-    .passage.is-past::before{ opacity: 0; }
 
     /* ENTER */
     .enter{
       position: relative;
       z-index: 2;
 
-      margin-top: 140px;                /* ✅ more space before enter */
+      margin-top: 140px;
       padding-top: 16px;
 
       font-family: "Inter", system-ui, -apple-system, Helvetica, Arial, sans-serif;
       font-weight: 400;
-      font-size: clamp(12px, 1.25vw, 17px);
-      letter-spacing: .42em;
+      font-size: clamp(16px, 1.5vw, 22px);
+      letter-spacing: .08em;
       text-transform: lowercase;
 
-      color: rgba(255,255,255,.14);
-      text-shadow:
-        0 0 6px rgba(255,255,255,.22),
-        0 0 22px rgba(180,200,255,.08);
+      color: rgba(255,255,255,.85);
+      text-shadow: none;
 
       opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 3200ms ease, transform 3200ms ease;
+      transform: translateY(10px);
+      transition: opacity 2400ms ease, transform 2400ms ease;
 
       user-select: none;
       cursor: pointer;
@@ -275,24 +258,18 @@
       opacity: 1;
       transform: translateY(0);
     }
-    .enter:hover{
-      color: rgba(255,255,255,.28);
-      text-shadow:
-        0 0 8px rgba(255,255,255,.32),
-        0 0 28px rgba(190,220,255,.10);
-    }
 
     @media (max-width: 520px){
       :root{ --stagePad: 28px; }
-      .passage p.part{ margin-bottom: 5.1em; }
-      .enter{ margin-top: 130px; }
+      .passage{ font-size: clamp(18px, 4.2vw, 24px); }
+      .passage p.part{ margin-bottom: 4.2em; }
+      .enter{ margin-top: 120px; }
     }
 
     @media (prefers-reduced-motion: reduce){
       .invocation, .passage, .enter{ transition: none !important; opacity: 1; transform: none; }
       .rain{ display:none; }
       .stage-inner img{ transform: scale(var(--imgScale)); }
-      .passage::before{ display:none; }
       .ichor-field{ display:none; }
     }
   </style>
@@ -365,7 +342,7 @@
       invocation.style.setProperty("--invOpacity", opacity);
     }
 
-    // ===== Rain canvas =====
+    // Rain canvas
     const rctx = rainCanvas?.getContext("2d", { alpha: true });
 
     let RW = 0, RH = 0, DPR = 1;
