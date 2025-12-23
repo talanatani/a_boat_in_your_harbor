@@ -229,9 +229,17 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
+    /* Mobile wrap for lines, but we will force “boundless love” to hang */
     @media (max-width: 540px){
       .line{ white-space: normal; max-width: 92vw; }
-      #l1{ white-space: nowrap; max-width: none; }
+      #l1{ white-space: normal; max-width: 92vw; } /* allow our manual line break to do the work */
+    }
+
+    /* Hanging line styling */
+    .hang{
+      display:block;
+      margin-top: .22em;
+      white-space: normal;
     }
 
     .enter{
@@ -283,7 +291,12 @@
     <div class="ceremony-stage">
       <div class="ceremony-inner">
 
-        <div class="line s1" id="l1">we imagine in this exhibition an invitation to witness our creation of new ways of experiencing boundless love</div>
+        <!-- UPDATED: “boundless love” hangs below to prevent mobile cutoff -->
+        <div class="line s1" id="l1">
+          we imagine in this exhibition an invitation to witness our creation of new ways of experiencing
+          <span class="hang">boundless love</span>
+        </div>
+
         <div class="line s2" id="l2">forward-facing and fusing ethereality with inspiration</div>
         <div class="line s3" id="l3">we bear witness and release limitation</div>
         <div class="line s4" id="l4">opening to transformation</div>
@@ -314,16 +327,13 @@
       ocean.style.height = H + "px";
       ctx.setTransform(DPR,0,0,DPR,0,0);
 
-      // pitter-patter drops
       const n = Math.max(240, Math.min(620, Math.floor((W*H)/9000)));
       drops = Array.from({length:n}, () => newDrop(true));
 
-      // window beads (static-ish droplets on glass)
       const b = Math.max(22, Math.min(52, Math.floor(W/26)));
       beads = Array.from({length:b}, () => newBead());
     }
 
-    // falling micro drops
     function newDrop(randomY){
       const tiny = Math.random() < 0.82;
       return {
@@ -337,7 +347,6 @@
       };
     }
 
-    // glass beads (slow creeping, occasional merge)
     function newBead(){
       return {
         x: Math.random()*W,
@@ -353,7 +362,6 @@
       ctx.clearRect(0,0,W,H);
       ctx.globalCompositeOperation = "source-over";
 
-      // falling pitter patter
       for (const d of drops){
         d.y += d.spd * rainBoost;
         d.x += d.drift * 0.15;
@@ -380,12 +388,10 @@
         ctx.stroke();
       }
 
-      // glass beads overlay (window feel)
       for (const b of beads){
         b.y += b.vy * rainBoost;
         b.x += b.vx;
 
-        // subtle meander
         b.vx += (-0.004 + Math.random()*0.008);
         b.vx = Math.max(-0.10, Math.min(0.10, b.vx));
 
@@ -430,16 +436,9 @@
       return x*x*(3 - 2*x);
     }
 
+    /* UPDATED: no scaling trick needed now that l1 is intentionally multi-line */
     function fitLine1(){
-      const el = lines[0];
-      if (!el) return;
-      el.style.transform = "translate3d(-50%,0,0) scale(1)";
-      const maxW = Math.min(window.innerWidth * 0.92, 1200);
-      const w = el.scrollWidth;
-      if (w > maxW){
-        const s = Math.max(0.72, Math.min(1, maxW / w));
-        el.style.transform = `translate3d(-50%,0,0) scale(${s.toFixed(3)})`;
-      }
+      return;
     }
 
     function portalScroll(){
@@ -504,8 +503,6 @@
       const enterAlpha = smoothstep((p - enterStart) / 0.18);
       enter.style.opacity = enterAlpha.toFixed(3);
 
-      fitLine1();
-
       if (p > 0.985){
         lines.forEach(l => {
           l.style.opacity = "0";
@@ -521,7 +518,7 @@
     }
 
     window.addEventListener("scroll", onScroll, { passive:true });
-    window.addEventListener("load", () => { fitLine1(); onScroll(); });
+    window.addEventListener("load", () => { onScroll(); });
 
     onScroll();
 
