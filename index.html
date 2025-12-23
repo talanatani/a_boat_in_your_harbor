@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="BLANKET ME" />
 
-  <!-- help reduce “old cached HTML” on mobile Safari -->
+  <!-- cache-bust helpers (Safari/GitHub Pages can still cache HTML; use ?v=123 too) -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -229,22 +229,18 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* l1 has two variants: desktop (single line) + mobile (curated breaks) */
     #l1-desktop{ display:block; }
     #l1-mobile{ display:none; }
 
-    /* subtle emphasis for “boundless love” */
     .bl-em{ font-weight: 500; }
 
     @media (max-width: 540px){
-      /* keep l2–l4 single line on mobile */
       .line{ white-space: nowrap; max-width: none; }
 
-      /* swap l1 to curated mobile version */
       #l1-desktop{ display:none; }
       #l1-mobile{
         display:block;
-        white-space: normal;       /* allow our <br> line breaks */
+        white-space: normal;
         max-width: 92vw;
         font-size: clamp(18px, 5.2vw, 26px);
         line-height: 1.16;
@@ -300,12 +296,10 @@
     <div class="ceremony-stage">
       <div class="ceremony-inner">
 
-        <!-- l1: desktop single line -->
         <div class="line s1" id="l1-desktop">
           we imagine in this exhibition an invitation to witness our creation of new ways of experiencing <span class="bl-em">boundless love</span>
         </div>
 
-        <!-- l1: mobile curated breaks (exactly as requested) -->
         <div class="line s1" id="l1-mobile">
           we imagine in this exhibition<br>
           an invitation to witness our creation<br>
@@ -438,10 +432,8 @@
 
     const ceremony = document.getElementById("ceremony");
 
-    // l1 is a pair (desktop+mobile) that should fade together
     const l1Desktop = document.getElementById("l1-desktop");
     const l1Mobile  = document.getElementById("l1-mobile");
-
     const l2 = document.getElementById("l2");
     const l3 = document.getElementById("l3");
     const l4 = document.getElementById("l4");
@@ -453,7 +445,6 @@
       return x*x*(3 - 2*x);
     }
 
-    // Scale a single-line element to fit within viewport width while preserving translate(-50%)
     function fitLine(el, maxVW = 0.92, minScale = 0.85){
       if (!el) return;
       el.style.transform = "translate3d(-50%,0,0) scale(1)";
@@ -469,12 +460,7 @@
 
     function fitLines(){
       const isMobile = window.innerWidth <= 540;
-
-      // desktop: keep l1 as one line but gently scale if needed
       if (!isMobile) fitLine(l1Desktop, 0.92, 0.85);
-
-      // mobile: curated l1 breaks; do not scale it
-      // keep l2–l4 single-line and scale only if needed
       fitLine(l2, 0.92, isMobile ? 0.80 : 0.85);
       fitLine(l3, 0.92, isMobile ? 0.80 : 0.85);
       fitLine(l4, 0.92, isMobile ? 0.80 : 0.85);
@@ -519,7 +505,6 @@
       const mistOpacity = (rainIn <= 0.001) ? 0 : (0.10 + rainIn * mistMax);
       mistEl.style.opacity = Math.min(0.85, mistOpacity).toFixed(3);
 
-      // We have 4 “steps”: l1 (pair), l2, l3, l4
       const steps = 4;
       const seg = 1 / (steps + 1.35);
       const inStart = 0.16;
@@ -528,8 +513,8 @@
       function alphaFor(i){
         const start = i * seg;
         const local = (p - start) / (seg || 1);
-
         let alpha = 0;
+
         if (local >= inStart && local <= outStart){
           const tIn = (local - inStart) / (outStart - inStart);
           alpha = smoothstep(tIn);
@@ -545,9 +530,9 @@
       setAlpha(l1Desktop, a1);
       setAlpha(l1Mobile,  a1);
 
-      const a2 = alphaFor(1); setAlpha(l2, a2);
-      const a3 = alphaFor(2); setAlpha(l3, a3);
-      const a4 = alphaFor(3); setAlpha(l4, a4);
+      setAlpha(l2, alphaFor(1));
+      setAlpha(l3, alphaFor(2));
+      setAlpha(l4, alphaFor(3));
 
       const enterStart = (steps * seg) + 0.08;
       const enterAlpha = smoothstep((p - enterStart) / 0.18);
@@ -570,7 +555,6 @@
     window.addEventListener("resize", () => { resizeOcean(); fitLines(); }, { passive:true });
     window.addEventListener("load", () => { fitLines(); onScroll(); });
 
-    // run once immediately too
     fitLines();
     onScroll();
 
