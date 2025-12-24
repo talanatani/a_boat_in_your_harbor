@@ -68,23 +68,6 @@ body.is-loading .page{
   gap:22px;
 }
 
-/* steps (used for the sequence; keeps your layout but gives us a scroll “track”) */
-.step{
-  width:100%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  box-sizing:border-box;
-}
-.stepInner{
-  width:100%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  box-sizing:border-box;
-}
-
-/* keep your .cell helpers (harmless) */
 .cell{
   display:flex;
   width:100%;
@@ -94,6 +77,8 @@ body.is-loading .page{
   overflow:visible;
   min-height:0;
 }
+
+/* class helpers (kept) */
 .lt{ justify-content:flex-start; align-items:flex-start; }
 .rt{ justify-content:flex-end;   align-items:flex-start; }
 .lb{ justify-content:flex-start; align-items:flex-end;   }
@@ -118,7 +103,7 @@ body.is-loading .page{
   display:block;
 }
 
-/* MANIFESTO (LIVE TEXT) — centered, no outline */
+/* MANIFESTO */
 .manifestoCell{
   justify-content:center;
   align-items:center;
@@ -163,10 +148,17 @@ body.is-loading .page{
 .manifestoText .lc{ text-transform: lowercase; }
 .manifestoText .cap{ text-transform: lowercase; margin-top: 28px; }
 
-/* ===== “index ceremony” style fade =====
-   Default: visible (so nothing can disappear if JS hiccups).
-   JS will drive opacity + blur + slight lift.
+/* ===== SAFE “index-like” fade =====
+   Default visible. JS only *softly* fades non-active steps.
 */
+.step{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  box-sizing:border-box;
+}
+
 .fadeItem{
   opacity: 1;
   filter: blur(0px);
@@ -174,6 +166,19 @@ body.is-loading .page{
   will-change: opacity, filter, transform;
   backface-visibility: hidden;
   transform-style: preserve-3d;
+  transition: opacity 700ms ease, filter 700ms ease, transform 700ms ease;
+}
+
+/* when JS is active, it will toggle these classes */
+.is-dim .fadeItem{
+  opacity: .12;
+  filter: blur(1.0px);
+  transform: translate3d(0, 10px, 0);
+}
+.is-focus .fadeItem{
+  opacity: 1;
+  filter: blur(0px);
+  transform: translate3d(0,0,0);
 }
 
 /* RUNWAY */
@@ -301,21 +306,23 @@ body.is-loading .page{
 
 @media (prefers-reduced-motion: reduce){
   .tickerTrack{ animation:none; }
+  .fadeItem{ transition:none; }
+  .is-dim .fadeItem{ opacity: 1; filter:none; transform:none; }
 }
 
-/* ========= DESKTOP FIX: vertical scroll sequence ========= */
+/* ========= DESKTOP: vertical scroll sequence ========= */
 @media (min-width: 821px){
   .room{
     height:auto;
-    padding: 4vh 6vw 6vh;
-    gap: 0;               /* we’ll create “chambers” with step min-height */
+    padding: 6vh 6vw 6vh;
+    gap: 70px;
     align-items:center;
   }
 
-  /* immersive chambers like the index ceremony pacing */
-  .step{
-    min-height: calc(var(--vh) * 92);
-    padding: calc(var(--vh) * 8) 0;
+  .cell{
+    padding: 0;
+    justify-content:center !important;
+    align-items:center !important;
   }
 
   /* manifesto becomes page-scroll (no inner scroll) */
@@ -368,52 +375,49 @@ body.is-loading .page{
 
 <div class="page" id="page">
 
-<!-- FLOW: manifesto -> veiled -> poem -> gibran -->
 <div class="room" id="sequence">
 
   <!-- 1) MANIFESTO -->
   <section class="step" data-step>
-    <div class="stepInner">
-      <div class="manifestoFrame fadeItem" data-fade>
-        <div class="manifestoText" aria-label="Manifesto">
-          <p class="lc">i felt love surrounding me<br>
-          so intensely and densely</p>
+    <div class="manifestoFrame fadeItem" data-fade>
+      <div class="manifestoText" aria-label="Manifesto">
+        <p class="lc">i felt love surrounding me<br>
+        so intensely and densely</p>
 
-          <p class="lc">my body and spirit surrendered<br>
-          i felt free</p>
+        <p class="lc">my body and spirit surrendered<br>
+        i felt free</p>
 
-          <p class="lc">it came to stay<br>
-          as a new standard of love<br>
-          that the world has to offer</p>
+        <p class="lc">it came to stay<br>
+        as a new standard of love<br>
+        that the world has to offer</p>
 
-          <p class="cap">from ritual:<br>
-          to boundless... love:</p>
+        <p class="cap">from: ritual<br>
+        to: boundless love</p>
 
-          <p class="cap">i call you into my life<br>
-          as a gift<br>
-          to all others</p>
-        </div>
+        <p class="cap">i call you into my life<br>
+        as a gift<br>
+        to all others</p>
       </div>
     </div>
   </section>
 
   <!-- 2) VEILED -->
   <section class="step" data-step>
-    <div class="stepInner">
+    <div class="cell rt">
       <img class="veil fadeItem" data-fade src="IMG_7551.jpeg" alt="Veiled image">
     </div>
   </section>
 
   <!-- 3) POEM -->
   <section class="step" data-step>
-    <div class="stepInner">
+    <div class="cell lb">
       <img class="loveImg fadeItem" data-fade src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
     </div>
   </section>
 
   <!-- 4) GIBRAN -->
   <section class="step" data-step>
-    <div class="stepInner">
+    <div class="cell rb">
       <img class="relic fadeItem" data-fade src="gibran-screenshot.png" alt="Gibran text screenshot">
     </div>
   </section>
@@ -454,7 +458,7 @@ body.is-loading .page{
 </div>
 
 <script>
-/* --- iOS Safari viewport-height stabilizer (same as index) --- */
+/* iOS-safe vh (same pattern as index) */
 let LOCKED_VH = window.innerHeight;
 function setVhVar(){
   LOCKED_VH = window.innerHeight;
@@ -479,82 +483,52 @@ let repeated = "";
 for (let i = 0; i < 7; i++) repeated += base;
 track.innerHTML = repeated;
 
-/* --- “index ceremony” style: segment-based fade in/out --- */
-function smoothstep(x){
-  x = Math.min(1, Math.max(0, x));
-  return x*x*(3 - 2*x);
-}
+/* SAFE “invocation-like” fade:
+   - uses IntersectionObserver to choose the focused chamber
+   - dims others (never opacity 0)
+   - if unsupported, everything stays visible
+*/
+(function(){
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
 
-const sequence = document.getElementById("sequence");
-const steps = Array.from(document.querySelectorAll("[data-step]"));
-const targets = steps.map(s => s.querySelector("[data-fade]")).filter(Boolean);
+  const steps = Array.from(document.querySelectorAll('[data-step]'));
+  if (!steps.length) return;
 
-function ceremonyLikeFade(){
-  if (!sequence || targets.length === 0) return;
-
-  const rect = sequence.getBoundingClientRect();
-  const vh = LOCKED_VH;
-  const total = rect.height - vh;
-
-  // overall progress through the sequence container (0..1)
-  const p = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
-
-  const n = targets.length;
-
-  // segment sizing: same spirit as index (a little tail at the end)
-  const seg = 1 / (n + 1.15);
-
-  // tune to match your index feel
-  const inStart  = 0.14;  // when a segment begins to appear
-  const outStart = 0.60;  // when it begins to fade out
-
-  for (let i = 0; i < n; i++){
-    const start = i * seg;
-    const local = (p - start) / (seg || 1);
-
-    let alpha = 0;
-
-    if (local >= inStart && local <= outStart){
-      const tIn = (local - inStart) / (outStart - inStart);
-      alpha = smoothstep(tIn);
-    }
-    if (local > outStart){
-      const tOut = (local - outStart) / (1 - outStart);
-      alpha = 1 - smoothstep(tOut);
-    }
-
-    alpha = Math.max(0, Math.min(1, alpha));
-
-    // same “alive” texture as index: blur clears as it appears
-    const blur = (1.2 * (1 - alpha));
-    const lift = (14 * (1 - alpha));
-
-    // IMPORTANT: keep a whisper visible (prevents hard blackouts if someone scrolls fast)
-    const finalAlpha = 0.03 + alpha * 0.97;
-
-    targets[i].style.opacity = finalAlpha.toFixed(3);
-    targets[i].style.filter = `blur(${blur.toFixed(2)}px)`;
-    targets[i].style.transform = `translate3d(0, ${lift.toFixed(1)}px, 0)`;
+  function setFocus(idx){
+    steps.forEach((s,i) => {
+      s.classList.toggle('is-focus', i === idx);
+      s.classList.toggle('is-dim', i !== idx);
+    });
   }
 
-  // if we’re fully past the sequence, let the last item stay
-  if (p > 0.985 && targets[n-1]){
-    targets[n-1].style.opacity = "1";
-    targets[n-1].style.filter = "blur(0px)";
-    targets[n-1].style.transform = "translate3d(0,0,0)";
-  }
-}
+  // default: focus first
+  setFocus(0);
 
-function onScroll(){
-  ceremonyLikeFade();
-}
+  if (!('IntersectionObserver' in window)) return;
 
-window.addEventListener("scroll", onScroll, { passive:true });
-window.addEventListener("resize", () => { setVhVar(); onScroll(); }, { passive:true });
-window.addEventListener("load", () => { setVhVar(); onScroll(); });
+  const io = new IntersectionObserver((entries) => {
+    // pick the most-visible step as focus
+    let bestIdx = null;
+    let bestRatio = 0;
 
-// initial paint
-onScroll();
+    for (const e of entries){
+      if (!e.isIntersecting) continue;
+      const idx = steps.indexOf(e.target);
+      if (e.intersectionRatio > bestRatio){
+        bestRatio = e.intersectionRatio;
+        bestIdx = idx;
+      }
+    }
+
+    if (bestIdx !== null) setFocus(bestIdx);
+  }, {
+    root: null,
+    threshold: [0.15,0.25,0.35,0.45,0.55,0.65,0.75,0.85]
+  });
+
+  steps.forEach(s => io.observe(s));
+})();
 </script>
 
 </body>
