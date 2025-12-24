@@ -22,6 +22,9 @@
       --rainOpacityMax: 0.50;
 
       --textSize: clamp(16px, 1.6vw, 22px);
+
+      /* iOS-safe viewport unit: set by JS */
+      --vh: 1vh;
     }
 
     *{ box-sizing:border-box; }
@@ -36,6 +39,7 @@
       font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
       color:#fff;
       position:relative;
+      touch-action: pan-y;
     }
 
     .mist{
@@ -79,15 +83,16 @@
       opacity: .65;
     }
 
+    /* Use --vh everywhere (prevents iOS scroll wobble) */
     .portal{
       position: relative;
-      height: calc(var(--portalPages) * 100vh);
+      height: calc(var(--portalPages) * (var(--vh) * 100));
       z-index: 1;
     }
     .portal-stage{
       position: sticky;
       top:0;
-      height:100vh;
+      height: calc(var(--vh) * 100);
       display:grid;
       place-items: start center;
       overflow:hidden;
@@ -153,13 +158,13 @@
 
     .ceremony{
       position: relative;
-      height: calc(var(--ceremonyPages) * 100vh);
+      height: calc(var(--ceremonyPages) * (var(--vh) * 100));
       z-index: 1;
     }
     .ceremony-stage{
       position: sticky;
       top:0;
-      height:100vh;
+      height: calc(var(--vh) * 100);
       display:grid;
       place-items:center;
       overflow:hidden;
@@ -170,7 +175,7 @@
       content:"";
       position:absolute;
       left:0; right:0; bottom:0;
-      height: 24vh;
+      height: calc(var(--vh) * 24);
       background: linear-gradient(to bottom,
         rgba(0,0,0,0) 0%,
         rgba(0,0,0,.78) 55%,
@@ -228,13 +233,11 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* MOBILE: exactly 3 breaks, PERFECTLY centered, and auto-fit so no cropping */
+    /* MOBILE: 3 breaks, centered, stable sizing */
     @media (max-width: 540px){
-      .line{ white-space: nowrap; max-width:none; }
-
       #l1{
         left: 50%;
-        width: 92vw;                    /* centered stage */
+        width: 92vw;
         transform: translate3d(-50%,0,0);
         text-align: center;
 
@@ -246,13 +249,11 @@
         letter-spacing: .006em;
       }
 
-      /* Key change: flex column centers the whole block optically + mathematically */
       #l1 .l1-wrap{
         display: flex;
         flex-direction: column;
-        align-items: center;            /* hard-center each line */
-        gap: 0;
-        width: 100%;                    /* prevents drift / optical bias */
+        align-items: center;
+        width: 100%;
         transform: scale(var(--l1Scale, 1));
         transform-origin: center center;
         will-change: transform;
@@ -260,17 +261,17 @@
 
       #l1 .l1-line{
         display: block;
-        width: fit-content;             /* each line sizes to its text */
-        white-space: nowrap;            /* prevents extra wraps */
+        width: fit-content;
+        white-space: nowrap;
       }
 
-      #l1 .l1-emph{ font-weight: 500; } /* slightly heavier "boundless love" */
+      #l1 .l1-emph{ font-weight: 500; }
     }
 
     .enter{
       position:absolute;
       left:50%;
-      bottom: 8vh;
+      bottom: calc(var(--vh) * 8);
       transform: translate3d(-50%,0,0);
       background: none;
       border: none;
@@ -334,6 +335,18 @@
   </section>
 
   <script>
+    // --- iOS Safari viewport-height stabilizer (fixes sticky+scroll jitter) ---
+    let LOCKED_VH = window.innerHeight;
+
+    function setVhVar(){
+      LOCKED_VH = window.innerHeight;
+      document.documentElement.style.setProperty("--vh", (LOCKED_VH * 0.01) + "px");
+    }
+
+    setVhVar();
+    window.addEventListener("resize", setVhVar, { passive:true });
+    window.addEventListener("orientationchange", () => setTimeout(setVhVar, 150), { passive:true });
+
     const ocean = document.getElementById("ocean");
     const ctx = ocean.getContext("2d", { alpha: true });
     const mistEl = document.getElementById("mist");
@@ -345,7 +358,7 @@
     function resizeOcean(){
       DPR = Math.min(2, window.devicePixelRatio || 1);
       W = window.innerWidth;
-      H = window.innerHeight;
+      H = LOCKED_VH;
 
       ocean.width = Math.floor(W * DPR);
       ocean.height = Math.floor(H * DPR);
@@ -475,21 +488,16 @@
       }
     }
 
-    // Mobile: scale ONLY the l1wrap so the block remains perfectly centered, and no text gets cropped.
     function fitL1Mobile(){
       if (!l1 || !l1wrap) return;
       if (window.innerWidth > 540) {
         l1.style.removeProperty("--l1Scale");
         return;
       }
-
       const maxW = window.innerWidth * 0.92;
-
-      // measure widest line
       const lineEls = l1wrap.querySelectorAll(".l1-line");
       let widest = 0;
       lineEls.forEach(el => { widest = Math.max(widest, el.scrollWidth); });
-
       const s = widest > 0 ? Math.min(1, maxW / widest) : 1;
       const clamped = Math.max(0.78, s);
       l1.style.setProperty("--l1Scale", clamped.toFixed(3));
@@ -513,7 +521,7 @@
 
     function portalScroll(){
       const rect = portal.getBoundingClientRect();
-      const vh = window.innerHeight;
+      const vh = LOCKED_VH;
       const total = rect.height - vh;
       const p = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
 
@@ -528,7 +536,7 @@
 
     function ceremonyScroll(){
       const rect = ceremony.getBoundingClientRect();
-      const vh = window.innerHeight;
+      const vh = LOCKED_VH;
       const total = rect.height - vh;
       const p = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
 
@@ -590,8 +598,8 @@
     }
 
     window.addEventListener("scroll", onScroll, { passive:true });
-    window.addEventListener("resize", () => { resizeOcean(); fitLines(); }, { passive:true });
-    window.addEventListener("load", () => { fitLines(); onScroll(); });
+    window.addEventListener("resize", () => { setVhVar(); resizeOcean(); fitLines(); }, { passive:true });
+    window.addEventListener("load", () => { setVhVar(); resizeOcean(); fitLines(); onScroll(); });
 
     fitLines();
     onScroll();
