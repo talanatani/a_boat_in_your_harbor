@@ -42,6 +42,9 @@
       touch-action: pan-y;
     }
 
+    /* ensure no bullets anywhere (future-proof) */
+    ul, ol{ list-style:none; padding:0; margin:0; }
+
     .mist{
       position: fixed;
       inset: -20%;
@@ -125,6 +128,7 @@
       z-index:2;
     }
 
+    /* "ticker" / title */
     .invocation{
       position:absolute;
       left:50%;
@@ -154,6 +158,14 @@
       opacity: var(--invOpacity, 1);
       transition: opacity 2.8s ease;
       will-change: opacity;
+    }
+
+    /* phone: force the ticker dead-center */
+    @media (max-width: 540px){
+      .invocation{
+        top: 50%;
+        transform: translate(-50%,-50%);
+      }
     }
 
     .ceremony{
@@ -207,7 +219,9 @@
       white-space: nowrap;
       max-width:none;
 
-      color: rgba(255,255,255,.90);
+      /* FULL OPACITY */
+      color: rgba(255,255,255,1);
+
       text-shadow:
         0 0 2px rgba(255,255,255,.22),
         0 0 14px rgba(200,220,255,.12),
