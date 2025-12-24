@@ -52,7 +52,7 @@
       transform var(--fadeDur) ease;
   }
 
-  /* ROOM */
+  /* ROOM (hero) */
   .room{
     position:relative;
     height: calc(100vh - var(--tickerBandH));
@@ -101,47 +101,24 @@
     .veil, .loveImg{ max-width: var(--desktopPhotoMax); }
   }
 
-  /* MANIFESTO (LIVE TEXT) */
+  /* MANIFESTO (LIVE TEXT) — NO OUTLINE */
   .manifestoCell{
     justify-content:flex-end;
     align-items:flex-end;
   }
 
   .manifestoFrame{
-    position:relative;
     width:100%;
     height:100%;
     box-sizing:border-box;
-    border: 1px solid rgba(255,255,255,.40);
+    border:none;              /* removed outline */
     padding: 18px 18px 20px;
     display:flex;
     align-items:flex-start;
     overflow:hidden;
   }
 
-  /* veil ghost layer (kept for mobile; hidden on desktop below) */
-  .manifestoVeil{
-    position:absolute;
-    inset:0;
-    background: url("IMG_7551.jpeg") center/cover no-repeat;
-    opacity: .10;
-    filter: blur(0.4px) contrast(1.05);
-    pointer-events:none;
-  }
-  .manifestoVeil::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:
-      radial-gradient(ellipse at 70% 30%,
-        rgba(0,0,0,.35) 0%,
-        rgba(0,0,0,.70) 55%,
-        rgba(0,0,0,.92) 100%);
-  }
-
   .manifestoText{
-    position:relative;
-    z-index:1;
     width:100%;
     max-width: 560px;
     font-family: Inter, system-ui, sans-serif;
@@ -149,8 +126,6 @@
     line-height: 1.6;
     letter-spacing: var(--tickerLetter);
     color: rgba(255,255,255,.86);
-
-    /* mobile-friendly default (override on desktop) */
     overflow:auto;
     padding-right: 6px;
     scrollbar-width: thin;
@@ -167,36 +142,47 @@
   .manifestoText .lc{ text-transform: lowercase; }
   .manifestoText .cap{ text-transform: none; margin-top: 28px; }
 
-  /* DESKTOP: restore veil image + manifesto stays bottom-right */
-  @media (min-width: 821px){
-    /* restore original grid behavior */
-    .veilCell{ display:flex; }
+  /* DESKTOP (web): keep HERO exactly, then manifesto + poem below */
+  .belowDesktop{
+    display:none;
+    padding: 0 6vw 0;
+    box-sizing:border-box;
+  }
+  .belowDesktop .manifestoBlock{
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.65;
+    letter-spacing: var(--tickerLetter);
+    color: rgba(255,255,255,.86);
+    max-width: 760px;
+    margin: 18px 0 34px;
+    text-transform: lowercase;
+  }
+  .belowDesktop .manifestoBlock p{ margin: 0 0 22px 0; }
+  .belowDesktop .manifestoBlock .cap{ text-transform:none; margin-top: 28px; }
 
-    /* center the veil in its quadrant so it doesn’t feel oddly right-biased */
-    .rt{ justify-content:center; }
-    .veil{ max-width: min(560px, 100%); }
-
-    /* manifesto belongs only in bottom-right (no spanning) */
-    .manifestoCell{
-      grid-column: 2;
-      grid-row: 2;
-      justify-content:flex-end;
-      align-items:flex-end;
-    }
-
-    /* clean frame on desktop (no ghost veil behind text) */
-    .manifestoVeil{ display:none; }
-
-    /* avoid scrollbars on desktop unless needed */
-    .manifestoText{
-      overflow:hidden;
-      max-width: 560px;
-    }
+  .belowDesktop .poemBlock{
+    margin: 0 0 54px;
+    display:flex;
+    justify-content:flex-start;
+  }
+  .belowDesktop .poemBlock img{
+    width:min(720px, 100%);
+    height:auto;
+    opacity:.95;
+    display:block;
   }
 
-  /* if a laptop is short, allow gentle scroll rather than shrinking text */
-  @media (min-width: 821px) and (max-height: 760px){
-    .manifestoText{ overflow:auto; }
+  @media (min-width: 821px){
+    /* HERO becomes a single row: show ONLY lt + rt so it matches exactly */
+    .room{
+      grid-template-rows: 1fr;
+    }
+    .lb, .manifestoCell{ display:none; } /* poem + manifesto move below */
+    .rt{ justify-content:flex-end; }      /* preserve your original look */
+
+    /* below content now visible on desktop */
+    .belowDesktop{ display:block; }
   }
 
   /* RUNWAY */
@@ -348,8 +334,8 @@
 
     .lt{ order:1; }
     .rt{ order:2; }
-    .rb{ order:3; }
-    .lb{ order:4; }
+    .rb{ order:3; } /* manifesto */
+    .lb{ order:4; } /* poem image */
 
     .runway{ height: 60vh; }
     .seal{ margin: 0 16px 36px; height: 96px; }
@@ -363,7 +349,9 @@
 
     .manifestoFrame{ padding: 16px; }
     .manifestoText{ font-size: 12.5px; max-width: 100%; }
-    .manifestoVeil{ opacity: .10; }
+
+    /* desktop-only blocks hidden on mobile */
+    .belowDesktop{ display:none; }
   }
 
   /* ADD THE SCALE CHANGE */
@@ -382,22 +370,24 @@
 
 <div class="page" id="page">
 
+  <!-- HERO (web stays exactly as your current look) -->
   <div class="room">
     <div class="cell lt">
       <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
     </div>
 
-    <div class="cell rt veilCell">
+    <div class="cell rt">
       <img class="veil" src="IMG_7551.jpeg" alt="Veiled image">
     </div>
 
+    <!-- MOBILE ONLY (poem image lives here) -->
     <div class="cell lb">
       <img class="loveImg" src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
     </div>
 
+    <!-- MOBILE ONLY (manifesto lives here) -->
     <div class="cell rb manifestoCell">
       <div class="manifestoFrame">
-        <div class="manifestoVeil" aria-hidden="true"></div>
         <div class="manifestoText" aria-label="Manifesto">
           <p class="lc">i felt my skin bathed in golden light,</p>
           <p class="lc">an external sense which was<br>
@@ -432,6 +422,47 @@
             to all others.</p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- DESKTOP: manifesto below hero, then poem below -->
+  <div class="belowDesktop" aria-hidden="false">
+    <div class="manifestoBlock">
+      <p>i felt my skin bathed in golden light,<br>
+      an external sense which was<br>
+      so much more deeply felt<br>
+      through the gratitude<br>
+      of my internal world.</p>
+
+      <p>i felt love surrounding me,<br>
+      so intensely and densely<br>
+      it could have been packed<br>
+      in all four corners of the room.</p>
+
+      <p>my body and spirit surrendered<br>
+      in a way i had always before<br>
+      reserved for god, my creator —<br>
+      it felt free.</p>
+
+      <p>and it did not go away,<br>
+      but stayed<br>
+      as a new standard of love<br>
+      that the world has to offer.</p>
+
+      <p>a new low exists as well.<br>
+      and yet this memory<br>
+      brings me back.</p>
+
+      <p class="cap">To ritual.<br>
+      To boundless love.</p>
+
+      <p class="cap">I call you into my life<br>
+      as a gift<br>
+      to all others.</p>
+    </div>
+
+    <div class="poemBlock">
+      <img class="loveImg" src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
     </div>
   </div>
 
