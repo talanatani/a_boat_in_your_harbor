@@ -14,13 +14,16 @@
     /* mirror sizing: text screenshots match each other; photos match each other */
     --textMaxW: 520px;
 
-    /* “large veil” look */
-    --photoScale: 1; /* keep 1 unless you want a touch bigger */
+    /* “large veil” look (desktop) */
+    --photoScale: 1;
 
-    /* ticker grazing */
-    --tickerOpacity: 1;          /* UPDATED: full opacity */
+    /* ticker grazing (UNCHANGED) */
+    --tickerOpacity: .22;
     --tickerSize: 13px;
     --tickerLetter: .12em;
+
+    /* NEW: place ticker in lower third */
+    --tickerY: 70vh; /* lower third; tweak 66–78vh if desired */
   }
 
   html,body{
@@ -77,7 +80,7 @@
     display:block;
   }
 
-  /* PHOTOS: fill the quadrant (this brings back the “big veil” look) */
+  /* PHOTOS: fill the quadrant */
   .veil, .adriaImg{
     width:100%;
     max-width:none;
@@ -90,21 +93,31 @@
     transform-origin: center;
   }
 
+  /* NEW: keep portrait slightly restrained on wide desktops (discovery > spectacle) */
+  @media (min-width: 1100px){
+    .veil, .adriaImg{
+      max-width: 88%;
+      transform-origin: right top;
+    }
+  }
+
   /* ----- TICKER: GRAZING OVERLAY (no band, no box) ----- */
   .ticker-wrap{
     position:fixed;
     left:0;
     right:0;
-    top:50%;
+
+    /* NEW: lower-third placement */
+    top: var(--tickerY);
     transform:translateY(-50%);
+
     overflow:hidden;
     z-index:4;
     pointer-events:none;
     border:none;
     background:transparent;
-
-    opacity: 1 !important;       /* UPDATED: force full opacity */
-    mix-blend-mode: normal;      /* UPDATED: prevents “washed out” look on some screens */
+    opacity: var(--tickerOpacity);
+    mix-blend-mode: screen;
   }
 
   .ticker{
@@ -116,7 +129,7 @@
   .tickerTrack{
     display:inline-flex;
     align-items:center;
-    gap:24px;                    /* UPDATED: spacing replaces dots */
+    gap:24px; /* spacing replaces dots */
     width:max-content;
     will-change:transform;
     animation:tickerScroll 55s linear infinite;
@@ -126,13 +139,9 @@
     padding-left: 40px;
 
     text-transform: lowercase;
-
-    opacity: 1 !important;       /* UPDATED */
   }
 
-  .tickerItem{
-    opacity: 1 !important;       /* UPDATED: full opacity on text */
-  }
+  .tickerItem{ opacity:.95; }
 
   @keyframes tickerScroll{
     from{ transform:translateX(0); }
@@ -163,12 +172,12 @@
       align-items:flex-start;
     }
 
-    /* centered vertically on mobile too */
+    /* NEW: keep ticker lower on mobile too (still “grounding”) */
     .ticker-wrap{
-      position:fixed;            /* UPDATED: keep true vertical centering */
-      top:50%;
+      position:fixed;
+      top: 78vh;
       transform:translateY(-50%);
-      opacity: 1 !important;     /* UPDATED */
+      opacity: var(--tickerOpacity); /* unchanged */
     }
   }
 </style>
@@ -179,22 +188,22 @@
 <canvas id="rain"></canvas>
 
 <div class="room">
-  <!-- Left / Top: Gibran -->
+  <!-- Left / Top: Gibran (text first) -->
   <div class="cell lt">
     <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
   </div>
 
-  <!-- Right / Top: Veiled (BIG) -->
+  <!-- Right / Top: Veiled (portrait) -->
   <div class="cell rt">
     <img class="veil" src="IMG_7551.jpeg" alt="Veiled image">
   </div>
 
-  <!-- Left / Bottom: Adria image (match veil size) -->
+  <!-- Left / Bottom: Adria image -->
   <div class="cell lb">
     <img class="adriaImg" src="adria-image.png" alt="Adria image">
   </div>
 
-  <!-- Right / Bottom: Adria text (match Gibran size) -->
+  <!-- Right / Bottom: Adria text -->
   <div class="cell rb">
     <img class="relic" src="adria-text.png" alt="Adria text screenshot">
   </div>
