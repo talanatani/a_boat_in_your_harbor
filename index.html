@@ -228,25 +228,31 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* MOBILE: l1 uses EXACT 3 breaks (4 lines), no extra wrapping */
+    /* MOBILE: exact breaks + true centering */
     @media (max-width: 540px){
-      /* keep other lines single-line (they'll scale via JS if needed) */
+      /* other lines stay single-line */
       .line{ white-space: nowrap; max-width:none; }
 
+      /* l1: center the block by giving it a real width and centering that width */
       #l1{
-        white-space: normal;          /* allow our <br> to work */
+        left: 50%;
+        width: 92vw;                         /* <-- makes the block itself centered */
+        transform: translate3d(-50%,0,0);
+        text-align: center;
+
+        white-space: normal;
         max-width: 92vw;
+
         font-size: clamp(20px, 5.8vw, 28px);
         line-height: 1.18;
         letter-spacing: .006em;
       }
       #l1 .l1-line{
         display:block;
-        white-space: nowrap;          /* prevent extra wraps */
+        width: 100%;
+        white-space: nowrap;                 /* prevent extra wraps */
       }
-      #l1 .l1-emph{
-        font-weight: 500;             /* slightly heavier */
-      }
+      #l1 .l1-emph{ font-weight: 500; }
     }
 
     .enter{
@@ -296,7 +302,6 @@
   <section class="ceremony" id="ceremony">
     <div class="ceremony-stage">
       <div class="ceremony-inner">
-        <!-- l1: force EXACT breaks on mobile via <br> + nowrap spans -->
         <div class="line s1" id="l1">
           <span class="l1-line">we imagine in this exhibition</span><br>
           <span class="l1-line">an invitation to witness our creation</span><br>
@@ -453,44 +458,25 @@
       }
     }
 
-    // for multi-line (l1) with forced breaks: scale based on the widest line span
-    function fitMultiline(el, lineSelector, maxVW = 0.92, minScale = 0.78){
-      if (!el) return;
-      el.style.transform = "translate3d(-50%,0,0) scale(1)";
-
-      const maxW = Math.min(window.innerWidth * maxVW, 1200);
-      const parts = el.querySelectorAll(lineSelector);
-      let widest = 0;
-
-      if (parts && parts.length){
-        parts.forEach(p => { widest = Math.max(widest, p.scrollWidth); });
-      } else {
-        widest = el.scrollWidth;
-      }
-
-      if (widest > maxW){
-        const s = Math.max(minScale, Math.min(1, maxW / widest));
-        el.style.transform = `translate3d(-50%,0,0) scale(${s.toFixed(3)})`;
-      }
-    }
-
     function fitLines(){
       const isMobile = window.innerWidth <= 540;
 
       if (isMobile){
-        // l1 has 4 forced lines; scale it ONLY if it overflows
-        fitMultiline(l1, ".l1-line", 0.92, 0.78);
-
-        // others: stay single-line and scale if needed
-        fitLine(lines[1], 0.92, 0.75);
-        fitLine(lines[2], 0.92, 0.75);
-        fitLine(lines[3], 0.92, 0.75);
+        // l1 has a fixed width (92vw) so it centers; no transform scaling needed here
+        // but if your iPhone is very narrow, we can still reduce font-size slightly:
+        // (keep it simple: no scaling transform to avoid shifting visual center)
       } else {
-        // desktop/tablet: keep everything single-line and scale as needed
         fitLine(lines[0], 0.92, 0.85);
         fitLine(lines[1], 0.92, 0.85);
         fitLine(lines[2], 0.92, 0.85);
         fitLine(lines[3], 0.92, 0.85);
+      }
+
+      // always scale other single-line lines when needed
+      if (isMobile){
+        fitLine(lines[1], 0.92, 0.75);
+        fitLine(lines[2], 0.92, 0.75);
+        fitLine(lines[3], 0.92, 0.75);
       }
     }
 
@@ -576,7 +562,6 @@
     window.addEventListener("resize", () => { resizeOcean(); fitLines(); }, { passive:true });
     window.addEventListener("load", () => { fitLines(); onScroll(); });
 
-    // run once immediately too
     fitLines();
     onScroll();
 
