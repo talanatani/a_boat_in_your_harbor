@@ -10,15 +10,20 @@
 <style>
 :root{
   --cellPad: 22px;
+
   --textMaxW: 520px;
   --desktopPhotoMax: 58%;
+
   --tickerOpacity: 1.00;
   --tickerSize: 13px;
   --tickerLetter: .12em;
+
   --tickerBandH: 84px;
   --tickerBandPadB: 24px;
+
   --fadeDur: 3.6s;
   --fadeLift: 6px;
+
   --readRunway: 90vh;
   --tickerDuration: 78s;
 }
@@ -41,13 +46,17 @@ body.is-loading .page{
 .page{
   opacity: 1;
   transform: translateY(0);
-  transition: opacity var(--fadeDur) ease, transform var(--fadeDur) ease;
+  transition:
+    opacity var(--fadeDur) ease,
+    transform var(--fadeDur) ease;
 }
 
-/* TOP FADE */
+/* TOP FADE (tuned lighter so it won’t disrupt the beam) */
 .topFade{
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 18vh;
   z-index: 9;
   pointer-events: none;
@@ -61,75 +70,121 @@ body.is-loading .page{
   );
 }
 
-/* ROOM */
+/* ROOM (mobile-first) */
 .room{
+  position:relative;
   min-height: calc(100vh - var(--tickerBandH));
   padding:18px 16px 28px;
+  box-sizing:border-box;
   display:flex;
   flex-direction:column;
-  gap:70px;
+  gap:22px;
 }
 
 .cell{
   display:flex;
-  justify-content:center;
-  align-items:center;
+  width:100%;
+  height:auto;
+  padding:12px 0;
+  box-sizing:border-box;
+  overflow:visible;
+  min-height:0;
 }
+
+/* class helpers (kept) */
+.lt{ justify-content:flex-start; align-items:flex-start; }
+.rt{ justify-content:flex-end;   align-items:flex-start; }
+.lb{ justify-content:flex-start; align-items:flex-end;   }
+.rb{ justify-content:flex-end;   align-items:flex-end;   }
 
 .relic{
   width:min(var(--textMaxW), 100%);
+  height:auto;
+  max-height:100%;
+  object-fit:contain;
+  opacity:1;
+  display:block;
   image-rendering:-webkit-optimize-contrast;
 }
 
 .veil, .loveImg{
   width:100%;
-  max-width: var(--desktopPhotoMax);
+  height:auto;
+  max-height:100%;
+  object-fit:contain;
   opacity:.95;
+  display:block;
 }
 
-/* MANIFESTO */
+/* MANIFESTO (LIVE TEXT) */
+.manifestoCell{
+  justify-content:center;
+  align-items:center;
+}
+
+/* make manifesto START centered on page (desktop + mobile) */
 .manifestoStart{
   min-height: calc(100vh - var(--tickerBandH));
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .manifestoFrame{
-  max-width:760px;
-  padding:16px;
+  width: 100%;
+  max-width: 760px;
+  padding: 16px;
+  margin: 0 auto;
+  box-sizing:border-box;
+  border:none;
+  display:flex;
+  align-items:flex-start;
+  overflow:hidden; /* mobile keeps internal scroll if needed */
 }
 
 .manifestoText{
-  max-width:560px;
-  font-size:13px;
-  line-height:1.65;
+  width:100%;
+  max-width: 560px;
+  margin: 0 auto;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 12.5px;
+  line-height: 1.6;
   letter-spacing: var(--tickerLetter);
-  color:rgba(255,255,255,.86);
-  text-align:center;
+  color: rgba(255,255,255,.86);
+  overflow:auto;
+  padding-right: 6px;
+  text-align: center;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.22) rgba(255,255,255,0);
 }
 
-.manifestoText p{
-  margin-bottom:22px;
-  text-transform: lowercase;
+.manifestoText::-webkit-scrollbar{ width: 8px; }
+.manifestoText::-webkit-scrollbar-track{ background: transparent; }
+.manifestoText::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,.18);
+  border-radius: 10px;
 }
 
-.manifestoText .cap{
-  margin-top:28px;
-}
+.manifestoText p{ margin: 0 0 22px 0; text-transform: lowercase; }
+.manifestoText .cap{ text-transform: lowercase; margin-top: 28px; }
 
-/* BEAM */
+/* RUNWAY */
 .runway{
-  position:relative;
-  height: var(--readRunway);
+  position: relative;
+  height: 60vh;
 }
 
+/* SPOTLIGHT BEAM */
 .beam{
   position:absolute;
   left:50%;
   top:-6vh;
   transform:translateX(-50%);
-  width:260px;
+  width: 200px;
   height: calc(100% + 12vh);
   pointer-events:none;
-  opacity:.48;
+  opacity:.46;
+
   background:
     radial-gradient(ellipse at 50% 0%,
       rgba(255,255,255,.20) 0%,
@@ -138,61 +193,97 @@ body.is-loading .page{
       rgba(255,255,255,.02) 62%,
       rgba(255,255,255,0) 78%
     );
+
   -webkit-mask-image: linear-gradient(to bottom,
     rgba(0,0,0,0) 0%,
     rgba(0,0,0,1) 18%,
     rgba(0,0,0,1) 74%,
     rgba(0,0,0,0) 100%
   );
-  filter: blur(2.2px);
+  mask-image: linear-gradient(to bottom,
+    rgba(0,0,0,0) 0%,
+    rgba(0,0,0,1) 18%,
+    rgba(0,0,0,1) 74%,
+    rgba(0,0,0,0) 100%
+  );
+
+  filter: blur(2.0px);
 }
 
-/* SEAL */
+/* FINAL SEAL GLOW */
 .seal{
-  height:120px;
-  margin:40px 6vw;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(255,255,255,.14) 0%,
-    rgba(255,255,255,.06) 30%,
-    rgba(255,255,255,.02) 55%,
-    rgba(0,0,0,0) 70%
-  );
+  height: 96px;
+  margin: 0 16px 36px;
+  pointer-events:none;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255,255,255,.14) 0%,
+      rgba(255,255,255,.06) 30%,
+      rgba(255,255,255,.02) 55%,
+      rgba(0,0,0,0) 70%
+    );
   opacity:.65;
 }
 
 /* CONTACT */
 .closing{
-  padding-bottom: calc(var(--tickerBandH) + 24px);
-  text-align:center;
-  font-size:12px;
-  letter-spacing:.16em;
+  padding: 0 16px calc(var(--tickerBandH) + 24px);
+  box-sizing:border-box;
+  font-size: 12px;
+  letter-spacing: .16em;
   text-transform: lowercase;
+  color: rgba(255,255,255,.75);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
 .closing a{
   color: rgba(255,255,255,.75);
   text-decoration:none;
 }
+.closing a:hover{ text-decoration:underline; }
 
 /* TICKER */
 .ticker-band{
-  position:fixed;
-  bottom:0; left:0; right:0;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
   height: var(--tickerBandH);
+  z-index: 10;
+  pointer-events:none;
   background: linear-gradient(to bottom,
-    rgba(0,0,0,0),
-    rgba(0,0,0,.55),
-    rgba(0,0,0,.9)
-  );
+    rgba(0,0,0,0) 0%,
+    rgba(0,0,0,.55) 50%,
+    rgba(0,0,0,.90) 100%);
+}
+
+.ticker-wrap{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom: var(--tickerBandPadB);
+  overflow:hidden;
+  opacity: var(--tickerOpacity);
+}
+
+.ticker{
+  overflow:hidden;
+  white-space:nowrap;
+  width:100%;
 }
 
 .tickerTrack{
   display:inline-flex;
+  align-items:center;
   gap:24px;
-  font-size:13px;
-  letter-spacing:.12em;
-  padding-left:40px;
+  width:max-content;
+  font-size: var(--tickerSize);
+  letter-spacing: var(--tickerLetter);
+  padding-left: 40px;
+  text-transform: lowercase;
   animation: tickerScroll var(--tickerDuration) linear infinite;
 }
 
@@ -200,80 +291,175 @@ body.is-loading .page{
   from{ transform:translateX(0); }
   to{ transform:translateX(-50%); }
 }
+
+@media (prefers-reduced-motion: reduce){
+  .tickerTrack{ animation:none; }
+}
+
+/* ========= DESKTOP ========= */
+@media (min-width: 821px){
+  .room{
+    height:auto;
+    padding: 6vh 6vw 6vh;
+    gap: 70px;
+    align-items:center;
+  }
+
+  .cell{
+    padding: 0;
+    justify-content:center !important;
+    align-items:center !important;
+  }
+
+  /* manifesto becomes page-scroll (no inner scroll) */
+  .manifestoFrame{
+    padding: 18px 18px 0;
+    overflow: visible;
+  }
+  .manifestoText{
+    max-width: 760px;
+    font-size: 13px;
+    line-height: 1.65;
+    overflow: visible;
+    padding-right: 0;
+  }
+  .manifestoText::-webkit-scrollbar{ width: 0px; }
+
+  .veil, .loveImg{ max-width: var(--desktopPhotoMax); }
+  .relic{ width:min(var(--textMaxW), 100%); }
+
+  .runway{ height: var(--readRunway); }
+  .beam{
+    width: 260px;
+    opacity:.50;
+    filter: blur(2.2px);
+  }
+  .seal{
+    margin: 0 6vw 40px;
+    height: 120px;
+  }
+  .closing{
+    padding: 0 6vw calc(var(--tickerBandH) + 24px);
+  }
+
+  .topFade{ height: 22vh; }
+}
+
+/* ADD THE SCALE CHANGE */
+@media (min-width: 1100px){
+  .relic,
+  .veil,
+  .loveImg{
+    transform: scale(1.08);
+    transform-origin: center;
+  }
+}
 </style>
 </head>
 
 <body class="is-loading">
-<div class="topFade"></div>
+
+<div class="topFade" aria-hidden="true"></div>
 
 <div class="page" id="page">
+
+<!-- FLOW: manifesto -> veiled -> poem -> beam -> gibran -->
 <div class="room">
 
-  <!-- MANIFESTO -->
-  <div class="cell manifestoStart">
+  <!-- 1) MANIFESTO (starts centered on the page) -->
+  <div class="cell manifestoCell manifestoStart">
     <div class="manifestoFrame">
-      <div class="manifestoText">
-        <p>i felt love surrounding me<br>so intensely and densely</p>
-        <p>my body and spirit surrendered<br>i felt free</p>
-        <p>it came to stay<br>as a new standard of love<br>that the world has to offer</p>
-        <p class="cap">to ritual:<br>to boundless love:</p>
-        <p class="cap">i call you into my life<br>as a gift<br>to all others</p>
+      <div class="manifestoText" aria-label="Manifesto">
+        <p>i felt love surrounding me<br>
+        so intensely and densely</p>
+
+        <p>my body and spirit surrendered<br>
+        i felt free</p>
+
+        <p>it came to stay<br>
+        as a new standard of love<br>
+        that the world has to offer</p>
+
+        <p class="cap">to: ritual<br>
+        to: boundless love</p>
+
+        <p class="cap">i call you into my life<br>
+        as a gift<br>
+        to all others</p>
       </div>
     </div>
   </div>
 
-  <!-- VEIL -->
-  <div class="cell">
-    <img class="veil" src="IMG_7551.jpeg">
+  <!-- 2) VEILED -->
+  <div class="cell rt">
+    <img class="veil" src="IMG_7551.jpeg" alt="Veiled image">
   </div>
 
-  <!-- POEM -->
-  <div class="cell">
-    <img class="loveImg" src="Love, Tala, God, and a Branch.png">
+  <!-- 3) POEM -->
+  <div class="cell lb">
+    <img class="loveImg" src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
   </div>
 
-  <!-- 🔥 NEW BEAM (between poem & Gibran) -->
-  <div class="runway">
-    <div class="beam"></div>
+  <!-- ✅ NEW: BEAM BETWEEN POEM + GIBRAN -->
+  <div class="runway" aria-hidden="true">
+    <div class="beam" aria-hidden="true"></div>
   </div>
 
-  <!-- GIBRAN -->
-  <div class="cell">
-    <img class="relic" src="gibran-screenshot.png">
+  <!-- 4) GIBRAN -->
+  <div class="cell rb">
+    <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
   </div>
 
 </div>
 
-<div class="seal"></div>
+<!-- ORIGINAL BEAM (kept) -->
+<div class="runway">
+  <div class="beam" aria-hidden="true"></div>
+</div>
 
+<div class="seal" aria-hidden="true"></div>
+
+<!-- CONTACT -->
 <div class="closing">
   <div>contact</div>
   <a href="mailto:talanatani@gmail.com">talanatani@gmail.com</a>
-</div>
+  <a href="https://www.instagram.com/tala.natani/" target="_blank" rel="noopener">instagram</a>
 </div>
 
-<div class="ticker-band">
-  <div class="tickerTrack" id="tickerTrack">
-    <span>i am well-able</span>
-    <span>i am valuable</span>
-    <span>i am worthy</span>
-    <span>i am worthy of love</span>
-    <span>i am a masterpiece</span>
-    <span>i am destined</span>
-    <span>i am eternal</span>
+</div>
+
+<div class="ticker-band" aria-hidden="true">
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <div class="tickerTrack" id="tickerTrack">
+        <span>i am well-able</span>
+        <span>i am valuable</span>
+        <span>i am worthy</span>
+        <span>i am worthy of love</span>
+        <span>i am a masterpiece</span>
+        <span>i am destined</span>
+        <span>i am eternal</span>
+        <span>i am a child of the creator of the universe</span>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
 function triggerFadeIn(){
   document.body.classList.add("is-loading");
-  document.getElementById("page").offsetHeight;
+  void document.getElementById("page").offsetHeight;
   requestAnimationFrame(() => document.body.classList.remove("is-loading"));
 }
 window.addEventListener("DOMContentLoaded", triggerFadeIn);
+window.addEventListener("pageshow", triggerFadeIn);
 
+// TICKER: repeat ~7 times
 const track = document.getElementById("tickerTrack");
-track.innerHTML = track.innerHTML.repeat(7);
+const base = track.innerHTML;
+let repeated = "";
+for (let i = 0; i < 7; i++) repeated += base;
+track.innerHTML = repeated;
 </script>
 
 </body>
