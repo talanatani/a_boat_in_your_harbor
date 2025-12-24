@@ -1,615 +1,611 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="BLANKET ME" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="BLANKET ME" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      --bg:#000;
-      --stageMax: 1200px;
-      --stagePad: 40px;
+<style>
+:root{
+--bg:#000;
+--stageMax: 1200px;
+--stagePad: 40px;
 
-      --portalPages: 2.6;
-      --ceremonyPages: 7.4;
+--portalPages: 2.6;
+--ceremonyPages: 7.4;
 
-      --mistOpacityMax: 0.55;
-      --rainOpacityMax: 0.50;
+--mistOpacityMax: 0.55;
+--rainOpacityMax: 0.50;
 
-      --textSize: clamp(16px, 1.6vw, 22px);
+--textSize: clamp(16px, 1.6vw, 22px);
+}
 
-      /* iOS-safe viewport unit: set by JS */
-      --vh: 1vh;
-    }
+*{ box-sizing:border-box; }
+html, body{ height:100%; margin:0; }
+html, body{
+-webkit-text-size-adjust: 100%;
+text-size-adjust: 100%;
+}
+body{
+background: var(--bg);
+overflow-x:hidden;
+font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+color:#fff;
+position:relative;
+}
 
-    *{ box-sizing:border-box; }
-    html, body{ height:100%; margin:0; }
-    html, body{
-      -webkit-text-size-adjust: 100%;
-      text-size-adjust: 100%;
-    }
-    body{
-      background: var(--bg);
-      overflow-x:hidden;
-      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      color:#fff;
-      position:relative;
-      touch-action: pan-y;
-    }
+.mist{
+position: fixed;
+inset: -20%;
+z-index: 0;
+pointer-events: none;
+opacity: 0;
+filter: blur(26px);
+background:
+radial-gradient(1400px 1200px at 50% 35%, rgba(210,225,255,.14), rgba(0,0,0,0) 68%),
+radial-gradient(1600px 1400px at 50% 80%, rgba(120,150,210,.10), rgba(0,0,0,0) 72%),
+radial-gradient(900px 900px at 15% 55%, rgba(180,190,215,.06), rgba(0,0,0,0) 70%),
+radial-gradient(900px 900px at 85% 45%, rgba(160,180,210,.05), rgba(0,0,0,0) 70%);
+animation: mistDrift 26s ease-in-out infinite alternate;
+transform: translate3d(0,0,0);
+will-change: opacity, transform;
+}
+@keyframes mistDrift{
+0%   { transform: translate3d(-1.2%, -0.8%, 0) scale(1.03); }
+100% { transform: translate3d( 1.2%,  0.8%, 0) scale(1.07); }
+}
 
-    /* NO BULLETS (future-proof) */
-    ul, ol{ list-style:none !important; padding:0; margin:0; }
-    li{ list-style:none !important; }
+canvas#ocean{
+position: fixed;
+inset: 0;
+z-index: 0;
+pointer-events: none;
+opacity: 0;
+filter: blur(0px);
+will-change: opacity;
+}
 
-    .mist{
-      position: fixed;
-      inset: -20%;
-      z-index: 0;
-      pointer-events: none;
-      opacity: 0;
-      filter: blur(26px);
-      background:
-        radial-gradient(1400px 1200px at 50% 35%, rgba(210,225,255,.14), rgba(0,0,0,0) 68%),
-        radial-gradient(1600px 1400px at 50% 80%, rgba(120,150,210,.10), rgba(0,0,0,0) 72%),
-        radial-gradient(900px 900px at 15% 55%, rgba(180,190,215,.06), rgba(0,0,0,0) 70%),
-        radial-gradient(900px 900px at 85% 45%, rgba(160,180,210,.05), rgba(0,0,0,0) 70%);
-      animation: mistDrift 26s ease-in-out infinite alternate;
-      transform: translate3d(0,0,0);
-      will-change: opacity, transform;
-    }
-    @keyframes mistDrift{
-      0%   { transform: translate3d(-1.2%, -0.8%, 0) scale(1.03); }
-      100% { transform: translate3d( 1.2%,  0.8%, 0) scale(1.07); }
-    }
+body::after{
+content:"";
+position: fixed;
+inset: 0;
+z-index: 0;
+pointer-events:none;
+background: radial-gradient(120% 90% at 50% 40%, rgba(0,0,0,0) 52%, rgba(0,0,0,.70) 100%);
+opacity: .65;
+}
 
-    canvas#ocean{
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      opacity: 0;
-      filter: blur(0px);
-      will-change: opacity;
-    }
+.portal{
+position: relative;
+height: calc(var(--portalPages) * 100vh);
+z-index: 1;
+}
+.portal-stage{
+position: sticky;
+top:0;
+height:100vh;
+display:grid;
+place-items: start center;
+overflow:hidden;
+}
+.portal-inner{
+width: min(var(--stageMax), calc(100vw - var(--stagePad)));
+height:100%;
+position:relative;
+overflow:hidden;
+}
+.portal-inner img{
+position:absolute;
+inset:0;
+width:100%;
+height:100%;
+object-fit: contain;
+object-position: top center;
+transform: translate3d(0, var(--y, 0px), 0) scale(1.55);
+transform-origin: top center;
+will-change: transform;
+display:block;
+z-index:1;
+}
+.portal-inner::after{
+content:"";
+position:absolute;
+inset:0;
+pointer-events:none;
+background: radial-gradient(120% 85% at 50% 55%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
+z-index:2;
+}
 
-    body::after{
-      content:"";
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events:none;
-      background: radial-gradient(120% 90% at 50% 40%, rgba(0,0,0,0) 52%, rgba(0,0,0,.70) 100%);
-      opacity: .65;
-    }
+.invocation{
+position:absolute;
+left:50%;
+top:18%;
+transform: translate(-50%,-50%);
+z-index:3;
 
-    /* Use --vh everywhere (prevents iOS scroll wobble) */
-    .portal{
-      position: relative;
-      height: calc(var(--portalPages) * (var(--vh) * 100));
-      z-index: 1;
-    }
-    .portal-stage{
-      position: sticky;
-      top:0;
-      height: calc(var(--vh) * 100);
-      display:grid;
-      place-items: start center;
-      overflow:hidden;
-    }
-    .portal-inner{
-      width: min(var(--stageMax), calc(100vw - var(--stagePad)));
-      height:100%;
-      position:relative;
-      overflow:hidden;
-    }
-    .portal-inner img{
-      position:absolute;
-      inset:0;
-      width:100%;
-      height:100%;
-      object-fit: contain;
-      object-position: top center;
-      transform: translate3d(0, var(--y, 0px), 0) scale(1.55);
-      transform-origin: top center;
-      will-change: transform;
-      display:block;
-      z-index:1;
-    }
-    .portal-inner::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background: radial-gradient(120% 85% at 50% 55%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%);
-      z-index:2;
-    }
+width: max-content;
+max-width: none;
+white-space: nowrap;
+word-break: keep-all;
 
-    /* TICKER: centered vertically, full opacity */
-    .invocation{
-      position:absolute;
-      left:50%;
-      top:50%;
-      transform: translate(-50%,-50%);
-      z-index:3;
+font-weight: 500;
+text-transform: uppercase;
 
-      width: max-content;
-      max-width: none;
-      white-space: nowrap;
-      word-break: keep-all;
+font-size: clamp(22px, 6.2vw, 56px);
+letter-spacing: clamp(.14em, 2.2vw, .26em);
 
-      font-weight: 500;
-      text-transform: uppercase;
+text-align:center;
+line-height:1;
 
-      font-size: clamp(22px, 6.2vw, 56px);
-      letter-spacing: clamp(.14em, 2.2vw, .26em);
+color: rgba(255,255,255,.18);
+text-shadow:
+0 0 6px rgba(255,255,255,.32),
+0 0 18px rgba(255,255,255,.20);
 
-      text-align:center;
-      line-height:1;
+opacity: var(--invOpacity, 1);
+transition: opacity 2.8s ease;
+will-change: opacity;
+}
 
-      color: rgba(255,255,255,1); /* 1.00 */
-      opacity: 1;                 /* 1.00 */
+.ceremony{
+position: relative;
+height: calc(var(--ceremonyPages) * 100vh);
+z-index: 1;
+}
+.ceremony-stage{
+position: sticky;
+top:0;
+height:100vh;
+display:grid;
+place-items:center;
+overflow:hidden;
+isolation: isolate;
+}
 
-      text-shadow:
-        0 0 6px rgba(255,255,255,.32),
-        0 0 18px rgba(255,255,255,.20);
+.ceremony-stage::after{
+content:"";
+position:absolute;
+left:0; right:0; bottom:0;
+height: 24vh;
+background: linear-gradient(to bottom,
+rgba(0,0,0,0) 0%,
+rgba(0,0,0,.78) 55%,
+rgba(0,0,0,1) 100%);
+pointer-events:none;
+z-index: 2;
+}
 
-      transition: none;
-      will-change: transform;
-      pointer-events: none;
-    }
+.ceremony-inner{
+width: min(var(--stageMax), calc(100vw - var(--stagePad)));
+height:100%;
+position:relative;
+display:grid;
+place-items:center;
+z-index: 3;
+}
 
-    .ceremony{
-      position: relative;
-      height: calc(var(--ceremonyPages) * (var(--vh) * 100));
-      z-index: 1;
-    }
-    .ceremony-stage{
-      position: sticky;
-      top:0;
-      height: calc(var(--vh) * 100);
-      display:grid;
-      place-items:center;
-      overflow:hidden;
-      isolation: isolate;
-    }
+.line{
+position:absolute;
+left:50%;
+transform: translate3d(-50%,0,0);
+text-align:center;
 
-    .ceremony-stage::after{
-      content:"";
-      position:absolute;
-      left:0; right:0; bottom:0;
-      height: calc(var(--vh) * 24);
-      background: linear-gradient(to bottom,
-        rgba(0,0,0,0) 0%,
-        rgba(0,0,0,.78) 55%,
-        rgba(0,0,0,1) 100%);
-      pointer-events:none;
-      z-index: 2;
-    }
+font-size: var(--textSize);
+line-height: 1.24;
+letter-spacing: .01em;
+font-weight: 400;
 
-    .ceremony-inner{
-      width: min(var(--stageMax), calc(100vw - var(--stagePad)));
-      height:100%;
-      position:relative;
-      display:grid;
-      place-items:center;
-      z-index: 3;
-    }
+white-space: nowrap;
+max-width:none;
 
-    .line{
-      position:absolute;
-      left:50%;
-      transform: translate3d(-50%,0,0);
-      text-align:center;
+color: rgba(255,255,255,.90);
+text-shadow:
+0 0 2px rgba(255,255,255,.22),
+0 0 14px rgba(200,220,255,.12),
+0 0 26px rgba(180,200,255,.05);
 
-      font-size: var(--textSize);
-      line-height: 1.24;
-      letter-spacing: .01em;
-      font-weight: 400;
+opacity: 0;
+filter: blur(1.2px);
 
-      white-space: nowrap;
-      max-width:none;
+transition: none;
+will-change: opacity, filter, transform;
 
-      color: rgba(255,255,255,.90);
-      text-shadow:
-        0 0 2px rgba(255,255,255,.22),
-        0 0 14px rgba(200,220,255,.12),
-        0 0 26px rgba(180,200,255,.05);
+-webkit-font-smoothing: antialiased;
+text-rendering: geometricPrecision;
+backface-visibility: hidden;
+transform-style: preserve-3d;
 
-      opacity: 0;
-      filter: blur(1.2px);
+pointer-events:none;
+z-index: 3;
+}
 
-      transition: none;
-      will-change: opacity, filter, transform;
+.s1{ top: 18%; }
+.s2{ top: 34%; }
+.s3{ top: 54%; }
+.s4{ top: 70%; }
 
-      -webkit-font-smoothing: antialiased;
-      text-rendering: geometricPrecision;
-      backface-visibility: hidden;
-      transform-style: preserve-3d;
+    /* MOBILE: l1 uses EXACT 3 breaks (4 lines), no extra wrapping */
+    /* MOBILE: exact breaks + true centering */
+@media (max-width: 540px){
+      /* keep other lines single-line (they'll scale via JS if needed) */
+      /* other lines stay single-line */
+.line{ white-space: nowrap; max-width:none; }
 
-      pointer-events:none;
-      z-index: 3;
-    }
-
-    .s1{ top: 18%; }
-    .s2{ top: 34%; }
-    .s3{ top: 54%; }
-    .s4{ top: 70%; }
-
-    /* MOBILE: 3 breaks, centered, stable sizing */
-    @media (max-width: 540px){
-      #l1{
+      /* l1: center the block by giving it a real width and centering that width */
+#l1{
+        white-space: normal;          /* allow our <br> to work */
         left: 50%;
-        width: 92vw;
+        width: 92vw;                         /* <-- makes the block itself centered */
         transform: translate3d(-50%,0,0);
         text-align: center;
 
         white-space: normal;
-        max-width: 92vw;
+max-width: 92vw;
 
-        font-size: clamp(20px, 5.8vw, 28px);
-        line-height: 1.18;
-        letter-spacing: .006em;
+font-size: clamp(20px, 5.8vw, 28px);
+line-height: 1.18;
+letter-spacing: .006em;
+}
+#l1 .l1-line{
+display:block;
+        white-space: nowrap;          /* prevent extra wraps */
       }
-
-      #l1 .l1-wrap{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+      #l1 .l1-emph{
+        font-weight: 500;             /* slightly heavier */
         width: 100%;
-        transform: scale(var(--l1Scale, 1));
-        transform-origin: center center;
-        will-change: transform;
-      }
-
-      #l1 .l1-line{
-        display: block;
-        width: fit-content;
-        white-space: nowrap;
-      }
-
+        white-space: nowrap;                 /* prevent extra wraps */
+}
       #l1 .l1-emph{ font-weight: 500; }
-    }
+}
 
-    .enter{
-      position:absolute;
-      left:50%;
-      bottom: calc(var(--vh) * 8);
-      transform: translate3d(-50%,0,0);
-      background: none;
-      border: none;
-      padding: 0;
+.enter{
+position:absolute;
+left:50%;
+bottom: 8vh;
+transform: translate3d(-50%,0,0);
+background: none;
+border: none;
+padding: 0;
 
-      font-size: 15px;
-      letter-spacing: .22em;
-      text-transform: lowercase;
-      font-weight: 400;
+font-size: 15px;
+letter-spacing: .22em;
+text-transform: lowercase;
+font-weight: 400;
 
-      color: rgba(255,255,255,.85);
-      text-shadow:
-        0 0 8px rgba(220,235,255,.18),
-        0 0 22px rgba(200,220,255,.12);
+color: rgba(255,255,255,.85);
+text-shadow:
+0 0 8px rgba(220,235,255,.18),
+0 0 22px rgba(200,220,255,.12);
 
-      cursor: pointer;
-      user-select:none;
+cursor: pointer;
+user-select:none;
 
-      opacity: 0;
-      transition: opacity 400ms ease;
-      z-index: 6;
-    }
-    .enter:hover{ opacity: 1; }
-    .enter:focus{ outline: none; }
-  </style>
+opacity: 0;
+transition: opacity 400ms ease;
+z-index: 6;
+}
+.enter:hover{ opacity: 1; }
+.enter:focus{ outline: none; }
+</style>
 </head>
 
 <body>
-  <div class="mist" id="mist" aria-hidden="true"></div>
-  <canvas id="ocean" aria-hidden="true"></canvas>
+<div class="mist" id="mist" aria-hidden="true"></div>
+<canvas id="ocean" aria-hidden="true"></canvas>
 
-  <section class="portal" id="portal">
-    <div class="portal-stage">
-      <div class="portal-inner">
-        <img id="hero" src="new_portal.jpeg" alt="">
-        <div class="invocation" id="invocation">BLANKET ME</div>
-      </div>
-    </div>
-  </section>
+<section class="portal" id="portal">
+<div class="portal-stage">
+<div class="portal-inner">
+<img id="hero" src="new_portal.jpeg" alt="">
+<div class="invocation" id="invocation">BLANKET ME</div>
+</div>
+</div>
+</section>
 
-  <section class="ceremony" id="ceremony">
-    <div class="ceremony-stage">
-      <div class="ceremony-inner">
+<section class="ceremony" id="ceremony">
+<div class="ceremony-stage">
+<div class="ceremony-inner">
+        <!-- l1: force EXACT breaks on mobile via <br> + nowrap spans -->
+<div class="line s1" id="l1">
+<span class="l1-line">we imagine in this exhibition</span><br>
+<span class="l1-line">an invitation to witness our creation</span><br>
+<span class="l1-line">of new ways of experiencing</span><br>
+<span class="l1-line l1-emph">boundless love</span>
+</div>
 
-        <div class="line s1" id="l1">
-          <div class="l1-wrap" id="l1wrap">
-            <span class="l1-line">we imagine in this exhibition</span>
-            <span class="l1-line">an invitation to witness our creation</span>
-            <span class="l1-line">of new ways of experiencing</span>
-            <span class="l1-line l1-emph">boundless love</span>
-          </div>
-        </div>
+<div class="line s2" id="l2">forward-facing and fusing ethereality with inspiration</div>
+<div class="line s3" id="l3">we bear witness and release limitation</div>
+<div class="line s4" id="l4">opening to transformation</div>
 
-        <div class="line s2" id="l2">forward-facing and fusing ethereality with inspiration</div>
-        <div class="line s3" id="l3">we bear witness and release limitation</div>
-        <div class="line s4" id="l4">opening to transformation</div>
+<button class="enter" id="enter" type="button">enter</button>
+</div>
+</div>
+</section>
 
-        <button class="enter" id="enter" type="button">enter</button>
-      </div>
-    </div>
-  </section>
+<script>
+const ocean = document.getElementById("ocean");
+const ctx = ocean.getContext("2d", { alpha: true });
+const mistEl = document.getElementById("mist");
 
-  <script>
-    // --- iOS Safari viewport-height stabilizer (fixes sticky+scroll jitter) ---
-    let LOCKED_VH = window.innerHeight;
+let W=0, H=0, DPR=1;
+let drops = [];
+let beads = [];
 
-    function setVhVar(){
-      LOCKED_VH = window.innerHeight;
-      document.documentElement.style.setProperty("--vh", (LOCKED_VH * 0.01) + "px");
-    }
+function resizeOcean(){
+DPR = Math.min(2, window.devicePixelRatio || 1);
+W = window.innerWidth;
+H = window.innerHeight;
 
-    setVhVar();
-    window.addEventListener("resize", setVhVar, { passive:true });
-    window.addEventListener("orientationchange", () => setTimeout(setVhVar, 150), { passive:true });
+ocean.width = Math.floor(W * DPR);
+ocean.height = Math.floor(H * DPR);
+ocean.style.width = W + "px";
+ocean.style.height = H + "px";
+ctx.setTransform(DPR,0,0,DPR,0,0);
 
-    const ocean = document.getElementById("ocean");
-    const ctx = ocean.getContext("2d", { alpha: true });
-    const mistEl = document.getElementById("mist");
+const n = Math.max(240, Math.min(620, Math.floor((W*H)/9000)));
+drops = Array.from({length:n}, () => newDrop(true));
 
-    let W=0, H=0, DPR=1;
-    let drops = [];
-    let beads = [];
+const b = Math.max(22, Math.min(52, Math.floor(W/26)));
+beads = Array.from({length:b}, () => newBead());
+}
 
-    function resizeOcean(){
-      DPR = Math.min(2, window.devicePixelRatio || 1);
-      W = window.innerWidth;
-      H = LOCKED_VH;
+function newDrop(randomY){
+const tiny = Math.random() < 0.82;
+return {
+x: Math.random() * W,
+y: randomY ? Math.random() * H : (-50 - Math.random()*H),
+len: tiny ? (10 + Math.random()*26) : (22 + Math.random()*42),
+spd: tiny ? (1.6 + Math.random()*3.2) : (1.2 + Math.random()*2.4),
+w:   tiny ? (0.6 + Math.random()*0.9) : (0.8 + Math.random()*1.2),
+a:   tiny ? (0.028 + Math.random()*0.060) : (0.020 + Math.random()*0.050),
+drift:(-0.25 + Math.random()*0.50)
+};
+}
 
-      ocean.width = Math.floor(W * DPR);
-      ocean.height = Math.floor(H * DPR);
-      ocean.style.width = W + "px";
-      ocean.style.height = H + "px";
-      ctx.setTransform(DPR,0,0,DPR,0,0);
+function newBead(){
+return {
+x: Math.random()*W,
+y: Math.random()*H,
+r: 1.2 + Math.random()*2.8,
+vy: 0.05 + Math.random()*0.22,
+vx: (-0.06 + Math.random()*0.12),
+a: 0.05 + Math.random()*0.12
+};
+}
 
-      const n = Math.max(240, Math.min(620, Math.floor((W*H)/9000)));
-      drops = Array.from({length:n}, () => newDrop(true));
+function drawOcean(rainBoost=1){
+ctx.clearRect(0,0,W,H);
+ctx.globalCompositeOperation = "source-over";
 
-      const b = Math.max(22, Math.min(52, Math.floor(W/26)));
-      beads = Array.from({length:b}, () => newBead());
-    }
+for (const d of drops){
+d.y += d.spd * rainBoost;
+d.x += d.drift * 0.15;
 
-    function newDrop(randomY){
-      const tiny = Math.random() < 0.82;
-      return {
-        x: Math.random() * W,
-        y: randomY ? Math.random() * H : (-50 - Math.random()*H),
-        len: tiny ? (10 + Math.random()*26) : (22 + Math.random()*42),
-        spd: tiny ? (1.6 + Math.random()*3.2) : (1.2 + Math.random()*2.4),
-        w:   tiny ? (0.6 + Math.random()*0.9) : (0.8 + Math.random()*1.2),
-        a:   tiny ? (0.028 + Math.random()*0.060) : (0.020 + Math.random()*0.050),
-        drift:(-0.25 + Math.random()*0.50)
-      };
-    }
+if (d.y - d.len > H){
+d.y = -d.len - 10 - Math.random()*80;
+d.x = Math.random() * W;
+}
+if (d.x < -40) d.x = W + 40;
+if (d.x > W + 40) d.x = -40;
 
-    function newBead(){
-      return {
-        x: Math.random()*W,
-        y: Math.random()*H,
-        r: 1.2 + Math.random()*2.8,
-        vy: 0.05 + Math.random()*0.22,
-        vx: (-0.06 + Math.random()*0.12),
-        a: 0.05 + Math.random()*0.12
-      };
-    }
+const g = ctx.createLinearGradient(d.x, d.y, d.x, d.y + d.len);
+g.addColorStop(0,   `rgba(255,255,255,0)`);
+g.addColorStop(0.55,`rgba(235,242,255,${d.a})`);
+g.addColorStop(1,   `rgba(255,255,255,0)`);
 
-    function drawOcean(rainBoost=1){
-      ctx.clearRect(0,0,W,H);
-      ctx.globalCompositeOperation = "source-over";
+ctx.strokeStyle = g;
+ctx.lineWidth = d.w;
+ctx.lineCap = "round";
 
-      for (const d of drops){
-        d.y += d.spd * rainBoost;
-        d.x += d.drift * 0.15;
+ctx.beginPath();
+ctx.moveTo(d.x, d.y);
+ctx.lineTo(d.x, d.y + d.len);
+ctx.stroke();
+}
 
-        if (d.y - d.len > H){
-          d.y = -d.len - 10 - Math.random()*80;
-          d.x = Math.random() * W;
-        }
-        if (d.x < -40) d.x = W + 40;
-        if (d.x > W + 40) d.x = -40;
+for (const b of beads){
+b.y += b.vy * rainBoost;
+b.x += b.vx;
 
-        const g = ctx.createLinearGradient(d.x, d.y, d.x, d.y + d.len);
-        g.addColorStop(0,   `rgba(255,255,255,0)`);
-        g.addColorStop(0.55,`rgba(235,242,255,${d.a})`);
-        g.addColorStop(1,   `rgba(255,255,255,0)`);
+b.vx += (-0.004 + Math.random()*0.008);
+b.vx = Math.max(-0.10, Math.min(0.10, b.vx));
 
-        ctx.strokeStyle = g;
-        ctx.lineWidth = d.w;
-        ctx.lineCap = "round";
+if (b.y > H + 20){
+b.y = -20 - Math.random()*80;
+b.x = Math.random()*W;
+b.r = 1.2 + Math.random()*2.8;
+b.vy = 0.05 + Math.random()*0.22;
+}
 
-        ctx.beginPath();
-        ctx.moveTo(d.x, d.y);
-        ctx.lineTo(d.x, d.y + d.len);
-        ctx.stroke();
-      }
+ctx.fillStyle = `rgba(255,255,255,${b.a})`;
+ctx.beginPath();
+ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+ctx.fill();
+}
+}
 
-      for (const b of beads){
-        b.y += b.vy * rainBoost;
-        b.x += b.vx;
+function loop(){
+drawOcean(window.__rainBoost || 1);
+requestAnimationFrame(loop);
+}
 
-        b.vx += (-0.004 + Math.random()*0.008);
-        b.vx = Math.max(-0.10, Math.min(0.10, b.vx));
+resizeOcean();
+loop();
 
-        if (b.y > H + 20){
-          b.y = -20 - Math.random()*80;
-          b.x = Math.random()*W;
-          b.r = 1.2 + Math.random()*2.8;
-          b.vy = 0.05 + Math.random()*0.22;
-        }
+const hero = document.getElementById("hero");
+const portal = document.getElementById("portal");
+const invocation = document.getElementById("invocation");
 
-        ctx.fillStyle = `rgba(255,255,255,${b.a})`;
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
-        ctx.fill();
-      }
-    }
+const ceremony = document.getElementById("ceremony");
+const l1 = document.getElementById("l1");
+const lines = [
+l1,
+document.getElementById("l2"),
+document.getElementById("l3"),
+document.getElementById("l4"),
+];
+const enter = document.getElementById("enter");
 
-    function loop(){
-      drawOcean(window.__rainBoost || 1);
-      requestAnimationFrame(loop);
-    }
+function smoothstep(x){
+x = Math.min(1, Math.max(0, x));
+return x*x*(3 - 2*x);
+}
 
-    resizeOcean();
-    loop();
+function fitLine(el, maxVW = 0.92, minScale = 0.72){
+if (!el) return;
+el.style.transform = "translate3d(-50%,0,0) scale(1)";
+const maxW = Math.min(window.innerWidth * maxVW, 1200);
+const w = el.scrollWidth;
+if (w > maxW){
+const s = Math.max(minScale, Math.min(1, maxW / w));
+el.style.transform = `translate3d(-50%,0,0) scale(${s.toFixed(3)})`;
+}
+}
 
-    const hero = document.getElementById("hero");
-    const portal = document.getElementById("portal");
-    const ceremony = document.getElementById("ceremony");
-
-    const l1 = document.getElementById("l1");
-    const l1wrap = document.getElementById("l1wrap");
-
-    const lines = [
-      l1,
-      document.getElementById("l2"),
-      document.getElementById("l3"),
-      document.getElementById("l4"),
-    ];
-    const enter = document.getElementById("enter");
-
-    function smoothstep(x){
-      x = Math.min(1, Math.max(0, x));
-      return x*x*(3 - 2*x);
-    }
-
-    function fitLine(el, maxVW = 0.92, minScale = 0.72){
+    // for multi-line (l1) with forced breaks: scale based on the widest line span
+    function fitMultiline(el, lineSelector, maxVW = 0.92, minScale = 0.78){
       if (!el) return;
       el.style.transform = "translate3d(-50%,0,0) scale(1)";
+
       const maxW = Math.min(window.innerWidth * maxVW, 1200);
-      const w = el.scrollWidth;
-      if (w > maxW){
-        const s = Math.max(minScale, Math.min(1, maxW / w));
+      const parts = el.querySelectorAll(lineSelector);
+      let widest = 0;
+
+      if (parts && parts.length){
+        parts.forEach(p => { widest = Math.max(widest, p.scrollWidth); });
+      } else {
+        widest = el.scrollWidth;
+      }
+
+      if (widest > maxW){
+        const s = Math.max(minScale, Math.min(1, maxW / widest));
         el.style.transform = `translate3d(-50%,0,0) scale(${s.toFixed(3)})`;
       }
     }
 
-    function fitL1Mobile(){
-      if (!l1 || !l1wrap) return;
-      if (window.innerWidth > 540) {
-        l1.style.removeProperty("--l1Scale");
-        return;
-      }
-      const maxW = window.innerWidth * 0.92;
-      const lineEls = l1wrap.querySelectorAll(".l1-line");
-      let widest = 0;
-      lineEls.forEach(el => { widest = Math.max(widest, el.scrollWidth); });
-      const s = widest > 0 ? Math.min(1, maxW / widest) : 1;
-      const clamped = Math.max(0.78, s);
-      l1.style.setProperty("--l1Scale", clamped.toFixed(3));
-    }
+function fitLines(){
+const isMobile = window.innerWidth <= 540;
 
-    function fitLines(){
-      const isMobile = window.innerWidth <= 540;
+if (isMobile){
+        // l1 has 4 forced lines; scale it ONLY if it overflows
+        fitMultiline(l1, ".l1-line", 0.92, 0.78);
 
-      if (!isMobile){
-        fitLine(lines[0], 0.92, 0.85);
-        fitLine(lines[1], 0.92, 0.85);
-        fitLine(lines[2], 0.92, 0.85);
-        fitLine(lines[3], 0.92, 0.85);
-      } else {
-        fitL1Mobile();
+        // others: stay single-line and scale if needed
+        fitLine(lines[1], 0.92, 0.75);
+        fitLine(lines[2], 0.92, 0.75);
+        fitLine(lines[3], 0.92, 0.75);
+        // l1 has a fixed width (92vw) so it centers; no transform scaling needed here
+        // but if your iPhone is very narrow, we can still reduce font-size slightly:
+        // (keep it simple: no scaling transform to avoid shifting visual center)
+} else {
+        // desktop/tablet: keep everything single-line and scale as needed
+fitLine(lines[0], 0.92, 0.85);
+fitLine(lines[1], 0.92, 0.85);
+fitLine(lines[2], 0.92, 0.85);
+fitLine(lines[3], 0.92, 0.85);
+}
+
+      // always scale other single-line lines when needed
+      if (isMobile){
         fitLine(lines[1], 0.92, 0.75);
         fitLine(lines[2], 0.92, 0.75);
         fitLine(lines[3], 0.92, 0.75);
       }
-    }
+}
 
-    function portalScroll(){
-      const rect = portal.getBoundingClientRect();
-      const vh = LOCKED_VH;
-      const total = rect.height - vh;
-      const p = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
+function portalScroll(){
+const rect = portal.getBoundingClientRect();
+const vh = window.innerHeight;
+const total = rect.height - vh;
+const p = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
 
-      const driftPx = vh * 0.28;
-      const y = (0.5 - p) * 2 * driftPx;
-      hero.style.setProperty("--y", `${y}px`);
-      /* ticker stays fixed at opacity 1, no JS fade */
-    }
+const driftPx = vh * 0.28;
+const y = (0.5 - p) * 2 * driftPx;
+hero.style.setProperty("--y", `${y}px`);
 
-    function ceremonyScroll(){
-      const rect = ceremony.getBoundingClientRect();
-      const vh = LOCKED_VH;
-      const total = rect.height - vh;
-      const p = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
+const fadeEnd = 0.78;
+const t = Math.min(1, p / fadeEnd);
+invocation.style.setProperty("--invOpacity", (1 - t).toFixed(3));
+}
 
-      const rainIn = smoothstep((p - 0.05) / 0.35);
+function ceremonyScroll(){
+const rect = ceremony.getBoundingClientRect();
+const vh = window.innerHeight;
+const total = rect.height - vh;
+const p = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
 
-      const rainMax = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--rainOpacityMax")) || 0.50;
-      const mistMax = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--mistOpacityMax")) || 0.55;
+const rainIn = smoothstep((p - 0.05) / 0.35);
 
-      const rainOpacity = (rainIn <= 0.001) ? 0 : (0.18 + rainIn * rainMax);
-      ocean.style.opacity = rainOpacity.toFixed(3);
-      window.__rainBoost = 1 + rainIn * 1.35;
+const rainMax = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--rainOpacityMax")) || 0.50;
+const mistMax = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--mistOpacityMax")) || 0.55;
 
-      const mistOpacity = (rainIn <= 0.001) ? 0 : (0.10 + rainIn * mistMax);
-      mistEl.style.opacity = Math.min(0.85, mistOpacity).toFixed(3);
+const rainOpacity = (rainIn <= 0.001) ? 0 : (0.18 + rainIn * rainMax);
+ocean.style.opacity = rainOpacity.toFixed(3);
+window.__rainBoost = 1 + rainIn * 1.35;
 
-      const n = lines.length;
-      const seg = 1 / (n + 1.35);
-      const inStart = 0.16;
-      const outStart = 0.56;
+const mistOpacity = (rainIn <= 0.001) ? 0 : (0.10 + rainIn * mistMax);
+mistEl.style.opacity = Math.min(0.85, mistOpacity).toFixed(3);
 
-      for (let i=0; i<n; i++){
-        const start = i * seg;
-        const local = (p - start) / (seg || 1);
+const n = lines.length;
+const seg = 1 / (n + 1.35);
+const inStart = 0.16;
+const outStart = 0.56;
 
-        let alpha = 0;
+for (let i=0; i<n; i++){
+const start = i * seg;
+const local = (p - start) / (seg || 1);
 
-        if (local >= inStart && local <= outStart){
-          const tIn = (local - inStart) / (outStart - inStart);
-          alpha = smoothstep(tIn);
-        }
-        if (local > outStart){
-          const tOut = (local - outStart) / (1 - outStart);
-          alpha = 1 - smoothstep(tOut);
-        }
+let alpha = 0;
 
-        alpha = Math.max(0, Math.min(1, alpha));
-        lines[i].style.opacity = alpha.toFixed(3);
-        lines[i].style.filter = `blur(${(1.2 * (1 - alpha)).toFixed(2)}px)`;
-      }
+if (local >= inStart && local <= outStart){
+const tIn = (local - inStart) / (outStart - inStart);
+alpha = smoothstep(tIn);
+}
+if (local > outStart){
+const tOut = (local - outStart) / (1 - outStart);
+alpha = 1 - smoothstep(tOut);
+}
 
-      const enterStart = (n * seg) + 0.08;
-      const enterAlpha = smoothstep((p - enterStart) / 0.18);
-      enter.style.opacity = enterAlpha.toFixed(3);
+alpha = Math.max(0, Math.min(1, alpha));
+lines[i].style.opacity = alpha.toFixed(3);
+lines[i].style.filter = `blur(${(1.2 * (1 - alpha)).toFixed(2)}px)`;
+}
 
-      fitLines();
+const enterStart = (n * seg) + 0.08;
+const enterAlpha = smoothstep((p - enterStart) / 0.18);
+enter.style.opacity = enterAlpha.toFixed(3);
 
-      if (p > 0.985){
-        lines.forEach(l => {
-          l.style.opacity = "0";
-          l.style.filter = "blur(1.2px)";
-        });
-        enter.style.opacity = "1";
-      }
-    }
+fitLines();
 
-    function onScroll(){
-      portalScroll();
-      ceremonyScroll();
-    }
+if (p > 0.985){
+lines.forEach(l => {
+l.style.opacity = "0";
+l.style.filter = "blur(1.2px)";
+});
+enter.style.opacity = "1";
+}
+}
 
-    window.addEventListener("scroll", onScroll, { passive:true });
-    window.addEventListener("resize", () => { setVhVar(); resizeOcean(); fitLines(); }, { passive:true });
-    window.addEventListener("load", () => { setVhVar(); resizeOcean(); fitLines(); onScroll(); });
+function onScroll(){
+portalScroll();
+ceremonyScroll();
+}
 
-    fitLines();
-    onScroll();
+window.addEventListener("scroll", onScroll, { passive:true });
+window.addEventListener("resize", () => { resizeOcean(); fitLines(); }, { passive:true });
+window.addEventListener("load", () => { fitLines(); onScroll(); });
 
-    enter.addEventListener("click", () => {
-      window.location.href = "interior.html";
-    });
-  </script>
+    // run once immediately too
+fitLines();
+onScroll();
+
+enter.addEventListener("click", () => {
+window.location.href = "interior.html";
+});
+</script>
 </body>
 </html>
