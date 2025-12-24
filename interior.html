@@ -25,8 +25,15 @@
   --fadeLift: 6px;
 
   --readRunway: 90vh;
-
   --tickerDuration: 78s;
+
+  /* crossfade window */
+  --xfRangeMobile: 0.72;
+  --xfRangeDesktop: 0.62;
+
+  /* new spacing */
+  --gapMobile: 34px;
+  --gapDesktop: 92px;
 }
 
 html, body{
@@ -52,7 +59,7 @@ body.is-loading .page{
     transform var(--fadeDur) ease;
 }
 
-/* ROOM (hero) — default (mobile-first) */
+/* ROOM (mobile-first) */
 .room{
   position:relative;
   min-height: calc(100vh - var(--tickerBandH));
@@ -60,9 +67,26 @@ body.is-loading .page{
   box-sizing:border-box;
   display:flex;
   flex-direction:column;
-  gap:22px;
+  gap: var(--gapMobile);
 }
 
+/* NEW: unified “step” wrappers so fade + spacing apply to all */
+.step{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  box-sizing:border-box;
+}
+.stepInner{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  box-sizing:border-box;
+}
+
+/* legacy helpers kept (harmless) */
 .cell{
   display:flex;
   width:100%;
@@ -72,8 +96,6 @@ body.is-loading .page{
   overflow:visible;
   min-height:0;
 }
-
-/* class helpers (kept) */
 .lt{ justify-content:flex-start; align-items:flex-start; }
 .rt{ justify-content:flex-end;   align-items:flex-start; }
 .lb{ justify-content:flex-start; align-items:flex-end;   }
@@ -98,7 +120,7 @@ body.is-loading .page{
   display:block;
 }
 
-/* MANIFESTO (LIVE TEXT) — centered, no outline */
+/* MANIFESTO */
 .manifestoCell{
   justify-content:center;
   align-items:center;
@@ -142,6 +164,28 @@ body.is-loading .page{
 .manifestoText p{ margin: 0 0 22px 0; text-transform: lowercase; }
 .manifestoText .lc{ text-transform: lowercase; }
 .manifestoText .cap{ text-transform: lowercase; margin-top: 28px; }
+
+/* ========= FADE / CROSSFADE =========
+   SAFE DEFAULT: visible.
+   JS adds body.xf-on, then we control opacity/transform.
+*/
+.fadeItem{
+  opacity: 1;
+  transform: none;
+  will-change: opacity, transform;
+  transition: opacity 1100ms ease, transform 1100ms ease;
+}
+
+body.xf-on .fadeItem{
+  opacity: 0;
+  transform: translateY(16px) scale(.992);
+}
+
+/* ensure the first panel is visible immediately */
+body.xf-on .step:first-child .fadeItem{
+  opacity: 1;
+  transform: none;
+}
 
 /* RUNWAY */
 .runway{
@@ -270,19 +314,19 @@ body.is-loading .page{
   .tickerTrack{ animation:none; }
 }
 
-/* ========= DESKTOP FIX: make it a vertical scroll sequence ========= */
+/* ========= DESKTOP: more expansive + immersive spacing ========= */
 @media (min-width: 821px){
   .room{
     height:auto;
-    padding: 6vh 6vw 6vh;
-    gap: 70px;              /* breath between chambers */
+    padding: 4vh 6vw 6vh;
+    gap: 0;                /* we'll control spacing by chamber height */
     align-items:center;
   }
 
-  .cell{
-    padding: 0;
-    justify-content:center !important;
-    align-items:center !important;
+  /* Each step becomes a “chamber” */
+  .step{
+    min-height: 92vh;      /* expansive but still lets flow */
+    padding: 8vh 0;
   }
 
   /* manifesto becomes page-scroll (no inner scroll) */
@@ -328,6 +372,15 @@ body.is-loading .page{
     transform-origin: center;
   }
 }
+
+/* reduce motion: keep everything visible */
+@media (prefers-reduced-motion: reduce){
+  body.xf-on .fadeItem{
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
 </style>
 </head>
 
@@ -336,48 +389,54 @@ body.is-loading .page{
 <div class="page" id="page">
 
 <!-- FLOW (BOTH DESKTOP + MOBILE): manifesto -> veiled -> poem -> gibran -->
-<div class="room">
+<div class="room" id="sequence">
 
   <!-- 1) MANIFESTO -->
-    <section class="step" data-step>
-      <div class="stepInner">
-        <div class="manifestoFrame fadeItem" data-fade>
-          <div class="manifestoText" aria-label="Manifesto">
-            <p class="lc">i felt love surrounding me<br>
-            so intensely and densely</p>
+  <section class="step" data-step>
+    <div class="stepInner">
+      <div class="manifestoFrame fadeItem" data-fade>
+        <div class="manifestoText" aria-label="Manifesto">
+          <p class="lc">i felt love surrounding me<br>
+          so intensely and densely</p>
 
-            <p class="lc">my body and spirit surrendered<br>
-            i felt free</p>
+          <p class="lc">my body and spirit surrendered<br>
+          i felt free</p>
 
-            <p class="lc">it came to stay<br>
-            as a new standard of love<br>
-            that the world has to offer</p>
+          <p class="lc">it came to stay<br>
+          as a new standard of love<br>
+          that the world has to offer</p>
 
-            <p class="cap">from ritual:<br>
-            to boundless love:</p>
+          <p class="cap">from: ritual:<br>
+          to: boundless love:</p>
 
-            <p class="cap">i call you into my life<br>
-            as a gift<br>
-            to all others</p>
-          </div>
+          <p class="cap">i call you into my life<br>
+          as a gift<br>
+          to all others</p>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
   <!-- 2) VEILED -->
-  <div class="cell rt">
-    <img class="veil" src="IMG_7551.jpeg" alt="Veiled image">
-  </div>
+  <section class="step" data-step>
+    <div class="stepInner">
+      <img class="veil fadeItem" data-fade src="IMG_7551.jpeg" alt="Veiled image">
+    </div>
+  </section>
 
   <!-- 3) POEM -->
-  <div class="cell lb">
-    <img class="loveImg" src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
-  </div>
+  <section class="step" data-step>
+    <div class="stepInner">
+      <img class="loveImg fadeItem" data-fade src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
+    </div>
+  </section>
 
   <!-- 4) GIBRAN -->
-  <div class="cell rb">
-    <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
-  </div>
+  <section class="step" data-step>
+    <div class="stepInner">
+      <img class="relic fadeItem" data-fade src="gibran-screenshot.png" alt="Gibran text screenshot">
+    </div>
+  </section>
 
 </div>
 
@@ -429,6 +488,74 @@ const base = track.innerHTML;
 let repeated = "";
 for (let i = 0; i < 7; i++) repeated += base;
 track.innerHTML = repeated;
+
+/* Crossfade (mobile + desktop):
+   - current chamber fades in as it approaches center
+   - previous fades out as next fades in (continuous)
+   - SAFE: if anything errors, we remove xf-on so everything stays visible.
+*/
+(function(){
+  try{
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+
+    const steps = Array.from(document.querySelectorAll('[data-step]'));
+    if (!steps.length) return;
+
+    // enable JS-controlled fading
+    document.body.classList.add('xf-on');
+
+    function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+    function smoothstep(t){ return t*t*(3 - 2*t); }
+
+    function update(){
+      const vh = window.innerHeight || 1;
+      const isDesktop = window.matchMedia && window.matchMedia('(min-width: 821px)').matches;
+      const centerY = vh * (isDesktop ? 0.52 : 0.50);
+
+      const rangeFactor = parseFloat(getComputedStyle(document.documentElement).getPropertyValue(isDesktop ? '--xfRangeDesktop' : '--xfRangeMobile')) || (isDesktop ? 0.62 : 0.72);
+      const range = Math.max(1, vh * rangeFactor);
+
+      steps.forEach(step => {
+        const target = step.querySelector('[data-fade]');
+        if (!target) return;
+
+        const r = step.getBoundingClientRect();
+        const stepCenter = r.top + r.height / 2;
+        const dist = Math.abs(stepCenter - centerY);
+
+        // 1 at center, 0 far
+        const t = clamp(1 - (dist / range), 0, 1);
+        const e = smoothstep(t);
+
+        const opacity = e;
+        const lift = (1 - e) * 18;           // drift away as it fades
+        const scale = 0.992 + e * 0.010;     // subtle “arrive”
+
+        target.style.opacity = opacity.toFixed(3);
+        target.style.transform = `translateY(${lift.toFixed(1)}px) scale(${scale.toFixed(4)})`;
+      });
+    }
+
+    // run immediately so first view isn’t blanked
+    update();
+
+    let raf = null;
+    function requestUpdate(){
+      if (raf) return;
+      raf = requestAnimationFrame(() => { raf = null; update(); });
+    }
+
+    window.addEventListener('scroll', requestUpdate, { passive:true });
+    window.addEventListener('resize', requestUpdate);
+  }catch(e){
+    document.body.classList.remove('xf-on');
+    document.querySelectorAll('[data-fade]').forEach(el => {
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+    });
+  }
+})();
 </script>
 
 </body>
