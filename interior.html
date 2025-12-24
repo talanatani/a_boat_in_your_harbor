@@ -121,7 +121,6 @@
   .manifestoText{
     width:100%;
     max-width: 560px;
-    font-family: Inter, system-ui, sans-serif;
     font-size: 13px;
     line-height: 1.6;
     letter-spacing: var(--tickerLetter);
@@ -140,33 +139,18 @@
     border-radius: 10px;
   }
 
-  .manifestoText p{ margin: 0 0 22px 0; }
-  .manifestoText .lc{ text-transform: lowercase; }
-  .manifestoText .cap{ text-transform: none; margin-top: 28px; }
+  .manifestoText p{ margin: 0 0 22px 0; text-transform: lowercase; }
+  .manifestoText .cap{ text-transform: lowercase; margin-top: 28px; }
 
-  /* DESKTOP: hero stays; below = poem then manifesto (swapped) */
+  /* DESKTOP: hero stays; below = poem then manifesto */
   .belowDesktop{
     display:none;
-    padding: 0 6vw 0;
+    padding: 0 6vw;
     box-sizing:border-box;
   }
 
-  .belowDesktop .manifestoBlock{
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 13px;
-    line-height: 1.65;
-    letter-spacing: var(--tickerLetter);
-    color: rgba(255,255,255,.86);
-    max-width: 760px;
-    margin: 18px auto 34px;
-    text-transform: lowercase;
-    text-align: center;
-  }
-  .belowDesktop .manifestoBlock p{ margin: 0 0 22px 0; }
-  .belowDesktop .manifestoBlock .cap{ text-transform:none; margin-top: 28px; }
-
   .belowDesktop .poemBlock{
-    margin: 0 auto 24px;
+    margin: 0 auto 64px;
     display:flex;
     justify-content:center;
   }
@@ -178,11 +162,28 @@
     margin: 0 auto;
   }
 
+  .belowDesktop .manifestoBlock{
+    font-size: 13px;
+    line-height: 1.65;
+    letter-spacing: var(--tickerLetter);
+    color: rgba(255,255,255,.86);
+    max-width: 760px;
+    margin: 0 auto 40px;
+    text-align: center;
+    text-transform: lowercase;
+  }
+  .belowDesktop .manifestoBlock p{
+    margin: 0 0 26px 0;
+  }
+  .belowDesktop .manifestoBlock .cap{
+    text-transform: lowercase;
+    margin-top: 28px;
+  }
+
   @media (min-width: 821px){
     /* HERO becomes single row: show ONLY lt + rt */
     .room{ grid-template-rows: 1fr; }
     .lb, .manifestoCell{ display:none; }
-
     .belowDesktop{ display:block; }
   }
 
@@ -333,8 +334,8 @@
 
     .lt{ order:1; }
     .rt{ order:2; }
-    .lb{ order:3; } /* poem now first */
-    .rb{ order:4; } /* manifesto now last */
+    .lb{ order:3; } /* poem first */
+    .rb{ order:4; } /* manifesto last */
 
     .runway{ height: 60vh; }
     .seal{ margin: 0 16px 36px; height: 96px; }
@@ -347,20 +348,11 @@
     }
 
     /* Center poem */
-    .lb{
-      justify-content:center;
-      align-items:center;
-    }
-    .loveImg{
-      margin: 0 auto;
-      display:block;
-    }
+    .lb{ justify-content:center; align-items:center; }
+    .loveImg{ margin: 0 auto; display:block; }
 
     /* Center manifesto */
-    .manifestoCell{
-      justify-content:center;
-      align-items:center;
-    }
+    .manifestoCell{ justify-content:center; align-items:center; }
     .manifestoFrame{
       width: 100%;
       max-width: 760px;
@@ -408,54 +400,32 @@
       <img class="loveImg" src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
     </div>
 
-    <!-- MOBILE: MANIFESTO SECOND (LEAVES OFF HERE) -->
+    <!-- MOBILE: MANIFESTO LAST -->
     <div class="cell rb manifestoCell">
       <div class="manifestoFrame">
         <div class="manifestoText" aria-label="Manifesto">
-          <p class="lc">i felt love surrounding me,<br>
-          so intensely and densely.</p>
-
-          <p class="lc">my body and spirit surrendered —<br>
-          i felt free.</p>
-
-          <p class="lc">it came to stay<br>
-          as a new standard of love<br>
-          that the world has to offer.</p>
-
-          <p class="cap">To ritual.<br>
-          To boundless love.</p>
-
-          <p class="cap">I call you into my life<br>
-          as a gift<br>
-          to all others.</p>
+          <p>i felt love surrounding me<br>so intensely and densely</p>
+          <p>my body and spirit surrendered<br>i felt free</p>
+          <p>it came to stay<br>as a new standard of love<br>that the world has to offer</p>
+          <p class="cap">to ritual:<br>to boundless love:</p>
+          <p class="cap">i call you into my life<br>as a gift<br>to all others</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- DESKTOP: POEM then MANIFESTO (swapped) -->
+  <!-- DESKTOP: POEM then MANIFESTO -->
   <div class="belowDesktop" aria-hidden="false">
     <div class="poemBlock">
       <img class="loveImg" src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
     </div>
 
     <div class="manifestoBlock">
-      <p>i felt love surrounding me,<br>
-      so intensely and densely.</p>
-
-      <p>my body and spirit surrendered —<br>
-      i felt free.</p>
-
-      <p>it came to stay<br>
-      as a new standard of love<br>
-      that the world has to offer.</p>
-
-      <p class="cap">To ritual.<br>
-      To boundless love.</p>
-
-      <p class="cap">I call you into my life<br>
-      as a gift<br>
-      to all others.</p>
+      <p>i felt love surrounding me<br>so intensely and densely</p>
+      <p>my body and spirit surrendered<br>i felt free</p>
+      <p>it came to stay<br>as a new standard of love<br>that the world has to offer</p>
+      <p class="cap">to ritual:<br>to boundless love:</p>
+      <p class="cap">i call you into my life<br>as a gift<br>to all others</p>
     </div>
   </div>
 
@@ -501,7 +471,6 @@
   window.addEventListener("DOMContentLoaded", triggerFadeIn);
   window.addEventListener("pageshow", triggerFadeIn);
 
-  // TICKER: repeat ~7 times
   const track = document.getElementById("tickerTrack");
   const base = track.innerHTML;
   let repeated = "";
