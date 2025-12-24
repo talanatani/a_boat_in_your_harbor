@@ -17,13 +17,13 @@
     /* “large veil” look (desktop) */
     --photoScale: 1;
 
-    /* ticker grazing (UNCHANGED) */
-    --tickerOpacity: .22;
+    /* ticker grazing */
+    --tickerOpacity: 1.00;        /* UPDATED: full opacity */
     --tickerSize: 13px;
     --tickerLetter: .12em;
 
-    /* NEW: place ticker in lower third */
-    --tickerY: 70vh; /* lower third; tweak 66–78vh if desired */
+    /* ticker placement (lower third) */
+    --tickerY: 70vh;
   }
 
   html,body{
@@ -43,7 +43,7 @@
     opacity:.35;
   }
 
-  /* 4-corner grid */
+  /* 4-corner grid (desktop) */
   .room{
     position:relative;
     z-index:1;
@@ -70,7 +70,7 @@
   .lb{ justify-content:flex-start; align-items:flex-end;   }
   .rb{ justify-content:flex-end;   align-items:flex-end;   }
 
-  /* TEXT screenshots: same sizing top and bottom */
+  /* TEXT screenshots */
   .relic{
     width:min(var(--textMaxW), 100%);
     height:auto;
@@ -80,7 +80,7 @@
     display:block;
   }
 
-  /* PHOTOS: fill the quadrant */
+  /* PHOTOS */
   .veil, .adriaImg{
     width:100%;
     max-width:none;
@@ -93,7 +93,7 @@
     transform-origin: center;
   }
 
-  /* NEW: keep portrait slightly restrained on wide desktops (discovery > spectacle) */
+  /* keep portrait slightly restrained on wide desktops */
   @media (min-width: 1100px){
     .veil, .adriaImg{
       max-width: 88%;
@@ -101,21 +101,19 @@
     }
   }
 
-  /* ----- TICKER: GRAZING OVERLAY (no band, no box) ----- */
+  /* ----- TICKER: GRAZING OVERLAY ----- */
   .ticker-wrap{
     position:fixed;
     left:0;
     right:0;
-
-    /* NEW: lower-third placement */
     top: var(--tickerY);
     transform:translateY(-50%);
-
     overflow:hidden;
     z-index:4;
     pointer-events:none;
     border:none;
     background:transparent;
+
     opacity: var(--tickerOpacity);
     mix-blend-mode: screen;
   }
@@ -137,11 +135,10 @@
     font-size: var(--tickerSize);
     letter-spacing: var(--tickerLetter);
     padding-left: 40px;
-
     text-transform: lowercase;
   }
 
-  .tickerItem{ opacity:.95; }
+  .tickerItem{ opacity:1; }       /* UPDATED: full opacity on each item */
 
   @keyframes tickerScroll{
     from{ transform:translateX(0); }
@@ -152,32 +149,49 @@
     .tickerTrack{ animation:none; }
   }
 
-  /* mobile: stack */
+  /* mobile: stack
+     UPDATED ORDER:
+     1) Gibran text
+     2) Veiled image
+     3) Adria text
+     4) Adria image
+  */
   @media (max-width: 820px){
     html,body{ overflow:auto; }
 
     .room{
       height:auto;
       min-height:100%;
-      grid-template-columns:1fr;
-      grid-template-rows:auto auto auto auto;
+      display:flex;              /* UPDATED: use flex so we can reorder precisely */
+      flex-direction:column;
       padding:18px 16px 90px;
       gap:22px;
     }
 
-    .cell{ overflow:visible; padding: 12px 0; }
+    .cell{
+      overflow:visible;
+      padding: 12px 0;
+      height:auto;
+    }
 
-    .rt,.rb,.lb{
+    /* normalize alignment */
+    .lt,.rt,.lb,.rb{
       justify-content:flex-start;
       align-items:flex-start;
     }
 
-    /* NEW: keep ticker lower on mobile too (still “grounding”) */
+    /* UPDATED: explicit mobile order */
+    .lt{ order:1; } /* Gibran text */
+    .rt{ order:2; } /* Veiled image */
+    .rb{ order:3; } /* Adria text (follows veiled image) */
+    .lb{ order:4; } /* Adria image */
+
+    /* ticker stays grounding near bottom on mobile */
     .ticker-wrap{
       position:fixed;
       top: 78vh;
       transform:translateY(-50%);
-      opacity: var(--tickerOpacity); /* unchanged */
+      opacity: var(--tickerOpacity);
     }
   }
 </style>
