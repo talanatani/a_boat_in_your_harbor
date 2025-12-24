@@ -302,8 +302,26 @@
   window.addEventListener("DOMContentLoaded", triggerFadeIn);
   window.addEventListener("pageshow", triggerFadeIn);
 
+  <script>
+  function triggerFadeIn(){
+    document.body.classList.add("is-loading");
+    void document.getElementById("page").offsetHeight;
+    requestAnimationFrame(() => document.body.classList.remove("is-loading"));
+  }
+
+  window.addEventListener("DOMContentLoaded", triggerFadeIn);
+  window.addEventListener("pageshow", triggerFadeIn);
+
+  // --- TICKER: extended seamless loop ---
   const track = document.getElementById("tickerTrack");
-  track.innerHTML += track.innerHTML;
+  const base = track.innerHTML;
+  let repeated = "";
+  for (let i = 0; i < 7; i++) {
+    repeated += base;
+  }
+  track.innerHTML = repeated;
+</script>
+
 </script>
 
 </body>
