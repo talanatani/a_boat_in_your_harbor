@@ -25,6 +25,9 @@
     --fadeLift: 6px;
 
     --readRunway: 90vh;
+
+    /* ticker speed (restored feel) */
+    --tickerDuration: 70s;
   }
 
   html, body{
@@ -105,33 +108,42 @@
     height: var(--readRunway);
   }
 
-  /* SPOTLIGHT BEAM (replaces the 1px “seam”) */
+  /* SPOTLIGHT BEAM — softer edges, no “box”, fades continuously to bottom */
   .beam{
     position:absolute;
     left:50%;
-    top:0;
+    top:-6vh;                    /* start above runway so it doesn’t look capped */
     transform:translateX(-50%);
-    width: 200px;     /* presence */
-    height:100%;
+    width: 260px;
+    height: calc(100% + 12vh);
     pointer-events:none;
-    opacity:.55;
+    opacity:.50;
+
+    /* conic volume: bright core + feathered sides + long falloff */
     background:
-      radial-gradient(
-        ellipse at 50% 0%,
-        rgba(255,255,255,.22) 0%,
-        rgba(255,255,255,.12) 18%,
-        rgba(255,255,255,.05) 38%,
-        rgba(255,255,255,.02) 55%,
-        rgba(255,255,255,0) 72%
-      ),
-      linear-gradient(
-        to bottom,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,.06) 35%,
-        rgba(255,255,255,.03) 70%,
-        rgba(255,255,255,0) 100%
+      radial-gradient(ellipse at 50% 0%,
+        rgba(255,255,255,.20) 0%,
+        rgba(255,255,255,.11) 22%,
+        rgba(255,255,255,.05) 44%,
+        rgba(255,255,255,.02) 62%,
+        rgba(255,255,255,0) 78%
       );
-    filter: blur(1.6px);
+
+    /* fade the entire beam top/bottom to eliminate panel edges */
+    -webkit-mask-image: linear-gradient(to bottom,
+      rgba(0,0,0,0) 0%,
+      rgba(0,0,0,1) 18%,
+      rgba(0,0,0,1) 74%,
+      rgba(0,0,0,0) 100%
+    );
+    mask-image: linear-gradient(to bottom,
+      rgba(0,0,0,0) 0%,
+      rgba(0,0,0,1) 18%,
+      rgba(0,0,0,1) 74%,
+      rgba(0,0,0,0) 100%
+    );
+
+    filter: blur(2.2px);
   }
 
   /* FINAL SEAL GLOW */
@@ -210,7 +222,7 @@
     letter-spacing: var(--tickerLetter);
     padding-left: 40px;
     text-transform: lowercase;
-    animation: tickerScroll 55s linear infinite;
+    animation: tickerScroll var(--tickerDuration) linear infinite;
   }
 
   @keyframes tickerScroll{
@@ -248,8 +260,11 @@
     .seal{ margin: 0 16px 36px; height: 96px; }
     .closing{ padding: 0 16px calc(var(--tickerBandH) + 24px); }
 
-    /* slightly narrower spotlight on small screens */
-    .beam{ width: 160px; opacity: .50; }
+    .beam{
+      width: 200px;
+      opacity: .46;
+      filter: blur(2.0px);
+    }
   }
 </style>
 </head>
@@ -314,6 +329,7 @@
   window.addEventListener("pageshow", triggerFadeIn);
 
   // TICKER: repeat ~7 times (prevents snapping / premature restart on wide screens)
+  // and keep the perceived speed consistent via --tickerDuration above.
   const track = document.getElementById("tickerTrack");
   const base = track.innerHTML;
   let repeated = "";
