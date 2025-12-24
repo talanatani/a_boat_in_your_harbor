@@ -105,25 +105,33 @@
     height: var(--readRunway);
   }
 
-  /* VERTICAL LIGHT BEAM */
+  /* SPOTLIGHT BEAM (replaces the 1px “seam”) */
   .beam{
     position:absolute;
     left:50%;
     top:0;
     transform:translateX(-50%);
-    width:1px;
+    width: 200px;     /* presence */
     height:100%;
     pointer-events:none;
+    opacity:.55;
     background:
+      radial-gradient(
+        ellipse at 50% 0%,
+        rgba(255,255,255,.22) 0%,
+        rgba(255,255,255,.12) 18%,
+        rgba(255,255,255,.05) 38%,
+        rgba(255,255,255,.02) 55%,
+        rgba(255,255,255,0) 72%
+      ),
       linear-gradient(
         to bottom,
         rgba(255,255,255,0) 0%,
-        rgba(255,255,255,.06) 20%,
-        rgba(255,255,255,.12) 50%,
-        rgba(255,255,255,.06) 80%,
+        rgba(255,255,255,.06) 35%,
+        rgba(255,255,255,.03) 70%,
         rgba(255,255,255,0) 100%
       );
-    opacity:.75;
+    filter: blur(1.6px);
   }
 
   /* FINAL SEAL GLOW */
@@ -239,6 +247,9 @@
     .runway{ height: 60vh; }
     .seal{ margin: 0 16px 36px; height: 96px; }
     .closing{ padding: 0 16px calc(var(--tickerBandH) + 24px); }
+
+    /* slightly narrower spotlight on small screens */
+    .beam{ width: 160px; opacity: .50; }
   }
 </style>
 </head>
@@ -302,26 +313,12 @@
   window.addEventListener("DOMContentLoaded", triggerFadeIn);
   window.addEventListener("pageshow", triggerFadeIn);
 
-  <script>
-  function triggerFadeIn(){
-    document.body.classList.add("is-loading");
-    void document.getElementById("page").offsetHeight;
-    requestAnimationFrame(() => document.body.classList.remove("is-loading"));
-  }
-
-  window.addEventListener("DOMContentLoaded", triggerFadeIn);
-  window.addEventListener("pageshow", triggerFadeIn);
-
-  // --- TICKER: extended seamless loop ---
+  // TICKER: repeat ~7 times (prevents snapping / premature restart on wide screens)
   const track = document.getElementById("tickerTrack");
   const base = track.innerHTML;
   let repeated = "";
-  for (let i = 0; i < 7; i++) {
-    repeated += base;
-  }
+  for (let i = 0; i < 7; i++) repeated += base;
   track.innerHTML = repeated;
-</script>
-
 </script>
 
 </body>
