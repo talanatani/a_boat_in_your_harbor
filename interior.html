@@ -28,8 +28,8 @@
     --fadeDur: 3.6s;
     --fadeLift: 6px;
 
-    /* reduced runway now that ticker is its own floor */
-    --readRunway: 38vh;
+    /* restored ample runway */
+    --readRunway: 90vh;
   }
 
   html, body{
@@ -56,7 +56,7 @@
     will-change: opacity, transform;
   }
 
-  /* ----- ROOM (FIRST VIEW) ----- */
+  /* ----- ROOM ----- */
   .room{
     position:relative;
     height: calc(100vh - var(--tickerBandH));
@@ -82,7 +82,6 @@
   .lb{ justify-content:flex-start; align-items:flex-end;   }
   .rb{ justify-content:flex-end;   align-items:flex-end;   }
 
-  /* TEXT (screenshots) */
   .relic{
     width:min(var(--textMaxW), 100%);
     height:auto;
@@ -93,7 +92,6 @@
     image-rendering:-webkit-optimize-contrast;
   }
 
-  /* IMAGES */
   .veil, .adriaImg{
     width:100%;
     height:auto;
@@ -107,14 +105,30 @@
     .veil, .adriaImg{ max-width: var(--desktopPhotoMax); }
   }
 
-  /* ----- RUNWAY (reduced) ----- */
+  /* ----- RUNWAY ----- */
   .runway{
     height: var(--readRunway);
   }
 
-  /* ----- CLOSING / CONTACT ----- */
+  /* ----- FINAL SEAL GLOW ----- */
+  .seal{
+    height: 120px;
+    margin: 0 6vw 40px;
+    pointer-events:none;
+    background:
+      radial-gradient(
+        ellipse at center,
+        rgba(255,255,255,.14) 0%,
+        rgba(255,255,255,.06) 30%,
+        rgba(255,255,255,.02) 55%,
+        rgba(0,0,0,0) 70%
+      );
+    opacity:.65;
+  }
+
+  /* ----- CONTACT ----- */
   .closing{
-    padding: 0 6vw calc(var(--tickerBandH) + 18px);
+    padding: 0 6vw calc(var(--tickerBandH) + 24px);
     box-sizing:border-box;
     font-size: 12px;
     letter-spacing: .16em;
@@ -193,7 +207,7 @@
       min-height: calc(100vh - var(--tickerBandH));
       display:flex;
       flex-direction:column;
-      padding:18px 16px 22px;
+      padding:18px 16px 28px;
       gap:22px;
     }
 
@@ -208,10 +222,15 @@
     .rb{ order:3; }
     .lb{ order:4; }
 
-    .runway{ height: 26vh; }
+    .runway{ height: 60vh; }
+
+    .seal{
+      margin: 0 16px 36px;
+      height: 96px;
+    }
 
     .closing{
-      padding: 0 16px calc(var(--tickerBandH) + 18px);
+      padding: 0 16px calc(var(--tickerBandH) + 24px);
     }
   }
 </style>
@@ -240,6 +259,8 @@
   </div>
 
   <div class="runway" aria-hidden="true"></div>
+
+  <div class="seal" aria-hidden="true"></div>
 
   <div class="closing">
     <div>contact</div>
