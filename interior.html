@@ -28,8 +28,8 @@
     --fadeDur: 3.6s;
     --fadeLift: 6px;
 
-    /* reading runway */
-    --readRunway: 90vh;
+    /* reduced runway now that ticker is its own floor */
+    --readRunway: 38vh;
   }
 
   html, body{
@@ -107,14 +107,14 @@
     .veil, .adriaImg{ max-width: var(--desktopPhotoMax); }
   }
 
-  /* ----- RUNWAY ----- */
+  /* ----- RUNWAY (reduced) ----- */
   .runway{
     height: var(--readRunway);
   }
 
   /* ----- CLOSING / CONTACT ----- */
   .closing{
-    padding: 0 6vw calc(var(--tickerBandH) + 24px);
+    padding: 0 6vw calc(var(--tickerBandH) + 18px);
     box-sizing:border-box;
     font-size: 12px;
     letter-spacing: .16em;
@@ -193,7 +193,7 @@
       min-height: calc(100vh - var(--tickerBandH));
       display:flex;
       flex-direction:column;
-      padding:18px 16px 28px;
+      padding:18px 16px 22px;
       gap:22px;
     }
 
@@ -208,10 +208,10 @@
     .rb{ order:3; }
     .lb{ order:4; }
 
-    .runway{ height: 60vh; }
+    .runway{ height: 26vh; }
 
     .closing{
-      padding: 0 16px calc(var(--tickerBandH) + 24px);
+      padding: 0 16px calc(var(--tickerBandH) + 18px);
     }
   }
 </style>
@@ -244,7 +244,7 @@
   <div class="closing">
     <div>contact</div>
     <a href="mailto:talanatani@gmail.com">talanatani@gmail.com</a>
-    <a href="https://www.instagram.com/talanatani" target="_blank" rel="noopener">instagram</a>
+    <a href="https://www.instagram.com/tala.natani/" target="_blank" rel="noopener">instagram</a>
   </div>
 
 </div>
