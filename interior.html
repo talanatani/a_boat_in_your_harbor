@@ -17,12 +17,10 @@
     /* “large veil” look (desktop) */
     --photoScale: 1;
 
-    /* ticker grazing */
-    --tickerOpacity: 1.00;        /* UPDATED: full opacity */
+    /* ticker (FINAL) */
+    --tickerOpacity: 1.00;
     --tickerSize: 13px;
     --tickerLetter: .12em;
-
-    /* ticker placement (lower third) */
     --tickerY: 70vh;
   }
 
@@ -33,14 +31,6 @@
     font-family:Inter, system-ui, sans-serif;
     color:#fff;
     overflow:hidden;
-  }
-
-  /* rain window */
-  canvas{
-    position:fixed;
-    inset:0;
-    z-index:0;
-    opacity:.35;
   }
 
   /* 4-corner grid (desktop) */
@@ -76,8 +66,11 @@
     height:auto;
     max-height:100%;
     object-fit:contain;
-    opacity:.95;
+    opacity:1;
     display:block;
+    position:relative;
+    z-index:2;
+    image-rendering:-webkit-optimize-contrast;
   }
 
   /* PHOTOS */
@@ -87,13 +80,13 @@
     height:auto;
     max-height:100%;
     object-fit:contain;
-    opacity:1;
+    opacity:.95;
     display:block;
     transform: scale(var(--photoScale));
     transform-origin: center;
   }
 
-  /* keep portrait slightly restrained on wide desktops */
+  /* keep portrait restrained on wide desktops */
   @media (min-width: 1100px){
     .veil, .adriaImg{
       max-width: 88%;
@@ -101,7 +94,7 @@
     }
   }
 
-  /* ----- TICKER: GRAZING OVERLAY ----- */
+  /* ----- TICKER: GRAZING OVERLAY (FINAL) ----- */
   .ticker-wrap{
     position:fixed;
     left:0;
@@ -111,11 +104,8 @@
     overflow:hidden;
     z-index:4;
     pointer-events:none;
-    border:none;
     background:transparent;
-
     opacity: var(--tickerOpacity);
-    mix-blend-mode: screen;
   }
 
   .ticker{
@@ -127,7 +117,7 @@
   .tickerTrack{
     display:inline-flex;
     align-items:center;
-    gap:24px; /* spacing replaces dots */
+    gap:24px;
     width:max-content;
     will-change:transform;
     animation:tickerScroll 55s linear infinite;
@@ -138,7 +128,7 @@
     text-transform: lowercase;
   }
 
-  .tickerItem{ opacity:1; }       /* UPDATED: full opacity on each item */
+  .tickerItem{ opacity:1; }
 
   @keyframes tickerScroll{
     from{ transform:translateX(0); }
@@ -149,20 +139,14 @@
     .tickerTrack{ animation:none; }
   }
 
-  /* mobile: stack
-     UPDATED ORDER:
-     1) Gibran text
-     2) Veiled image
-     3) Adria text
-     4) Adria image
-  */
+  /* mobile: stack + reordered narrative */
   @media (max-width: 820px){
     html,body{ overflow:auto; }
 
     .room{
       height:auto;
       min-height:100%;
-      display:flex;              /* UPDATED: use flex so we can reorder precisely */
+      display:flex;
       flex-direction:column;
       padding:18px 16px 90px;
       gap:22px;
@@ -170,28 +154,24 @@
 
     .cell{
       overflow:visible;
-      padding: 12px 0;
+      padding:12px 0;
       height:auto;
     }
 
-    /* normalize alignment */
     .lt,.rt,.lb,.rb{
       justify-content:flex-start;
       align-items:flex-start;
     }
 
-    /* UPDATED: explicit mobile order */
-    .lt{ order:1; } /* Gibran text */
-    .rt{ order:2; } /* Veiled image */
-    .rb{ order:3; } /* Adria text (follows veiled image) */
+    /* narrative order (FINAL) */
+    .lt{ order:1; } /* Gibran */
+    .rt{ order:2; } /* Your veiled image */
+    .rb{ order:3; } /* Adria text */
     .lb{ order:4; } /* Adria image */
 
-    /* ticker stays grounding near bottom on mobile */
     .ticker-wrap{
-      position:fixed;
-      top: 78vh;
+      top:78vh;
       transform:translateY(-50%);
-      opacity: var(--tickerOpacity);
     }
   }
 </style>
@@ -199,31 +179,29 @@
 
 <body>
 
-<canvas id="rain"></canvas>
-
 <div class="room">
-  <!-- Left / Top: Gibran (text first) -->
+  <!-- Gibran -->
   <div class="cell lt">
     <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
   </div>
 
-  <!-- Right / Top: Veiled (portrait) -->
+  <!-- Your veiled image -->
   <div class="cell rt">
     <img class="veil" src="IMG_7551.jpeg" alt="Veiled image">
   </div>
 
-  <!-- Left / Bottom: Adria image -->
+  <!-- Adria image -->
   <div class="cell lb">
     <img class="adriaImg" src="adria-image.png" alt="Adria image">
   </div>
 
-  <!-- Right / Bottom: Adria text -->
+  <!-- Adria text -->
   <div class="cell rb">
     <img class="relic" src="adria-text.png" alt="Adria text screenshot">
   </div>
 </div>
 
-<!-- Ticker (grazing overlay) -->
+<!-- Affirmation ticker -->
 <div class="ticker-wrap" aria-label="affirmation ticker">
   <div class="ticker">
     <div class="tickerTrack" id="tickerTrack">
@@ -243,34 +221,6 @@
 /* Seamless ticker */
 const track = document.getElementById("tickerTrack");
 track.innerHTML += track.innerHTML;
-
-/* very simple rain-on-glass */
-const c=document.getElementById("rain"),ctx=c.getContext("2d");
-let w,h,drops=[];
-function resize(){
-  w=c.width=window.innerWidth;
-  h=c.height=window.innerHeight;
-  drops=Array.from({length:400},()=>({
-    x:Math.random()*w,
-    y:Math.random()*h,
-    s:1+Math.random()*2
-  }));
-}
-function draw(){
-  ctx.clearRect(0,0,w,h);
-  ctx.strokeStyle="rgba(255,255,255,.12)";
-  drops.forEach(d=>{
-    d.y+=d.s;
-    if(d.y>h)d.y=0;
-    ctx.beginPath();
-    ctx.moveTo(d.x,d.y);
-    ctx.lineTo(d.x,d.y+6);
-    ctx.stroke();
-  });
-  requestAnimationFrame(draw);
-}
-resize(); draw();
-window.addEventListener("resize",resize);
 </script>
 
 </body>
