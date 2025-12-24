@@ -27,13 +27,13 @@
   --readRunway: 90vh;
   --tickerDuration: 78s;
 
-  /* crossfade window */
-  --xfRangeMobile: 0.72;
-  --xfRangeDesktop: 0.62;
+  /* fade window */
+  --xfRangeMobile: 0.80;
+  --xfRangeDesktop: 0.72;
 
-  /* new spacing */
-  --gapMobile: 34px;
-  --gapDesktop: 92px;
+  /* spacing */
+  --gapMobile: 40px;
+  --chamberMinDesktop: 92vh;
 }
 
 html, body{
@@ -70,7 +70,7 @@ body.is-loading .page{
   gap: var(--gapMobile);
 }
 
-/* NEW: unified “step” wrappers so fade + spacing apply to all */
+/* unified step wrappers (so fade + spacing apply consistently) */
 .step{
   width:100%;
   display:flex;
@@ -165,26 +165,15 @@ body.is-loading .page{
 .manifestoText .lc{ text-transform: lowercase; }
 .manifestoText .cap{ text-transform: lowercase; margin-top: 28px; }
 
-/* ========= FADE / CROSSFADE =========
-   SAFE DEFAULT: visible.
-   JS adds body.xf-on, then we control opacity/transform.
+/* ========= SAFE FADE =========
+   IMPORTANT: NOTHING is hidden by default.
+   JS only *modulates* opacity/transform, but cannot cause permanent blackout.
 */
 .fadeItem{
   opacity: 1;
   transform: none;
   will-change: opacity, transform;
-  transition: opacity 1100ms ease, transform 1100ms ease;
-}
-
-body.xf-on .fadeItem{
-  opacity: 0;
-  transform: translateY(16px) scale(.992);
-}
-
-/* ensure the first panel is visible immediately */
-body.xf-on .step:first-child .fadeItem{
-  opacity: 1;
-  transform: none;
+  transition: opacity 900ms ease, transform 900ms ease;
 }
 
 /* RUNWAY */
@@ -312,20 +301,20 @@ body.xf-on .step:first-child .fadeItem{
 
 @media (prefers-reduced-motion: reduce){
   .tickerTrack{ animation:none; }
+  .fadeItem{ transition:none; }
 }
 
-/* ========= DESKTOP: more expansive + immersive spacing ========= */
+/* ========= DESKTOP: immersive chambers ========= */
 @media (min-width: 821px){
   .room{
     height:auto;
     padding: 4vh 6vw 6vh;
-    gap: 0;                /* we'll control spacing by chamber height */
+    gap: 0;
     align-items:center;
   }
 
-  /* Each step becomes a “chamber” */
   .step{
-    min-height: 92vh;      /* expansive but still lets flow */
+    min-height: var(--chamberMinDesktop);
     padding: 8vh 0;
   }
 
@@ -343,11 +332,9 @@ body.xf-on .step:first-child .fadeItem{
   }
   .manifestoText::-webkit-scrollbar{ width: 0px; }
 
-  /* images feel consistent on desktop */
   .veil, .loveImg{ max-width: var(--desktopPhotoMax); }
   .relic{ width:min(var(--textMaxW), 100%); }
 
-  /* runway sizing on desktop */
   .runway{ height: var(--readRunway); }
   .beam{
     width: 260px;
@@ -372,15 +359,6 @@ body.xf-on .step:first-child .fadeItem{
     transform-origin: center;
   }
 }
-
-/* reduce motion: keep everything visible */
-@media (prefers-reduced-motion: reduce){
-  body.xf-on .fadeItem{
-    opacity: 1 !important;
-    transform: none !important;
-    transition: none !important;
-  }
-}
 </style>
 </head>
 
@@ -388,7 +366,6 @@ body.xf-on .step:first-child .fadeItem{
 
 <div class="page" id="page">
 
-<!-- FLOW (BOTH DESKTOP + MOBILE): manifesto -> veiled -> poem -> gibran -->
 <div class="room" id="sequence">
 
   <!-- 1) MANIFESTO -->
@@ -406,8 +383,8 @@ body.xf-on .step:first-child .fadeItem{
           as a new standard of love<br>
           that the world has to offer</p>
 
-          <p class="cap">from: ritual:<br>
-          to: boundless love:</p>
+          <p class="cap">from. ritual:<br>
+          to boundless love:</p>
 
           <p class="cap">i call you into my life<br>
           as a gift<br>
@@ -489,72 +466,62 @@ let repeated = "";
 for (let i = 0; i < 7; i++) repeated += base;
 track.innerHTML = repeated;
 
-/* Crossfade (mobile + desktop):
-   - current chamber fades in as it approaches center
-   - previous fades out as next fades in (continuous)
-   - SAFE: if anything errors, we remove xf-on so everything stays visible.
+/* SAFE CROSSFADE:
+   - Never hides content via CSS
+   - Only gently modulates opacity/transform via JS
 */
 (function(){
-  try{
-    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) return;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
 
-    const steps = Array.from(document.querySelectorAll('[data-step]'));
-    if (!steps.length) return;
+  const steps = Array.from(document.querySelectorAll('[data-step]'));
+  if (!steps.length) return;
 
-    // enable JS-controlled fading
-    document.body.classList.add('xf-on');
+  function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+  function smoothstep(t){ return t*t*(3 - 2*t); }
 
-    function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
-    function smoothstep(t){ return t*t*(3 - 2*t); }
+  function update(){
+    const vh = window.innerHeight || 1;
+    const isDesktop = window.matchMedia && window.matchMedia('(min-width: 821px)').matches;
+    const centerY = vh * (isDesktop ? 0.52 : 0.50);
 
-    function update(){
-      const vh = window.innerHeight || 1;
-      const isDesktop = window.matchMedia && window.matchMedia('(min-width: 821px)').matches;
-      const centerY = vh * (isDesktop ? 0.52 : 0.50);
+    const rangeFactor = parseFloat(getComputedStyle(document.documentElement)
+      .getPropertyValue(isDesktop ? '--xfRangeDesktop' : '--xfRangeMobile')) || (isDesktop ? 0.72 : 0.80);
+    const range = Math.max(1, vh * rangeFactor);
 
-      const rangeFactor = parseFloat(getComputedStyle(document.documentElement).getPropertyValue(isDesktop ? '--xfRangeDesktop' : '--xfRangeMobile')) || (isDesktop ? 0.62 : 0.72);
-      const range = Math.max(1, vh * rangeFactor);
+    steps.forEach(step => {
+      const target = step.querySelector('[data-fade]');
+      if (!target) return;
 
-      steps.forEach(step => {
-        const target = step.querySelector('[data-fade]');
-        if (!target) return;
+      const r = step.getBoundingClientRect();
+      const stepCenter = r.top + r.height / 2;
+      const dist = Math.abs(stepCenter - centerY);
 
-        const r = step.getBoundingClientRect();
-        const stepCenter = r.top + r.height / 2;
-        const dist = Math.abs(stepCenter - centerY);
+      const t = clamp(1 - (dist / range), 0, 1);
+      const e = smoothstep(t);
 
-        // 1 at center, 0 far
-        const t = clamp(1 - (dist / range), 0, 1);
-        const e = smoothstep(t);
+      // IMPORTANT: never force fully invisible (prevents “blackout” feeling)
+      const opacity = 0.08 + e * 0.92;         // 0.08 -> 1.0
+      const lift = (1 - e) * 18;
+      const scale = 0.992 + e * 0.010;
 
-        const opacity = e;
-        const lift = (1 - e) * 18;           // drift away as it fades
-        const scale = 0.992 + e * 0.010;     // subtle “arrive”
-
-        target.style.opacity = opacity.toFixed(3);
-        target.style.transform = `translateY(${lift.toFixed(1)}px) scale(${scale.toFixed(4)})`;
-      });
-    }
-
-    // run immediately so first view isn’t blanked
-    update();
-
-    let raf = null;
-    function requestUpdate(){
-      if (raf) return;
-      raf = requestAnimationFrame(() => { raf = null; update(); });
-    }
-
-    window.addEventListener('scroll', requestUpdate, { passive:true });
-    window.addEventListener('resize', requestUpdate);
-  }catch(e){
-    document.body.classList.remove('xf-on');
-    document.querySelectorAll('[data-fade]').forEach(el => {
-      el.style.opacity = '1';
-      el.style.transform = 'none';
+      target.style.opacity = opacity.toFixed(3);
+      target.style.transform = `translateY(${lift.toFixed(1)}px) scale(${scale.toFixed(4)})`;
     });
   }
+
+  let raf = null;
+  function requestUpdate(){
+    if (raf) return;
+    raf = requestAnimationFrame(() => { raf = null; update(); });
+  }
+
+  window.addEventListener('scroll', requestUpdate, { passive:true });
+  window.addEventListener('resize', requestUpdate);
+
+  // run immediately + after images load (helps Safari)
+  requestUpdate();
+  window.addEventListener('load', requestUpdate);
 })();
 </script>
 
