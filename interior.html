@@ -27,8 +27,7 @@
   --readRunway: 90vh;
   --tickerDuration: 78s;
 
-  /* crossfade feel */
-  --xfRangeMobile: 0.72;   /* portion of viewport used as fade window */
+  --xfRangeMobile: 0.72;
   --xfRangeDesktop: 0.64;
 }
 
@@ -61,10 +60,9 @@ body.is-loading .page{
   min-height: calc(100vh - var(--tickerBandH));
   padding:18px 16px 28px;
   box-sizing:border-box;
-
   display:flex;
   flex-direction:column;
-  gap:22px; /* mobile rhythm stays */
+  gap:22px;
 }
 
 .step{
@@ -120,8 +118,7 @@ body.is-loading .page{
   color: rgba(255,255,255,.86);
   text-align: center;
 
-  /* mobile: allow internal scroll if it ever grows */
-  max-height: 64vh;
+  max-height: 64vh;   /* mobile: allow scroll if needed */
   overflow:auto;
   padding-right: 6px;
 
@@ -138,9 +135,9 @@ body.is-loading .page{
 .manifestoText .lc{ text-transform: lowercase; }
 .manifestoText .cap{ text-transform: lowercase; margin-top: 28px; }
 
-/* ===== Crossfade styling =====
-   IMPORTANT: default is VISIBLE so if JS fails, nothing disappears.
-   When JS is active it adds .xf-on to <body> and then we control opacity via JS.
+/* ===== Crossfade =====
+   SAFE DEFAULT: visible.
+   Only when JS successfully enables crossfade do we set default opacity to 0.
 */
 .fadeItem{
   opacity: 1;
@@ -148,9 +145,16 @@ body.is-loading .page{
   will-change: opacity, transform;
 }
 
+/* JS turns this on ONLY after it has successfully initialized */
 body.xf-on .fadeItem{
   opacity: 0;
   transform: translateY(14px) scale(.992);
+}
+
+/* Always show the first step immediately (even before scroll) */
+body.xf-on .step:first-child .fadeItem{
+  opacity: 1;
+  transform: none;
 }
 
 /* RUNWAY / BEAM / SEAL / CONTACT */
@@ -262,26 +266,25 @@ body.xf-on .fadeItem{
   .tickerTrack{ animation:none; }
 }
 
-/* ===== DESKTOP: expansive + immersive ===== */
+/* ===== DESKTOP: expansive + “peek” next section ===== */
 @media (min-width: 821px){
   .sequence{
     padding: 0;
-    gap: 0;               /* we’ll use chamber heights instead */
+    gap: 0;
   }
 
+  /* 92vh so the next chamber peeks and feels immersive like the beginning */
   .step{
-    min-height: 100vh;
+    min-height: 92vh;
     padding: 8vh 6vw;
   }
 
-  .manifestoFrame{
-    padding: 18px 18px 0;
-  }
+  .manifestoFrame{ padding: 18px 18px 0; }
   .manifestoText{
     max-width: 760px;
     font-size: 13px;
     line-height: 1.65;
-    max-height: none;     /* page scroll, not inner */
+    max-height: none;
     overflow: visible;
     padding-right: 0;
   }
@@ -326,10 +329,7 @@ body.xf-on .fadeItem{
 <body class="is-loading">
 <div class="page" id="page">
 
-  <!-- TOP SEQUENCE (order is fixed) -->
-  <div class="sequence" id="sequence">
-
-    <!-- 1) MANIFESTO -->
+  <!-- 1) MANIFESTO -->
     <section class="step" data-step>
       <div class="stepInner">
         <div class="manifestoFrame fadeItem" data-fade>
@@ -355,21 +355,18 @@ body.xf-on .fadeItem{
       </div>
     </section>
 
-    <!-- 2) VEIL -->
     <section class="step" data-step>
       <div class="stepInner">
         <img class="veil fadeItem" data-fade src="IMG_7551.jpeg" alt="Veiled image">
       </div>
     </section>
 
-    <!-- 3) POEM -->
     <section class="step" data-step>
       <div class="stepInner">
         <img class="loveImg fadeItem" data-fade src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
       </div>
     </section>
 
-    <!-- 4) GIBRAN -->
     <section class="step" data-step>
       <div class="stepInner">
         <img class="relic fadeItem" data-fade src="gibran-screenshot.png" alt="Gibran text screenshot">
@@ -427,61 +424,68 @@ let repeated = "";
 for (let i = 0; i < 7; i++) repeated += base;
 track.innerHTML = repeated;
 
-// CROSSFADE (mobile + desktop). If JS runs, content is never “missing” anymore.
+// CROSSFADE (mobile + desktop) — SAFE MODE
 (function(){
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) return;
+  try{
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
 
-  const steps = Array.from(document.querySelectorAll('[data-step]'));
-  if (!steps.length) return;
+    const steps = Array.from(document.querySelectorAll('[data-step]'));
+    if (!steps.length) return;
 
-  // turn on the “JS-controlled fade” mode
-  document.body.classList.add('xf-on');
+    // only enable xf-on after we confirm we can run
+    document.body.classList.add('xf-on');
 
-  function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
-  function smoothstep(t){ return t*t*(3 - 2*t); }
+    function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+    function smoothstep(t){ return t*t*(3 - 2*t); }
 
-  function update(){
-    const vh = window.innerHeight || 1;
-    const isDesktop = window.matchMedia && window.matchMedia('(min-width: 821px)').matches;
+    function update(){
+      const vh = window.innerHeight || 1;
+      const isDesktop = window.matchMedia && window.matchMedia('(min-width: 821px)').matches;
 
-    // ceremonial center point
-    const centerY = vh * (isDesktop ? 0.52 : 0.50);
+      const centerY = vh * (isDesktop ? 0.52 : 0.50);
 
-    // fade window
-    const range = vh * (isDesktop ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--xfRangeDesktop')) :
-                                   parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--xfRangeMobile')));
+      const rangeFactor = isDesktop ? parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--xfRangeDesktop'))
+                                    : parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--xfRangeMobile'));
+      const range = Math.max(1, vh * rangeFactor);
 
-    steps.forEach(step => {
-      const target = step.querySelector('[data-fade]');
-      if (!target) return;
+      steps.forEach(step => {
+        const target = step.querySelector('[data-fade]');
+        if (!target) return;
 
-      const r = step.getBoundingClientRect();
-      const stepCenter = r.top + r.height/2;
-      const dist = Math.abs(stepCenter - centerY);
+        const r = step.getBoundingClientRect();
+        const stepCenter = r.top + r.height/2;
+        const dist = Math.abs(stepCenter - centerY);
 
-      // t=1 near center, 0 far away
-      const t = clamp(1 - (dist / range), 0, 1);
-      const e = smoothstep(t);
+        const t = clamp(1 - (dist / range), 0, 1);
+        const e = smoothstep(t);
 
-      const opacity = e;                // fade in
-      const lift = (1 - e) * 18;        // drift out
-      const scale = 0.992 + e * 0.010;  // subtle “arrive”
+        const opacity = e;
+        const lift = (1 - e) * 18;
+        const scale = 0.992 + e * 0.010;
 
-      target.style.opacity = opacity.toFixed(3);
-      target.style.transform = `translateY(${lift.toFixed(1)}px) scale(${scale.toFixed(4)})`;
-    });
+        target.style.opacity = opacity.toFixed(3);
+        target.style.transform = `translateY(${lift.toFixed(1)}px) scale(${scale.toFixed(4)})`;
+      });
+    }
+
+    // IMPORTANT: run immediately (not waiting for scroll)
+    update();
+
+    let raf = null;
+    function requestUpdate(){
+      if (raf) return;
+      raf = requestAnimationFrame(() => { raf = null; update(); });
+    }
+
+    window.addEventListener('scroll', requestUpdate, { passive:true });
+    window.addEventListener('resize', requestUpdate);
+  }catch(e){
+    // If anything fails, keep everything visible.
+    document.body.classList.remove('xf-on');
+    const els = document.querySelectorAll('[data-fade]');
+    els.forEach(el => { el.style.opacity = '1'; el.style.transform = 'none'; });
   }
-
-  let raf = null;
-  function requestUpdate(){
-    if (raf) return;
-    raf = requestAnimationFrame(() => { raf = null; update(); });
-  }
-
-  window.addEventListener('scroll', requestUpdate, { passive:true });
-  window.addEventListener('resize', requestUpdate);
-  requestUpdate();
 })();
 </script>
 
