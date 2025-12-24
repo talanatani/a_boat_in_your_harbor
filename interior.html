@@ -18,7 +18,7 @@
     --photoScale: 1; /* keep 1 unless you want a touch bigger */
 
     /* ticker grazing */
-    --tickerOpacity: .22;
+    --tickerOpacity: 1;          /* UPDATED: full opacity */
     --tickerSize: 13px;
     --tickerLetter: .12em;
   }
@@ -102,8 +102,9 @@
     pointer-events:none;
     border:none;
     background:transparent;
-    opacity: var(--tickerOpacity);
-    mix-blend-mode: screen; /* makes it feel like light passing over */
+
+    opacity: 1 !important;       /* UPDATED: force full opacity */
+    mix-blend-mode: normal;      /* UPDATED: prevents “washed out” look on some screens */
   }
 
   .ticker{
@@ -115,7 +116,7 @@
   .tickerTrack{
     display:inline-flex;
     align-items:center;
-    gap:18px;
+    gap:24px;                    /* UPDATED: spacing replaces dots */
     width:max-content;
     will-change:transform;
     animation:tickerScroll 55s linear infinite;
@@ -125,12 +126,12 @@
     padding-left: 40px;
 
     text-transform: lowercase;
+
+    opacity: 1 !important;       /* UPDATED */
   }
 
-  .tickerItem{ opacity:.95; }
-  .tickerSep{
-    opacity:.45;
-    margin:0 10px;
+  .tickerItem{
+    opacity: 1 !important;       /* UPDATED: full opacity on text */
   }
 
   @keyframes tickerScroll{
@@ -162,12 +163,12 @@
       align-items:flex-start;
     }
 
-    /* keep grazing feel on mobile but softer */
+    /* centered vertically on mobile too */
     .ticker-wrap{
-      position:sticky;
-      top:50vh;
+      position:fixed;            /* UPDATED: keep true vertical centering */
+      top:50%;
       transform:translateY(-50%);
-      opacity: .16;
+      opacity: 1 !important;     /* UPDATED */
     }
   }
 </style>
@@ -203,14 +204,14 @@
 <div class="ticker-wrap" aria-label="affirmation ticker">
   <div class="ticker">
     <div class="tickerTrack" id="tickerTrack">
-      <span class="tickerItem">i am well-able</span><span class="tickerSep">•</span>
-      <span class="tickerItem">i am valuable</span><span class="tickerSep">•</span>
-      <span class="tickerItem">i am worthy</span><span class="tickerSep">•</span>
-      <span class="tickerItem">i am worthy of love</span><span class="tickerSep">•</span>
-      <span class="tickerItem">i am a masterpiece</span><span class="tickerSep">•</span>
-      <span class="tickerItem">i am destined</span><span class="tickerSep">•</span>
-      <span class="tickerItem">i am eternal</span><span class="tickerSep">•</span>
-      <span class="tickerItem">i am a child of the creator of the universe</span><span class="tickerSep">•</span>
+      <span class="tickerItem">i am well-able</span>
+      <span class="tickerItem">i am valuable</span>
+      <span class="tickerItem">i am worthy</span>
+      <span class="tickerItem">i am worthy of love</span>
+      <span class="tickerItem">i am a masterpiece</span>
+      <span class="tickerItem">i am destined</span>
+      <span class="tickerItem">i am eternal</span>
+      <span class="tickerItem">i am a child of the creator of the universe</span>
     </div>
   </div>
 </div>
