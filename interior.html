@@ -52,7 +52,7 @@ body.is-loading .page{
     transform var(--fadeDur) ease;
 }
 
-/* ROOM (hero) — default (mobile-first) */
+/* ===== MOBILE (kept as-is behavior) ===== */
 .room{
   position:relative;
   min-height: calc(100vh - var(--tickerBandH));
@@ -73,7 +73,7 @@ body.is-loading .page{
   min-height:0;
 }
 
-/* class helpers (kept) */
+/* class helpers */
 .lt{ justify-content:flex-start; align-items:flex-start; }
 .rt{ justify-content:flex-end;   align-items:flex-start; }
 .lb{ justify-content:flex-start; align-items:flex-end;   }
@@ -98,11 +98,8 @@ body.is-loading .page{
   display:block;
 }
 
-/* MANIFESTO (LIVE TEXT) — centered, no outline */
-.manifestoCell{
-  justify-content:center;
-  align-items:center;
-}
+/* MANIFESTO (LIVE TEXT) */
+.manifestoCell{ justify-content:center; align-items:center; }
 
 .manifestoFrame{
   width: 100%;
@@ -138,16 +135,12 @@ body.is-loading .page{
   background: rgba(255,255,255,.18);
   border-radius: 10px;
 }
-
 .manifestoText p{ margin: 0 0 22px 0; text-transform: lowercase; }
 .manifestoText .lc{ text-transform: lowercase; }
 .manifestoText .cap{ text-transform: lowercase; margin-top: 28px; }
 
 /* RUNWAY */
-.runway{
-  position: relative;
-  height: 60vh;
-}
+.runway{ position: relative; height: 60vh; }
 
 /* SPOTLIGHT BEAM */
 .beam{
@@ -213,10 +206,7 @@ body.is-loading .page{
   flex-direction:column;
   gap:10px;
 }
-.closing a{
-  color: rgba(255,255,255,.75);
-  text-decoration:none;
-}
+.closing a{ color: rgba(255,255,255,.75); text-decoration:none; }
 .closing a:hover{ text-decoration:underline; }
 
 /* TICKER */
@@ -233,7 +223,6 @@ body.is-loading .page{
     rgba(0,0,0,.55) 50%,
     rgba(0,0,0,.90) 100%);
 }
-
 .ticker-wrap{
   position:absolute;
   left:0;
@@ -242,13 +231,7 @@ body.is-loading .page{
   overflow:hidden;
   opacity: var(--tickerOpacity);
 }
-
-.ticker{
-  overflow:hidden;
-  white-space:nowrap;
-  width:100%;
-}
-
+.ticker{ overflow:hidden; white-space:nowrap; width:100%; }
 .tickerTrack{
   display:inline-flex;
   align-items:center;
@@ -260,32 +243,39 @@ body.is-loading .page{
   text-transform: lowercase;
   animation: tickerScroll var(--tickerDuration) linear infinite;
 }
-
 @keyframes tickerScroll{
   from{ transform:translateX(0); }
   to{ transform:translateX(-50%); }
 }
-
 @media (prefers-reduced-motion: reduce){
   .tickerTrack{ animation:none; }
 }
 
-/* ========= DESKTOP FIX: make it a vertical scroll sequence ========= */
+/* ===== DESKTOP: expansive, immersive crossfade sequence ===== */
 @media (min-width: 821px){
+  /* turn the top sequence into full-height “chambers” */
   .room{
-    height:auto;
-    padding: 6vh 6vw 6vh;
-    gap: 70px;              /* breath between chambers */
+    padding: 0;
+    gap: 0;
+  }
+
+  .panel{
+    min-height: 100vh;
+    display:flex;
     align-items:center;
+    justify-content:center;
+    padding: 8vh 6vw;
+    box-sizing:border-box;
   }
 
   .cell{
     padding: 0;
+    overflow: visible;
     justify-content:center !important;
     align-items:center !important;
   }
 
-  /* manifesto becomes page-scroll (no inner scroll) */
+  /* manifesto becomes page-scroll (no inner scroll on desktop) */
   .manifestoFrame{
     padding: 18px 18px 0;
     overflow: visible;
@@ -299,11 +289,19 @@ body.is-loading .page{
   }
   .manifestoText::-webkit-scrollbar{ width: 0px; }
 
-  /* images feel consistent on desktop */
+  /* images consistent */
   .veil, .loveImg{ max-width: var(--desktopPhotoMax); }
   .relic{ width:min(var(--textMaxW), 100%); }
 
-  /* runway sizing on desktop */
+  /* crossfade targets */
+  .fadeItem{
+    opacity: 0;
+    transform: translateY(14px) scale(.992);
+    will-change: opacity, transform;
+    transition: opacity 240ms linear, transform 240ms linear; /* snap to scroll nicely */
+  }
+
+  /* runway sizing */
   .runway{ height: var(--readRunway); }
   .beam{
     width: 260px;
@@ -314,18 +312,23 @@ body.is-loading .page{
     margin: 0 6vw 40px;
     height: 120px;
   }
-  .closing{
-    padding: 0 6vw calc(var(--tickerBandH) + 24px);
-  }
+  .closing{ padding: 0 6vw calc(var(--tickerBandH) + 24px); }
 }
 
 /* ADD THE SCALE CHANGE */
 @media (min-width: 1100px){
-  .relic,
-  .veil,
-  .loveImg{
+  .relic, .veil, .loveImg{
     transform: scale(1.08);
     transform-origin: center;
+  }
+}
+
+/* reduce motion */
+@media (prefers-reduced-motion: reduce){
+  .fadeItem{
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
 </style>
@@ -335,46 +338,54 @@ body.is-loading .page{
 
 <div class="page" id="page">
 
-<!-- FLOW (BOTH DESKTOP + MOBILE): manifesto -> veiled -> poem -> gibran -->
-<div class="room">
+<!-- FLOW: manifesto -> veiled -> poem -> gibran -->
+<div class="room" id="sequence">
 
   <!-- 1) MANIFESTO -->
-  <div class="cell lt manifestoCell">
-    <div class="manifestoFrame">
-      <div class="manifestoText" aria-label="Manifesto">
-        <p class="lc">i felt love surrounding me,<br>
-        so intensely and densely.</p>
+  <div class="panel" data-panel>
+    <div class="cell lt manifestoCell">
+      <div class="manifestoFrame fadeItem" data-fade>
+        <div class="manifestoText" aria-label="Manifesto">
+          <p class="lc">i felt love surrounding me<br>
+          so intensely and densely</p>
 
-        <p class="lc">my body and spirit surrendered —<br>
-        i felt free.</p>
+          <p class="lc">my body and spirit surrendered<br>
+          i felt free</p>
 
-        <p class="lc">it came to stay<br>
-        as a new standard of love<br>
-        that the world has to offer.</p>
+          <p class="lc">it came to stay<br>
+          as a new standard of love<br>
+          that the world has to offer</p>
 
-        <p class="cap">to ritual.<br>
-        to boundless love.</p>
+          <p class="cap">from ritual:<br>
+          to boundless love:</p>
 
-        <p class="cap">i call you into my life<br>
-        as a gift<br>
-        to all others.</p>
+          <p class="cap">i call you into my life<br>
+          as a gift<br>
+          to all others</p>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- 2) VEILED -->
-  <div class="cell rt">
-    <img class="veil" src="IMG_7551.jpeg" alt="Veiled image">
+  <div class="panel" data-panel>
+    <div class="cell rt">
+      <img class="veil fadeItem" data-fade src="IMG_7551.jpeg" alt="Veiled image">
+    </div>
   </div>
 
   <!-- 3) POEM -->
-  <div class="cell lb">
-    <img class="loveImg" src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
+  <div class="panel" data-panel>
+    <div class="cell lb">
+      <img class="loveImg fadeItem" data-fade src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
+    </div>
   </div>
 
   <!-- 4) GIBRAN -->
-  <div class="cell rb">
-    <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
+  <div class="panel" data-panel>
+    <div class="cell rb">
+      <img class="relic fadeItem" data-fade src="gibran-screenshot.png" alt="Gibran text screenshot">
+    </div>
   </div>
 
 </div>
@@ -427,6 +438,66 @@ const base = track.innerHTML;
 let repeated = "";
 for (let i = 0; i < 7; i++) repeated += base;
 track.innerHTML = repeated;
+
+// DESKTOP crossfade: previous fades out as next fades in (scroll-driven)
+(function(){
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
+
+  const mq = window.matchMedia('(min-width: 821px)');
+  const fadeEls = Array.from(document.querySelectorAll('[data-fade]'));
+  const panels  = Array.from(document.querySelectorAll('[data-panel]'));
+
+  function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+
+  function update(){
+    if (!mq.matches){
+      // keep mobile unchanged
+      fadeEls.forEach(el => { el.style.opacity = ''; el.style.transform = ''; });
+      return;
+    }
+
+    const vh = window.innerHeight || 1;
+    const centerY = vh * 0.52;          // slightly below center feels more “ceremonial”
+    const range = vh * 0.60;            // how wide the fade window is
+
+    panels.forEach(panel => {
+      const target = panel.querySelector('[data-fade]');
+      if (!target) return;
+
+      const r = panel.getBoundingClientRect();
+      const panelCenter = r.top + r.height / 2;
+      const dist = Math.abs(panelCenter - centerY);
+
+      // 1 when centered, 0 when far
+      const t = clamp(1 - (dist / range), 0, 1);
+
+      // shape: linger near 1, gentle edges
+      const eased = t*t*(3 - 2*t); // smoothstep
+
+      const opacity = eased;
+      const lift = (1 - eased) * 18;     // fade-out drifts slightly
+      const scale = 0.992 + eased * 0.008;
+
+      target.style.opacity = opacity.toFixed(3);
+      target.style.transform = `translateY(${lift.toFixed(1)}px) scale(${scale.toFixed(4)})`;
+    });
+  }
+
+  let raf = null;
+  function requestUpdate(){
+    if (raf) return;
+    raf = requestAnimationFrame(() => { raf = null; update(); });
+  }
+
+  window.addEventListener('scroll', requestUpdate, { passive:true });
+  window.addEventListener('resize', requestUpdate);
+  if (mq.addEventListener) mq.addEventListener('change', requestUpdate);
+  else mq.addListener(requestUpdate);
+
+  // initial paint
+  requestUpdate();
+})();
 </script>
 
 </body>
