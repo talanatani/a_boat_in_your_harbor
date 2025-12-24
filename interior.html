@@ -27,13 +27,8 @@
   --readRunway: 90vh;
   --tickerDuration: 78s;
 
-  /* fade window */
-  --xfRangeMobile: 0.80;
-  --xfRangeDesktop: 0.72;
-
-  /* spacing */
-  --gapMobile: 40px;
-  --chamberMinDesktop: 92vh;
+  /* iOS-safe viewport unit: set by JS (same pattern as index) */
+  --vh: 1vh;
 }
 
 html, body{
@@ -44,6 +39,9 @@ html, body{
   color:#fff;
   overflow-x:hidden;
   overflow-y:auto;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* PAGE FADE-IN */
@@ -59,7 +57,7 @@ body.is-loading .page{
     transform var(--fadeDur) ease;
 }
 
-/* ROOM (mobile-first) */
+/* ROOM (hero) — default (mobile-first) */
 .room{
   position:relative;
   min-height: calc(100vh - var(--tickerBandH));
@@ -67,10 +65,10 @@ body.is-loading .page{
   box-sizing:border-box;
   display:flex;
   flex-direction:column;
-  gap: var(--gapMobile);
+  gap:22px;
 }
 
-/* unified step wrappers (so fade + spacing apply consistently) */
+/* steps (used for the sequence; keeps your layout but gives us a scroll “track”) */
 .step{
   width:100%;
   display:flex;
@@ -86,7 +84,7 @@ body.is-loading .page{
   box-sizing:border-box;
 }
 
-/* legacy helpers kept (harmless) */
+/* keep your .cell helpers (harmless) */
 .cell{
   display:flex;
   width:100%;
@@ -120,7 +118,7 @@ body.is-loading .page{
   display:block;
 }
 
-/* MANIFESTO */
+/* MANIFESTO (LIVE TEXT) — centered, no outline */
 .manifestoCell{
   justify-content:center;
   align-items:center;
@@ -165,15 +163,17 @@ body.is-loading .page{
 .manifestoText .lc{ text-transform: lowercase; }
 .manifestoText .cap{ text-transform: lowercase; margin-top: 28px; }
 
-/* ========= SAFE FADE =========
-   IMPORTANT: NOTHING is hidden by default.
-   JS only *modulates* opacity/transform, but cannot cause permanent blackout.
+/* ===== “index ceremony” style fade =====
+   Default: visible (so nothing can disappear if JS hiccups).
+   JS will drive opacity + blur + slight lift.
 */
 .fadeItem{
   opacity: 1;
-  transform: none;
-  will-change: opacity, transform;
-  transition: opacity 900ms ease, transform 900ms ease;
+  filter: blur(0px);
+  transform: translate3d(0,0,0);
+  will-change: opacity, filter, transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
 }
 
 /* RUNWAY */
@@ -301,21 +301,21 @@ body.is-loading .page{
 
 @media (prefers-reduced-motion: reduce){
   .tickerTrack{ animation:none; }
-  .fadeItem{ transition:none; }
 }
 
-/* ========= DESKTOP: immersive chambers ========= */
+/* ========= DESKTOP FIX: vertical scroll sequence ========= */
 @media (min-width: 821px){
   .room{
     height:auto;
     padding: 4vh 6vw 6vh;
-    gap: 0;
+    gap: 0;               /* we’ll create “chambers” with step min-height */
     align-items:center;
   }
 
+  /* immersive chambers like the index ceremony pacing */
   .step{
-    min-height: var(--chamberMinDesktop);
-    padding: 8vh 0;
+    min-height: calc(var(--vh) * 92);
+    padding: calc(var(--vh) * 8) 0;
   }
 
   /* manifesto becomes page-scroll (no inner scroll) */
@@ -332,9 +332,11 @@ body.is-loading .page{
   }
   .manifestoText::-webkit-scrollbar{ width: 0px; }
 
+  /* images feel consistent on desktop */
   .veil, .loveImg{ max-width: var(--desktopPhotoMax); }
   .relic{ width:min(var(--textMaxW), 100%); }
 
+  /* runway sizing on desktop */
   .runway{ height: var(--readRunway); }
   .beam{
     width: 260px;
@@ -366,6 +368,7 @@ body.is-loading .page{
 
 <div class="page" id="page">
 
+<!-- FLOW: manifesto -> veiled -> poem -> gibran -->
 <div class="room" id="sequence">
 
   <!-- 1) MANIFESTO -->
@@ -383,8 +386,8 @@ body.is-loading .page{
           as a new standard of love<br>
           that the world has to offer</p>
 
-          <p class="cap">from. ritual:<br>
-          to boundless love:</p>
+          <p class="cap">from ritual:<br>
+          to boundless... love:</p>
 
           <p class="cap">i call you into my life<br>
           as a gift<br>
@@ -451,6 +454,16 @@ body.is-loading .page{
 </div>
 
 <script>
+/* --- iOS Safari viewport-height stabilizer (same as index) --- */
+let LOCKED_VH = window.innerHeight;
+function setVhVar(){
+  LOCKED_VH = window.innerHeight;
+  document.documentElement.style.setProperty("--vh", (LOCKED_VH * 0.01) + "px");
+}
+setVhVar();
+window.addEventListener("resize", setVhVar, { passive:true });
+window.addEventListener("orientationchange", () => setTimeout(setVhVar, 150), { passive:true });
+
 function triggerFadeIn(){
   document.body.classList.add("is-loading");
   void document.getElementById("page").offsetHeight;
@@ -466,63 +479,82 @@ let repeated = "";
 for (let i = 0; i < 7; i++) repeated += base;
 track.innerHTML = repeated;
 
-/* SAFE CROSSFADE:
-   - Never hides content via CSS
-   - Only gently modulates opacity/transform via JS
-*/
-(function(){
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) return;
+/* --- “index ceremony” style: segment-based fade in/out --- */
+function smoothstep(x){
+  x = Math.min(1, Math.max(0, x));
+  return x*x*(3 - 2*x);
+}
 
-  const steps = Array.from(document.querySelectorAll('[data-step]'));
-  if (!steps.length) return;
+const sequence = document.getElementById("sequence");
+const steps = Array.from(document.querySelectorAll("[data-step]"));
+const targets = steps.map(s => s.querySelector("[data-fade]")).filter(Boolean);
 
-  function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
-  function smoothstep(t){ return t*t*(3 - 2*t); }
+function ceremonyLikeFade(){
+  if (!sequence || targets.length === 0) return;
 
-  function update(){
-    const vh = window.innerHeight || 1;
-    const isDesktop = window.matchMedia && window.matchMedia('(min-width: 821px)').matches;
-    const centerY = vh * (isDesktop ? 0.52 : 0.50);
+  const rect = sequence.getBoundingClientRect();
+  const vh = LOCKED_VH;
+  const total = rect.height - vh;
 
-    const rangeFactor = parseFloat(getComputedStyle(document.documentElement)
-      .getPropertyValue(isDesktop ? '--xfRangeDesktop' : '--xfRangeMobile')) || (isDesktop ? 0.72 : 0.80);
-    const range = Math.max(1, vh * rangeFactor);
+  // overall progress through the sequence container (0..1)
+  const p = Math.min(1, Math.max(0, (-rect.top) / (total || 1)));
 
-    steps.forEach(step => {
-      const target = step.querySelector('[data-fade]');
-      if (!target) return;
+  const n = targets.length;
 
-      const r = step.getBoundingClientRect();
-      const stepCenter = r.top + r.height / 2;
-      const dist = Math.abs(stepCenter - centerY);
+  // segment sizing: same spirit as index (a little tail at the end)
+  const seg = 1 / (n + 1.15);
 
-      const t = clamp(1 - (dist / range), 0, 1);
-      const e = smoothstep(t);
+  // tune to match your index feel
+  const inStart  = 0.14;  // when a segment begins to appear
+  const outStart = 0.60;  // when it begins to fade out
 
-      // IMPORTANT: never force fully invisible (prevents “blackout” feeling)
-      const opacity = 0.08 + e * 0.92;         // 0.08 -> 1.0
-      const lift = (1 - e) * 18;
-      const scale = 0.992 + e * 0.010;
+  for (let i = 0; i < n; i++){
+    const start = i * seg;
+    const local = (p - start) / (seg || 1);
 
-      target.style.opacity = opacity.toFixed(3);
-      target.style.transform = `translateY(${lift.toFixed(1)}px) scale(${scale.toFixed(4)})`;
-    });
+    let alpha = 0;
+
+    if (local >= inStart && local <= outStart){
+      const tIn = (local - inStart) / (outStart - inStart);
+      alpha = smoothstep(tIn);
+    }
+    if (local > outStart){
+      const tOut = (local - outStart) / (1 - outStart);
+      alpha = 1 - smoothstep(tOut);
+    }
+
+    alpha = Math.max(0, Math.min(1, alpha));
+
+    // same “alive” texture as index: blur clears as it appears
+    const blur = (1.2 * (1 - alpha));
+    const lift = (14 * (1 - alpha));
+
+    // IMPORTANT: keep a whisper visible (prevents hard blackouts if someone scrolls fast)
+    const finalAlpha = 0.03 + alpha * 0.97;
+
+    targets[i].style.opacity = finalAlpha.toFixed(3);
+    targets[i].style.filter = `blur(${blur.toFixed(2)}px)`;
+    targets[i].style.transform = `translate3d(0, ${lift.toFixed(1)}px, 0)`;
   }
 
-  let raf = null;
-  function requestUpdate(){
-    if (raf) return;
-    raf = requestAnimationFrame(() => { raf = null; update(); });
+  // if we’re fully past the sequence, let the last item stay
+  if (p > 0.985 && targets[n-1]){
+    targets[n-1].style.opacity = "1";
+    targets[n-1].style.filter = "blur(0px)";
+    targets[n-1].style.transform = "translate3d(0,0,0)";
   }
+}
 
-  window.addEventListener('scroll', requestUpdate, { passive:true });
-  window.addEventListener('resize', requestUpdate);
+function onScroll(){
+  ceremonyLikeFade();
+}
 
-  // run immediately + after images load (helps Safari)
-  requestUpdate();
-  window.addEventListener('load', requestUpdate);
-})();
+window.addEventListener("scroll", onScroll, { passive:true });
+window.addEventListener("resize", () => { setVhVar(); onScroll(); }, { passive:true });
+window.addEventListener("load", () => { setVhVar(); onScroll(); });
+
+// initial paint
+onScroll();
 </script>
 
 </body>
