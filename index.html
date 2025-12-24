@@ -1,61 +1,56 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="BLANKET ME" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="BLANKET ME" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
-<style>
-:root{
---bg:#000;
---stageMax: 1200px;
---stagePad: 40px;
+  <style>
+    :root{
+      --bg:#000;
+      --stageMax: 1200px;
+      --stagePad: 40px;
 
---portalPages: 2.6;
---ceremonyPages: 7.4;
+      --portalPages: 2.6;
+      --ceremonyPages: 7.4;
 
---mistOpacityMax: 0.55;
---rainOpacityMax: 0.50;
+      --mistOpacityMax: 0.55;
+      --rainOpacityMax: 0.50;
 
---textSize: clamp(16px, 1.6vw, 22px);
+      --textSize: clamp(16px, 1.6vw, 22px);
 
-/* iOS-safe viewport unit: set by JS */
---vh: 1vh;
-}
+      /* iOS-safe viewport unit: set by JS */
+      --vh: 1vh;
+    }
 
-*{ box-sizing:border-box; }
-html, body{ height:100%; margin:0; }
-html, body{
--webkit-text-size-adjust: 100%;
-text-size-adjust: 100%;
-}
-body{
-background: var(--bg);
-overflow-x:hidden;
-font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-color:#fff;
-position:relative;
-touch-action: pan-y;
-}
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; margin:0; }
+    html, body{
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    body{
+      background: var(--bg);
+      overflow-x:hidden;
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color:#fff;
+      position:relative;
+      touch-action: pan-y;
+    }
 
-    /* remove bullets everywhere (future-proof) */
-    ul, ol{ list-style:none; padding:0; margin:0; }
-    li{ list-style:none; }
-    /* NO BULLETS (future-proof) */
-    ul, ol{ list-style:none !important; padding:0; margin:0; }
-    li{ list-style:none !important; }
-
-.mist{
-position: fixed;
-@@ -55,4 +55,561 @@
-filter: blur(26px);
-background:
-radial-gradient(1400px 1200px at 50% 35%, rgba(210,225,255,.14), rgba(0,0,0,0) 68%),
-        radial-gradient(1600px 1400px at 50% 80%,
+    .mist{
+      position: fixed;
+      inset: -20%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0;
+      filter: blur(26px);
+      background:
+        radial-gradient(1400px 1200px at 50% 35%, rgba(210,225,255,.14), rgba(0,0,0,0) 68%),
         radial-gradient(1600px 1400px at 50% 80%, rgba(120,150,210,.10), rgba(0,0,0,0) 72%),
         radial-gradient(900px 900px at 15% 55%, rgba(180,190,215,.06), rgba(0,0,0,0) 70%),
         radial-gradient(900px 900px at 85% 45%, rgba(160,180,210,.05), rgba(0,0,0,0) 70%);
@@ -130,11 +125,10 @@ radial-gradient(1400px 1200px at 50% 35%, rgba(210,225,255,.14), rgba(0,0,0,0) 6
       z-index:2;
     }
 
-    /* TICKER: centered vertically, full opacity */
     .invocation{
       position:absolute;
       left:50%;
-      top:50%;
+      top:18%;
       transform: translate(-50%,-50%);
       z-index:3;
 
@@ -152,16 +146,14 @@ radial-gradient(1400px 1200px at 50% 35%, rgba(210,225,255,.14), rgba(0,0,0,0) 6
       text-align:center;
       line-height:1;
 
-      color: rgba(255,255,255,1); /* 1.00 */
-      opacity: 1;                 /* 1.00 */
-
+      color: rgba(255,255,255,.18);
       text-shadow:
         0 0 6px rgba(255,255,255,.32),
         0 0 18px rgba(255,255,255,.20);
 
-      transition: none;
-      will-change: transform;
-      pointer-events: none;
+      opacity: var(--invOpacity, 1);
+      transition: opacity 2.8s ease;
+      will-change: opacity;
     }
 
     .ceremony{
@@ -466,8 +458,9 @@ radial-gradient(1400px 1200px at 50% 35%, rgba(210,225,255,.14), rgba(0,0,0,0) 6
 
     const hero = document.getElementById("hero");
     const portal = document.getElementById("portal");
-    const ceremony = document.getElementById("ceremony");
+    const invocation = document.getElementById("invocation");
 
+    const ceremony = document.getElementById("ceremony");
     const l1 = document.getElementById("l1");
     const l1wrap = document.getElementById("l1wrap");
 
@@ -535,7 +528,10 @@ radial-gradient(1400px 1200px at 50% 35%, rgba(210,225,255,.14), rgba(0,0,0,0) 6
       const driftPx = vh * 0.28;
       const y = (0.5 - p) * 2 * driftPx;
       hero.style.setProperty("--y", `${y}px`);
-      /* ticker stays fixed at opacity 1, no JS fade */
+
+      const fadeEnd = 0.78;
+      const t = Math.min(1, p / fadeEnd);
+      invocation.style.setProperty("--invOpacity", (1 - t).toFixed(3));
     }
 
     function ceremonyScroll(){
