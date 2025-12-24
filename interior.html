@@ -11,13 +11,18 @@
   :root{
     --cellPad: 22px;
     --textMaxW: 520px;
-    --photoScale: 1;
 
-    /* ticker (FINAL) */
+    /* keep “archival” restraint on desktop */
+    --desktopPhotoMax: 72%; /* smaller than before (editorial -> archival) */
+
+    /* ticker */
     --tickerOpacity: 1.00;
     --tickerSize: 13px;
     --tickerLetter: .12em;
-    --tickerY: 70vh;
+
+    /* ticker placement */
+    --tickerY: 70vh;   /* desktop lower third */
+    --tickerYMobile: 78vh;
   }
 
   html,body{
@@ -29,20 +34,22 @@
     overflow:hidden;
   }
 
-  /* ----- PAGE FADE-IN (ARCHIVAL EMERGENCE) ----- */
-  .page{
+  /* ----- PAGE FADE-IN (works on desktop + mobile + bfcache) ----- */
+  body{
+    opacity: 1;
+  }
+  body.is-loading .page{
     opacity: 0;
     transform: translateY(6px);
-    transition:
-      opacity 2.6s ease,
-      transform 2.6s ease;
   }
-  .page.is-visible{
+  .page{
     opacity: 1;
     transform: translateY(0);
+    transition: opacity 2.6s ease, transform 2.6s ease;
+    will-change: opacity, transform;
   }
 
-  /* ----- GRID ----- */
+  /* ----- GRID (desktop) ----- */
   .room{
     position:relative;
     z-index:1;
@@ -89,18 +96,16 @@
     object-fit:contain;
     opacity:.95;
     display:block;
-    transform: scale(var(--photoScale));
-    transform-origin: center;
   }
 
+  /* archival restraint on larger screens */
   @media (min-width: 1100px){
     .veil, .adriaImg{
-      max-width: 88%;
-      transform-origin: right top;
+      max-width: var(--desktopPhotoMax);
     }
   }
 
-  /* ----- TICKER (ENTERING FROM RIGHT) ----- */
+  /* ----- TICKER (pixel-perfect loop; no seam, no mid-start) ----- */
   .ticker-wrap{
     position:fixed;
     left:0;
@@ -119,30 +124,38 @@
     width:100%;
   }
 
-  .tickerTrack{
+  /* runner that we translate in px */
+  .tickerRunner{
     display:inline-flex;
     align-items:center;
     gap:24px;
     width:max-content;
-    will-change:transform;
+    white-space:nowrap;
+    will-change: transform;
 
     font-size: var(--tickerSize);
     letter-spacing: var(--tickerLetter);
-    padding-left: 100vw; /* ensures entry from right */
     text-transform: lowercase;
 
-    animation: tickerScroll 60s linear infinite;
+    /* start fully offscreen right */
+    transform: translateX(var(--tickerStart, 100vw));
+    opacity: 1;
   }
 
   .tickerItem{ opacity:1; }
 
-  @keyframes tickerScroll{
-    from{ transform: translateX(0); }
-    to{ transform: translateX(-50%); }
+  /* animation defined using CSS variables set by JS */
+  @keyframes tickerPx{
+    from { transform: translateX(var(--tickerStart, 100vw)); }
+    to   { transform: translateX(calc(var(--tickerStart, 100vw) - var(--tickerDistance, 1000px))); }
+  }
+
+  .tickerRunner.is-animating{
+    animation: tickerPx var(--tickerDuration, 55s) linear infinite;
   }
 
   @media (prefers-reduced-motion: reduce){
-    .tickerTrack{ animation:none; }
+    .tickerRunner.is-animating{ animation:none; }
   }
 
   /* ----- MOBILE STACK + NARRATIVE ORDER ----- */
@@ -169,23 +182,23 @@
       align-items:flex-start;
     }
 
+    /* narrative order */
     .lt{ order:1; } /* Gibran */
     .rt{ order:2; } /* Veiled image */
-    .rb{ order:3; } /* Adria text */
+    .rb{ order:3; } /* Adria text follows veiled image */
     .lb{ order:4; } /* Adria image */
 
     .ticker-wrap{
-      top:78vh;
+      top: var(--tickerYMobile);
       transform:translateY(-50%);
     }
   }
 </style>
 </head>
 
-<body>
+<body class="is-loading">
 
 <div class="page" id="page">
-
   <div class="room">
     <div class="cell lt">
       <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
@@ -207,7 +220,8 @@
   <!-- Affirmation ticker -->
   <div class="ticker-wrap" aria-label="affirmation ticker">
     <div class="ticker">
-      <div class="tickerTrack" id="tickerTrack">
+      <div class="tickerRunner" id="tickerRunner" aria-hidden="true">
+        <!-- one run -->
         <span class="tickerItem">i am well-able</span>
         <span class="tickerItem">i am valuable</span>
         <span class="tickerItem">i am worthy</span>
@@ -219,20 +233,74 @@
       </div>
     </div>
   </div>
-
 </div>
 
 <script>
-  /* page fade-in */
-  window.addEventListener("DOMContentLoaded", () => {
+  // --- Fade-in that works on iOS Safari (including back/forward cache) ---
+  function triggerFadeIn(){
+    document.body.classList.add("is-loading");
+    // force reflow so transition reliably triggers
+    void document.getElementById("page").offsetHeight;
     requestAnimationFrame(() => {
-      document.getElementById("page").classList.add("is-visible");
+      document.body.classList.remove("is-loading");
     });
-  });
+  }
 
-  /* seamless ticker loop */
-  const track = document.getElementById("tickerTrack");
-  track.innerHTML += track.innerHTML;
+  window.addEventListener("DOMContentLoaded", triggerFadeIn, { passive:true });
+  window.addEventListener("pageshow", (e) => {
+    // pageshow fires on bfcache restores where DOMContentLoaded may not
+    triggerFadeIn();
+  }, { passive:true });
+
+  // --- Pixel-perfect ticker loop (fixes “mid-start” + seam issues on mobile) ---
+  const runner = document.getElementById("tickerRunner");
+
+  function setupTicker(){
+    if (!runner) return;
+
+    // remove previous clone if any
+    const existingClone = runner.querySelector('[data-clone="1"]');
+    if (existingClone) existingClone.remove();
+
+    // clone the original run
+    const clone = runner.cloneNode(true);
+    clone.id = "";
+    clone.setAttribute("data-clone","1");
+    // append clone contents only (avoid nesting runners)
+    const frag = document.createDocumentFragment();
+    while (clone.firstChild) frag.appendChild(clone.firstChild);
+    runner.appendChild(frag);
+
+    // measure distance for one full run (half the now-doubled content)
+    // we need width of original sequence; easiest: measure before clone append? we already appended,
+    // so compute half of scrollWidth.
+    const total = runner.scrollWidth;
+    const distance = total / 2;
+
+    // set start offset: one full viewport width to enter from right
+    const start = window.innerWidth;
+
+    // duration: keep similar speed across screen sizes
+    // px/sec around ~70 feels calm; clamp duration
+    const pxPerSec = 70;
+    const duration = Math.max(40, Math.min(90, (distance + start) / pxPerSec));
+
+    runner.style.setProperty("--tickerDistance", distance.toFixed(1) + "px");
+    runner.style.setProperty("--tickerStart", start.toFixed(0) + "px");
+    runner.style.setProperty("--tickerDuration", duration.toFixed(2) + "s");
+
+    // restart animation cleanly
+    runner.classList.remove("is-animating");
+    void runner.offsetHeight;
+    runner.classList.add("is-animating");
+  }
+
+  // run once images/fonts settle a bit
+  window.addEventListener("load", setupTicker, { passive:true });
+  window.addEventListener("resize", () => {
+    // debounce-ish without timers: re-run after resize settles
+    setupTicker();
+  }, { passive:true });
 </script>
 
 </body>
