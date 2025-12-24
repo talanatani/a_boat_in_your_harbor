@@ -42,8 +42,12 @@
       touch-action: pan-y;
     }
 
-    /* ensure no bullets anywhere (future-proof) */
-    ul, ol{ list-style:none; padding:0; margin:0; }
+    /* REMOVE BULLETS (future-proof if you ever add lists) */
+    ul, ol{
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
 
     .mist{
       position: fixed;
@@ -128,7 +132,7 @@
       z-index:2;
     }
 
-    /* "ticker" / title */
+    /* TICKER / TITLE */
     .invocation{
       position:absolute;
       left:50%;
@@ -150,22 +154,16 @@
       text-align:center;
       line-height:1;
 
-      color: rgba(255,255,255,.18);
+      /* MAKE IT FULLY OPAQUE (1.00) */
+      color: rgba(255,255,255,1);
       text-shadow:
         0 0 6px rgba(255,255,255,.32),
         0 0 18px rgba(255,255,255,.20);
 
+      /* still fades out on scroll via JS-controlled --invOpacity */
       opacity: var(--invOpacity, 1);
       transition: opacity 2.8s ease;
       will-change: opacity;
-    }
-
-    /* phone: force the ticker dead-center */
-    @media (max-width: 540px){
-      .invocation{
-        top: 50%;
-        transform: translate(-50%,-50%);
-      }
     }
 
     .ceremony{
@@ -219,9 +217,7 @@
       white-space: nowrap;
       max-width:none;
 
-      /* FULL OPACITY */
-      color: rgba(255,255,255,1);
-
+      color: rgba(255,255,255,.90);
       text-shadow:
         0 0 2px rgba(255,255,255,.22),
         0 0 14px rgba(200,220,255,.12),
@@ -247,7 +243,7 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* MOBILE: 3 breaks, centered, stable sizing */
+    /* MOBILE: stable layout for l1 (no bullets involved, just line control) */
     @media (max-width: 540px){
       #l1{
         left: 50%;
