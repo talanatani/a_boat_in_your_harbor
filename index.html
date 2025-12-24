@@ -228,15 +228,13 @@
     .s3{ top: 54%; }
     .s4{ top: 70%; }
 
-    /* MOBILE: exact breaks + true centering */
+    /* MOBILE: exactly 3 breaks, centered, and auto-fit so no cropping */
     @media (max-width: 540px){
-      /* other lines stay single-line */
       .line{ white-space: nowrap; max-width:none; }
 
-      /* l1: center the block by giving it a real width and centering that width */
       #l1{
         left: 50%;
-        width: 92vw;                         /* <-- makes the block itself centered */
+        width: 92vw;                    /* centered “stage” */
         transform: translate3d(-50%,0,0);
         text-align: center;
 
@@ -247,12 +245,21 @@
         line-height: 1.18;
         letter-spacing: .006em;
       }
+
+      /* this inner wrapper is what we scale (so the block stays centered) */
+      #l1 .l1-wrap{
+        display: inline-block;
+        transform: scale(var(--l1Scale, 1));
+        transform-origin: center center;
+        will-change: transform;
+      }
+
       #l1 .l1-line{
         display:block;
-        width: 100%;
-        white-space: nowrap;                 /* prevent extra wraps */
+        white-space: nowrap;            /* prevents extra wraps */
       }
-      #l1 .l1-emph{ font-weight: 500; }
+
+      #l1 .l1-emph{ font-weight: 500; } /* slightly heavier "boundless love" */
     }
 
     .enter{
@@ -302,11 +309,14 @@
   <section class="ceremony" id="ceremony">
     <div class="ceremony-stage">
       <div class="ceremony-inner">
+
         <div class="line s1" id="l1">
-          <span class="l1-line">we imagine in this exhibition</span><br>
-          <span class="l1-line">an invitation to witness our creation</span><br>
-          <span class="l1-line">of new ways of experiencing</span><br>
-          <span class="l1-line l1-emph">boundless love</span>
+          <div class="l1-wrap" id="l1wrap">
+            <span class="l1-line">we imagine in this exhibition</span>
+            <span class="l1-line">an invitation to witness our creation</span>
+            <span class="l1-line">of new ways of experiencing</span>
+            <span class="l1-line l1-emph">boundless love</span>
+          </div>
         </div>
 
         <div class="line s2" id="l2">forward-facing and fusing ethereality with inspiration</div>
@@ -434,6 +444,8 @@
 
     const ceremony = document.getElementById("ceremony");
     const l1 = document.getElementById("l1");
+    const l1wrap = document.getElementById("l1wrap");
+
     const lines = [
       l1,
       document.getElementById("l2"),
@@ -458,22 +470,39 @@
       }
     }
 
+    // Mobile: scale ONLY the l1wrap so the block remains perfectly centered, and no text gets cropped.
+    function fitL1Mobile(){
+      if (!l1 || !l1wrap) return;
+      if (window.innerWidth > 540) {
+        l1.style.removeProperty("--l1Scale");
+        return;
+      }
+
+      // available width = 92vw
+      const maxW = window.innerWidth * 0.92;
+
+      // measure widest line
+      const lineEls = l1wrap.querySelectorAll(".l1-line");
+      let widest = 0;
+      lineEls.forEach(el => { widest = Math.max(widest, el.scrollWidth); });
+
+      // if widest line exceeds max, scale down (but not too tiny)
+      const s = widest > 0 ? Math.min(1, maxW / widest) : 1;
+      const clamped = Math.max(0.78, s);   // keep it readable
+
+      l1.style.setProperty("--l1Scale", clamped.toFixed(3));
+    }
+
     function fitLines(){
       const isMobile = window.innerWidth <= 540;
 
-      if (isMobile){
-        // l1 has a fixed width (92vw) so it centers; no transform scaling needed here
-        // but if your iPhone is very narrow, we can still reduce font-size slightly:
-        // (keep it simple: no scaling transform to avoid shifting visual center)
-      } else {
+      if (!isMobile){
         fitLine(lines[0], 0.92, 0.85);
         fitLine(lines[1], 0.92, 0.85);
         fitLine(lines[2], 0.92, 0.85);
         fitLine(lines[3], 0.92, 0.85);
-      }
-
-      // always scale other single-line lines when needed
-      if (isMobile){
+      } else {
+        fitL1Mobile();
         fitLine(lines[1], 0.92, 0.75);
         fitLine(lines[2], 0.92, 0.75);
         fitLine(lines[3], 0.92, 0.75);
@@ -562,6 +591,7 @@
     window.addEventListener("resize", () => { resizeOcean(); fitLines(); }, { passive:true });
     window.addEventListener("load", () => { fitLines(); onScroll(); });
 
+    // run once immediately too
     fitLines();
     onScroll();
 
