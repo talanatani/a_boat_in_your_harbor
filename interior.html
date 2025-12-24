@@ -10,11 +10,7 @@
 <style>
   :root{
     --cellPad: 22px;
-
-    /* mirror sizing: text screenshots match each other; photos match each other */
     --textMaxW: 520px;
-
-    /* “large veil” look (desktop) */
     --photoScale: 1;
 
     /* ticker (FINAL) */
@@ -33,7 +29,20 @@
     overflow:hidden;
   }
 
-  /* 4-corner grid (desktop) */
+  /* ----- PAGE FADE-IN (ARCHIVAL EMERGENCE) ----- */
+  .page{
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 2.6s ease,
+      transform 2.6s ease;
+  }
+  .page.is-visible{
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ----- GRID ----- */
   .room{
     position:relative;
     z-index:1;
@@ -54,13 +63,12 @@
     overflow:hidden;
   }
 
-  /* anchors */
   .lt{ justify-content:flex-start; align-items:flex-start; }
   .rt{ justify-content:flex-end;   align-items:flex-start; }
   .lb{ justify-content:flex-start; align-items:flex-end;   }
   .rb{ justify-content:flex-end;   align-items:flex-end;   }
 
-  /* TEXT screenshots */
+  /* TEXT (screenshots) */
   .relic{
     width:min(var(--textMaxW), 100%);
     height:auto;
@@ -73,10 +81,9 @@
     image-rendering:-webkit-optimize-contrast;
   }
 
-  /* PHOTOS */
+  /* IMAGES */
   .veil, .adriaImg{
     width:100%;
-    max-width:none;
     height:auto;
     max-height:100%;
     object-fit:contain;
@@ -86,7 +93,6 @@
     transform-origin: center;
   }
 
-  /* keep portrait restrained on wide desktops */
   @media (min-width: 1100px){
     .veil, .adriaImg{
       max-width: 88%;
@@ -94,7 +100,7 @@
     }
   }
 
-  /* ----- TICKER: GRAZING OVERLAY (FINAL) ----- */
+  /* ----- TICKER (ENTERING FROM RIGHT) ----- */
   .ticker-wrap{
     position:fixed;
     left:0;
@@ -104,7 +110,6 @@
     overflow:hidden;
     z-index:4;
     pointer-events:none;
-    background:transparent;
     opacity: var(--tickerOpacity);
   }
 
@@ -120,26 +125,27 @@
     gap:24px;
     width:max-content;
     will-change:transform;
-    animation:tickerScroll 55s linear infinite;
 
     font-size: var(--tickerSize);
     letter-spacing: var(--tickerLetter);
-    padding-left: 40px;
+    padding-left: 100vw; /* ensures entry from right */
     text-transform: lowercase;
+
+    animation: tickerScroll 60s linear infinite;
   }
 
   .tickerItem{ opacity:1; }
 
   @keyframes tickerScroll{
-    from{ transform:translateX(0); }
-    to{ transform:translateX(-50%); }
+    from{ transform: translateX(0); }
+    to{ transform: translateX(-50%); }
   }
 
   @media (prefers-reduced-motion: reduce){
     .tickerTrack{ animation:none; }
   }
 
-  /* mobile: stack + reordered narrative */
+  /* ----- MOBILE STACK + NARRATIVE ORDER ----- */
   @media (max-width: 820px){
     html,body{ overflow:auto; }
 
@@ -163,9 +169,8 @@
       align-items:flex-start;
     }
 
-    /* narrative order (FINAL) */
     .lt{ order:1; } /* Gibran */
-    .rt{ order:2; } /* Your veiled image */
+    .rt{ order:2; } /* Veiled image */
     .rb{ order:3; } /* Adria text */
     .lb{ order:4; } /* Adria image */
 
@@ -179,48 +184,55 @@
 
 <body>
 
-<div class="room">
-  <!-- Gibran -->
-  <div class="cell lt">
-    <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
-  </div>
+<div class="page" id="page">
 
-  <!-- Your veiled image -->
-  <div class="cell rt">
-    <img class="veil" src="IMG_7551.jpeg" alt="Veiled image">
-  </div>
+  <div class="room">
+    <div class="cell lt">
+      <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
+    </div>
 
-  <!-- Adria image -->
-  <div class="cell lb">
-    <img class="adriaImg" src="adria-image.png" alt="Adria image">
-  </div>
+    <div class="cell rt">
+      <img class="veil" src="IMG_7551.jpeg" alt="Veiled image">
+    </div>
 
-  <!-- Adria text -->
-  <div class="cell rb">
-    <img class="relic" src="adria-text.png" alt="Adria text screenshot">
-  </div>
-</div>
+    <div class="cell lb">
+      <img class="adriaImg" src="adria-image.png" alt="Adria image">
+    </div>
 
-<!-- Affirmation ticker -->
-<div class="ticker-wrap" aria-label="affirmation ticker">
-  <div class="ticker">
-    <div class="tickerTrack" id="tickerTrack">
-      <span class="tickerItem">i am well-able</span>
-      <span class="tickerItem">i am valuable</span>
-      <span class="tickerItem">i am worthy</span>
-      <span class="tickerItem">i am worthy of love</span>
-      <span class="tickerItem">i am a masterpiece</span>
-      <span class="tickerItem">i am destined</span>
-      <span class="tickerItem">i am eternal</span>
-      <span class="tickerItem">i am a child of the creator of the universe</span>
+    <div class="cell rb">
+      <img class="relic" src="adria-text.png" alt="Adria text screenshot">
     </div>
   </div>
+
+  <!-- Affirmation ticker -->
+  <div class="ticker-wrap" aria-label="affirmation ticker">
+    <div class="ticker">
+      <div class="tickerTrack" id="tickerTrack">
+        <span class="tickerItem">i am well-able</span>
+        <span class="tickerItem">i am valuable</span>
+        <span class="tickerItem">i am worthy</span>
+        <span class="tickerItem">i am worthy of love</span>
+        <span class="tickerItem">i am a masterpiece</span>
+        <span class="tickerItem">i am destined</span>
+        <span class="tickerItem">i am eternal</span>
+        <span class="tickerItem">i am a child of the creator of the universe</span>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
-/* Seamless ticker */
-const track = document.getElementById("tickerTrack");
-track.innerHTML += track.innerHTML;
+  /* page fade-in */
+  window.addEventListener("DOMContentLoaded", () => {
+    requestAnimationFrame(() => {
+      document.getElementById("page").classList.add("is-visible");
+    });
+  });
+
+  /* seamless ticker loop */
+  const track = document.getElementById("tickerTrack");
+  track.innerHTML += track.innerHTML;
 </script>
 
 </body>
