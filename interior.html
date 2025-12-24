@@ -103,8 +103,8 @@
 
   /* MANIFESTO (LIVE TEXT) */
   .manifestoCell{
-    justify-content:stretch;
-    align-items:stretch;
+    justify-content:flex-end;
+    align-items:flex-end;
   }
 
   .manifestoFrame{
@@ -116,15 +116,15 @@
     padding: 18px 18px 20px;
     display:flex;
     align-items:flex-start;
-    overflow:hidden; /* keeps veil layer clean */
+    overflow:hidden;
   }
 
-  /* optional veil ghost (desktop only) lives behind the text */
+  /* veil ghost layer (kept for mobile; hidden on desktop below) */
   .manifestoVeil{
     position:absolute;
     inset:0;
     background: url("IMG_7551.jpeg") center/cover no-repeat;
-    opacity: .12;
+    opacity: .10;
     filter: blur(0.4px) contrast(1.05);
     pointer-events:none;
   }
@@ -144,13 +144,15 @@
     z-index:1;
     width:100%;
     max-width: 560px;
-    font-family: Inter, system-ui, sans-serif;   /* same family as ticker */
+    font-family: Inter, system-ui, sans-serif;
     font-size: 13px;
     line-height: 1.6;
-    letter-spacing: var(--tickerLetter);        /* match ticker spacing */
+    letter-spacing: var(--tickerLetter);
     color: rgba(255,255,255,.86);
+
+    /* mobile-friendly default (override on desktop) */
     overflow:auto;
-    padding-right: 6px; /* breathing room for scrollbar */
+    padding-right: 6px;
     scrollbar-width: thin;
     scrollbar-color: rgba(255,255,255,.22) rgba(255,255,255,0);
   }
@@ -165,22 +167,36 @@
   .manifestoText .lc{ text-transform: lowercase; }
   .manifestoText .cap{ text-transform: none; margin-top: 28px; }
 
-  /* DESKTOP: manifesto spans top-right to bottom-right */
+  /* DESKTOP: restore veil image + manifesto stays bottom-right */
   @media (min-width: 821px){
-    /* move manifesto into the entire right column */
+    /* restore original grid behavior */
+    .veilCell{ display:flex; }
+
+    /* center the veil in its quadrant so it doesn’t feel oddly right-biased */
+    .rt{ justify-content:center; }
+    .veil{ max-width: min(560px, 100%); }
+
+    /* manifesto belongs only in bottom-right (no spanning) */
     .manifestoCell{
       grid-column: 2;
-      grid-row: 1 / span 2;
-      padding-top: calc(var(--cellPad) + 2px);
-      padding-bottom: calc(var(--cellPad) + 2px);
+      grid-row: 2;
+      justify-content:flex-end;
+      align-items:flex-end;
     }
 
-    /* hide the separate veil cell on desktop (veil becomes ghost layer inside manifesto) */
-    .veilCell{ display:none; }
+    /* clean frame on desktop (no ghost veil behind text) */
+    .manifestoVeil{ display:none; }
 
-    /* align manifesto toward the inner edge for a gallery feel */
-    .manifestoCell{ justify-content:flex-start; }
-    .manifestoFrame{ width: min(720px, 100%); }
+    /* avoid scrollbars on desktop unless needed */
+    .manifestoText{
+      overflow:hidden;
+      max-width: 560px;
+    }
+  }
+
+  /* if a laptop is short, allow gentle scroll rather than shrinking text */
+  @media (min-width: 821px) and (max-height: 760px){
+    .manifestoText{ overflow:auto; }
   }
 
   /* RUNWAY */
@@ -332,7 +348,7 @@
 
     .lt{ order:1; }
     .rt{ order:2; }
-    .rb{ order:3; } /* manifesto lives here on mobile */
+    .rb{ order:3; }
     .lb{ order:4; }
 
     .runway{ height: 60vh; }
@@ -347,7 +363,7 @@
 
     .manifestoFrame{ padding: 16px; }
     .manifestoText{ font-size: 12.5px; max-width: 100%; }
-    .manifestoVeil{ opacity: .10; } /* a touch softer on mobile */
+    .manifestoVeil{ opacity: .10; }
   }
 
   /* ADD THE SCALE CHANGE */
@@ -371,7 +387,6 @@
       <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
     </div>
 
-    <!-- Veil remains on mobile; on desktop it’s hidden and used as a ghost layer inside manifesto -->
     <div class="cell rt veilCell">
       <img class="veil" src="IMG_7551.jpeg" alt="Veiled image">
     </div>
@@ -380,7 +395,6 @@
       <img class="loveImg" src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
     </div>
 
-    <!-- MANIFESTO: mobile = rb slot, desktop = spans full right column -->
     <div class="cell rb manifestoCell">
       <div class="manifestoFrame">
         <div class="manifestoVeil" aria-hidden="true"></div>
