@@ -26,9 +26,6 @@
 
   --readRunway: 90vh;
   --tickerDuration: 78s;
-
-  /* iOS-safe viewport unit: set by JS (same pattern as index) */
-  --vh: 1vh;
 }
 
 html, body{
@@ -39,9 +36,6 @@ html, body{
   color:#fff;
   overflow-x:hidden;
   overflow-y:auto;
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* PAGE FADE-IN */
@@ -55,6 +49,25 @@ body.is-loading .page{
   transition:
     opacity var(--fadeDur) ease,
     transform var(--fadeDur) ease;
+}
+
+/* TOP FADE (new): makes scrolled-up content “disappear” into black */
+.topFade{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 18vh;
+  z-index: 9;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,1) 0%,
+    rgba(0,0,0,.92) 18%,
+    rgba(0,0,0,.68) 42%,
+    rgba(0,0,0,.35) 68%,
+    rgba(0,0,0,0) 100%
+  );
 }
 
 /* ROOM (hero) — default (mobile-first) */
@@ -103,7 +116,7 @@ body.is-loading .page{
   display:block;
 }
 
-/* MANIFESTO */
+/* MANIFESTO (LIVE TEXT) — centered, no outline */
 .manifestoCell{
   justify-content:center;
   align-items:center;
@@ -147,39 +160,6 @@ body.is-loading .page{
 .manifestoText p{ margin: 0 0 22px 0; text-transform: lowercase; }
 .manifestoText .lc{ text-transform: lowercase; }
 .manifestoText .cap{ text-transform: lowercase; margin-top: 28px; }
-
-/* ===== SAFE “index-like” fade =====
-   Default visible. JS only *softly* fades non-active steps.
-*/
-.step{
-  width:100%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  box-sizing:border-box;
-}
-
-.fadeItem{
-  opacity: 1;
-  filter: blur(0px);
-  transform: translate3d(0,0,0);
-  will-change: opacity, filter, transform;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-  transition: opacity 700ms ease, filter 700ms ease, transform 700ms ease;
-}
-
-/* when JS is active, it will toggle these classes */
-.is-dim .fadeItem{
-  opacity: .12;
-  filter: blur(1.0px);
-  transform: translate3d(0, 10px, 0);
-}
-.is-focus .fadeItem{
-  opacity: 1;
-  filter: blur(0px);
-  transform: translate3d(0,0,0);
-}
 
 /* RUNWAY */
 .runway{
@@ -306,16 +286,14 @@ body.is-loading .page{
 
 @media (prefers-reduced-motion: reduce){
   .tickerTrack{ animation:none; }
-  .fadeItem{ transition:none; }
-  .is-dim .fadeItem{ opacity: 1; filter:none; transform:none; }
 }
 
-/* ========= DESKTOP: vertical scroll sequence ========= */
+/* ========= DESKTOP FIX: make it a vertical scroll sequence ========= */
 @media (min-width: 821px){
   .room{
     height:auto;
     padding: 6vh 6vw 6vh;
-    gap: 70px;
+    gap: 70px;              /* breath between chambers */
     align-items:center;
   }
 
@@ -357,6 +335,9 @@ body.is-loading .page{
   .closing{
     padding: 0 6vw calc(var(--tickerBandH) + 24px);
   }
+
+  /* top fade a bit taller on desktop */
+  .topFade{ height: 22vh; }
 }
 
 /* ADD THE SCALE CHANGE */
@@ -373,54 +354,38 @@ body.is-loading .page{
 
 <body class="is-loading">
 
+<!-- NEW: top gradient fade -->
+<div class="topFade" aria-hidden="true"></div>
+
 <div class="page" id="page">
 
-<div class="room" id="sequence">
+<!-- FLOW (BOTH DESKTOP + MOBILE): manifesto -> veiled -> poem -> gibran -->
+<div class="room">
 
-  <!-- 1) MANIFESTO -->
-  <section class="step" data-step>
-    <div class="manifestoFrame fadeItem" data-fade>
-      <div class="manifestoText" aria-label="Manifesto">
-        <p class="lc">i felt love surrounding me<br>
-        so intensely and densely</p>
-
-        <p class="lc">my body and spirit surrendered<br>
-        i felt free</p>
-
-        <p class="lc">it came to stay<br>
-        as a new standard of love<br>
-        that the world has to offer</p>
-
-        <p class="cap">from: ritual<br>
-        to: boundless love</p>
-
-        <p class="cap">i call you into my life<br>
-        as a gift<br>
-        to all others</p>
+  <!-- 1) MANIFESTO / INVOCATION (centered) -->
+  <div class="cell manifestoCell">
+    <div class="manifestoFrame">
+      <div class="manifestoText" aria-label="Invocation">
+        <p class="cap">from ritual:<br>
+        to boundless love:</p>
       </div>
     </div>
-  </section>
+  </div>
 
   <!-- 2) VEILED -->
-  <section class="step" data-step>
-    <div class="cell rt">
-      <img class="veil fadeItem" data-fade src="IMG_7551.jpeg" alt="Veiled image">
-    </div>
-  </section>
+  <div class="cell rt">
+    <img class="veil" src="IMG_7551.jpeg" alt="Veiled image">
+  </div>
 
   <!-- 3) POEM -->
-  <section class="step" data-step>
-    <div class="cell lb">
-      <img class="loveImg fadeItem" data-fade src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
-    </div>
-  </section>
+  <div class="cell lb">
+    <img class="loveImg" src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
+  </div>
 
   <!-- 4) GIBRAN -->
-  <section class="step" data-step>
-    <div class="cell rb">
-      <img class="relic fadeItem" data-fade src="gibran-screenshot.png" alt="Gibran text screenshot">
-    </div>
-  </section>
+  <div class="cell rb">
+    <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
+  </div>
 
 </div>
 
@@ -458,16 +423,6 @@ body.is-loading .page{
 </div>
 
 <script>
-/* iOS-safe vh (same pattern as index) */
-let LOCKED_VH = window.innerHeight;
-function setVhVar(){
-  LOCKED_VH = window.innerHeight;
-  document.documentElement.style.setProperty("--vh", (LOCKED_VH * 0.01) + "px");
-}
-setVhVar();
-window.addEventListener("resize", setVhVar, { passive:true });
-window.addEventListener("orientationchange", () => setTimeout(setVhVar, 150), { passive:true });
-
 function triggerFadeIn(){
   document.body.classList.add("is-loading");
   void document.getElementById("page").offsetHeight;
@@ -482,53 +437,6 @@ const base = track.innerHTML;
 let repeated = "";
 for (let i = 0; i < 7; i++) repeated += base;
 track.innerHTML = repeated;
-
-/* SAFE “invocation-like” fade:
-   - uses IntersectionObserver to choose the focused chamber
-   - dims others (never opacity 0)
-   - if unsupported, everything stays visible
-*/
-(function(){
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) return;
-
-  const steps = Array.from(document.querySelectorAll('[data-step]'));
-  if (!steps.length) return;
-
-  function setFocus(idx){
-    steps.forEach((s,i) => {
-      s.classList.toggle('is-focus', i === idx);
-      s.classList.toggle('is-dim', i !== idx);
-    });
-  }
-
-  // default: focus first
-  setFocus(0);
-
-  if (!('IntersectionObserver' in window)) return;
-
-  const io = new IntersectionObserver((entries) => {
-    // pick the most-visible step as focus
-    let bestIdx = null;
-    let bestRatio = 0;
-
-    for (const e of entries){
-      if (!e.isIntersecting) continue;
-      const idx = steps.indexOf(e.target);
-      if (e.intersectionRatio > bestRatio){
-        bestRatio = e.intersectionRatio;
-        bestIdx = idx;
-      }
-    }
-
-    if (bestIdx !== null) setFocus(bestIdx);
-  }, {
-    root: null,
-    threshold: [0.15,0.25,0.35,0.45,0.55,0.65,0.75,0.85]
-  });
-
-  steps.forEach(s => io.observe(s));
-})();
 </script>
 
 </body>
