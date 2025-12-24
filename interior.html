@@ -24,7 +24,9 @@
   --fadeDur: 3.6s;
   --fadeLift: 6px;
 
-  --readRunway: 90vh;
+  --readRunway: 90vh;      /* big, final runway */
+  --midRunway: 64vh;       /* NEW: in-between runways (desktop overridden below) */
+
   --tickerDuration: 78s;
 }
 
@@ -51,7 +53,7 @@ body.is-loading .page{
     transform var(--fadeDur) ease;
 }
 
-/* TOP FADE (tuned lighter so it won’t disrupt the beam) */
+/* TOP FADE (lighter so it won’t disrupt the beam) */
 .topFade{
   position: fixed;
   top: 0;
@@ -122,7 +124,7 @@ body.is-loading .page{
   align-items:center;
 }
 
-/* make manifesto START centered on page (desktop + mobile) */
+/* manifesto START centered on page (desktop + mobile) */
 .manifestoStart{
   min-height: calc(100vh - var(--tickerBandH));
   padding-top: 0;
@@ -157,7 +159,6 @@ body.is-loading .page{
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,.22) rgba(255,255,255,0);
 }
-
 .manifestoText::-webkit-scrollbar{ width: 8px; }
 .manifestoText::-webkit-scrollbar-track{ background: transparent; }
 .manifestoText::-webkit-scrollbar-thumb{
@@ -171,7 +172,12 @@ body.is-loading .page{
 /* RUNWAY */
 .runway{
   position: relative;
-  height: 60vh;
+  height: 60vh; /* mobile default */
+}
+
+/* NEW: in-between runway size (keeps beams feeling “right”) */
+.runway.mid{
+  height: 52vh; /* mobile */
 }
 
 /* SPOTLIGHT BEAM */
@@ -328,7 +334,12 @@ body.is-loading .page{
   .veil, .loveImg{ max-width: var(--desktopPhotoMax); }
   .relic{ width:min(var(--textMaxW), 100%); }
 
+  /* FINAL runway stays big */
   .runway{ height: var(--readRunway); }
+
+  /* NEW: in-between runways slightly smaller */
+  .runway.mid{ height: var(--midRunway); }
+
   .beam{
     width: 260px;
     opacity:.50;
@@ -366,7 +377,7 @@ body.is-loading .page{
 <!-- FLOW: manifesto -> veiled -> beam -> poem -> beam -> gibran -->
 <div class="room">
 
-  <!-- 1) MANIFESTO (starts centered on the page) -->
+  <!-- 1) MANIFESTO -->
   <div class="cell manifestoCell manifestoStart">
     <div class="manifestoFrame">
       <div class="manifestoText" aria-label="Manifesto">
@@ -395,8 +406,8 @@ body.is-loading .page{
     <img class="veil" src="IMG_7551.jpeg" alt="Veiled image">
   </div>
 
-  <!-- ✅ ONLY NEW THING: BEAM AFTER VEIL -->
-  <div class="runway" aria-hidden="true">
+  <!-- ✅ NEW BEAM AFTER VEIL (cleaner mid runway) -->
+  <div class="runway mid" aria-hidden="true">
     <div class="beam" aria-hidden="true"></div>
   </div>
 
@@ -405,8 +416,8 @@ body.is-loading .page{
     <img class="loveImg" src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
   </div>
 
-  <!-- ✅ BEAM BETWEEN POEM + GIBRAN (kept exactly as before) -->
-  <div class="runway" aria-hidden="true">
+  <!-- ✅ BEAM BETWEEN POEM + GIBRAN (cleaner mid runway) -->
+  <div class="runway mid" aria-hidden="true">
     <div class="beam" aria-hidden="true"></div>
   </div>
 
@@ -417,7 +428,7 @@ body.is-loading .page{
 
 </div>
 
-<!-- ORIGINAL BEAM (kept) -->
+<!-- FINAL BEAM (big runway, untouched) -->
 <div class="runway">
   <div class="beam" aria-hidden="true"></div>
 </div>
