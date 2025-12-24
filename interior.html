@@ -1,399 +1,511 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="A BOAT IN YOUR HARBOR" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BLANKET ME — interior</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      --bg:#000;
-      --ink: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.66);
-      --faint: rgba(255,255,255,.44);
+<style>
+:root{
+--cellPad: 22px;
 
-      --stageMax: 1080px;
-      --stagePad: 26px;
+--textMaxW: 520px;
+--desktopPhotoMax: 58%;
 
-      --lead: 1.62;
-      --tracking: 0.01em;
+--tickerOpacity: 1.00;
+--tickerSize: 13px;
+--tickerLetter: .12em;
 
-      /* rhythm */
-      --gapXS: 12px;
-      --gapS: 22px;
-      --gapM: 42px;
-      --gapL: 78px;
-      --gapXL: 120px;
+--tickerBandH: 84px;
+--tickerBandPadB: 24px;
 
-      /* reveal */
-      --revealDur: 900ms;
-      --revealEase: cubic-bezier(.19,1,.22,1);
-    }
+--fadeDur: 3.6s;
+--fadeLift: 6px;
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
-    body{
-      margin:0;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      letter-spacing: var(--tracking);
-      line-height: var(--lead);
-      -webkit-font-smoothing: antialiased;
-      text-rendering: geometricPrecision;
-      overflow-x:hidden;
-    }
+--readRunway: 90vh;
 
-    /* subtle atmospheric grain without breaking scrolling */
-    body::before{
-      content:"";
-      position: fixed;
-      inset: 0;
-      pointer-events:none;
-      opacity:.06;
-      background-image:
-        radial-gradient(circle at 20% 10%, rgba(255,255,255,.14), transparent 42%),
-        radial-gradient(circle at 80% 30%, rgba(255,255,255,.10), transparent 46%),
-        radial-gradient(circle at 55% 80%, rgba(255,255,255,.10), transparent 44%),
-        repeating-linear-gradient(
-          0deg,
-          rgba(255,255,255,.05) 0px,
-          rgba(255,255,255,.05) 1px,
-          transparent 2px,
-          transparent 6px
-        );
-      mix-blend-mode: screen;
-    }
+--tickerDuration: 78s;
+}
 
-    .stage{
-      max-width: var(--stageMax);
-      margin: 0 auto;
-      padding: 0 var(--stagePad);
-    }
+html, body{
+margin:0;
+height:100%;
+background:#000;
+font-family:Inter, system-ui, sans-serif;
+color:#fff;
+overflow-x:hidden;
+overflow-y:auto;
+}
 
-    /* overall vertical journey */
-    main{
-      padding-top: clamp(28px, 6vh, 70px);
-      padding-bottom: clamp(70px, 14vh, 160px);
-    }
+/* PAGE FADE-IN */
+body.is-loading .page{
+opacity: 0;
+transform: translateY(var(--fadeLift));
+}
+.page{
+opacity: 1;
+transform: translateY(0);
+transition:
+opacity var(--fadeDur) ease,
+transform var(--fadeDur) ease;
+}
 
-    /* sections */
-    section{
-      margin: 0;
-      padding: 0;
-    }
-    .spacerXS{ height: var(--gapXS); }
-    .spacerS{ height: var(--gapS); }
-    .spacerM{ height: var(--gapM); }
-    .spacerL{ height: var(--gapL); }
-    .spacerXL{ height: var(--gapXL); }
+/* ROOM (hero) */
+.room{
+position:relative;
+height: calc(100vh - var(--tickerBandH));
+padding:5vh 6vw;
+box-sizing:border-box;
+display:grid;
+grid-template-columns: 1fr 1fr;
+grid-template-rows: 1fr 1fr;
+}
 
-    /* text blocks */
-    .invocation{
-      margin-top: 0;
-    }
+.cell{
+display:flex;
+width:100%;
+height:100%;
+padding:var(--cellPad);
+box-sizing:border-box;
+overflow:hidden;
+min-height:0;
+}
 
-    .kicker{
-      color: var(--faint);
-      font-size: 12px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
-      margin: 0 0 14px 0;
-    }
+.lt{ justify-content:flex-start; align-items:flex-start; }
+.rt{ justify-content:flex-end;   align-items:flex-start; }
+.lb{ justify-content:flex-start; align-items:flex-end;   }
+.rb{ justify-content:flex-end;   align-items:flex-end;   }
 
-    .manifesto{
-      font-size: clamp(15px, 1.45vw, 18px);
-      color: var(--ink);
-      margin: 0;
-      white-space: pre-line;
-    }
+.relic{
+width:min(var(--textMaxW), 100%);
+height:auto;
+max-height:100%;
+object-fit:contain;
+opacity:1;
+display:block;
+image-rendering:-webkit-optimize-contrast;
+}
 
-    .manifesto strong{
-      font-weight: 500;
-      color: rgba(255,255,255,.96);
-    }
+.veil, .loveImg{
+width:100%;
+height:auto;
+max-height:100%;
+object-fit:contain;
+opacity:.95;
+display:block;
+}
 
-    /* keep the “ritual” feel with generous line spacing + staggered paragraphs */
-    .manifesto .line{
-      display:block;
-      padding: 0;
-      margin: 0 0 22px 0;
-    }
-    .manifesto .line:last-child{ margin-bottom: 0; }
+@media (min-width: 1100px){
+.veil, .loveImg{ max-width: var(--desktopPhotoMax); }
+}
 
-    /* images */
-    .imgWrap{
-      width:100%;
-      display:flex;
-      justify-content:center;
-    }
-    img{
-      display:block;
-      width: 100%;
-      height:auto;
-      border-radius: 20px;
-      box-shadow:
-        0 30px 70px rgba(0,0,0,.55),
-        0 0 0 1px rgba(255,255,255,.06) inset;
-      background: #000;
-    }
+/* MANIFESTO (LIVE TEXT) — centered, no outline */
+.manifestoCell{
+justify-content:flex-end;
+align-items:flex-end;
+}
 
-    /* class names you’ve been using */
-    .veil{
-      max-width: 860px;
-      border-radius: 26px;
-      filter: saturate(.92) contrast(1.02);
-    }
-    .loveImg{
-      max-width: 920px;
-      border-radius: 18px;
-      box-shadow:
-        0 22px 62px rgba(0,0,0,.62),
-        0 0 0 1px rgba(255,255,255,.05) inset;
-    }
-    .relic{
-      max-width: 520px;
-      border-radius: 22px;
-      opacity: .96;
-    }
+.manifestoFrame{
+width:100%;
+height:100%;
+box-sizing:border-box;
+border:none;
+padding: 18px 18px 20px;
+display:flex;
+align-items:flex-start;
+overflow:hidden;
+}
 
-    /* Gibran / witness text */
-    .witness{
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 0;
-    }
-    blockquote{
-      margin: 0;
-      padding: 0;
-      font-size: clamp(15px, 1.35vw, 18px);
-      color: rgba(255,255,255,.86);
-    }
-    blockquote p{
-      margin: 0 0 16px 0;
-    }
-    blockquote p:last-child{ margin-bottom: 0; }
+.manifestoText{
+width:100%;
+max-width: 560px;
+font-family: Inter, system-ui, sans-serif;
+font-size: 13px;
+line-height: 1.6;
+letter-spacing: var(--tickerLetter);
+color: rgba(255,255,255,.86);
+overflow:auto;
+padding-right: 6px;
+text-align: center;
 
-    .attrib{
-      margin-top: 16px;
-      color: var(--faint);
-      font-size: 13px;
-      letter-spacing: .08em;
-    }
+scrollbar-width: thin;
+scrollbar-color: rgba(255,255,255,.22) rgba(255,255,255,0);
+}
+.manifestoText::-webkit-scrollbar{ width: 8px; }
+.manifestoText::-webkit-scrollbar-track{ background: transparent; }
+.manifestoText::-webkit-scrollbar-thumb{
+background: rgba(255,255,255,.18);
+border-radius: 10px;
+}
 
-    /* contact footer */
-    footer{
-      margin-top: var(--gapXL);
-      padding-top: var(--gapM);
-      border-top: 1px solid rgba(255,255,255,.08);
-    }
-    .contact{
-      display:flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: center;
-      text-align:center;
-      color: var(--muted);
-      font-size: 13px;
-      letter-spacing: .06em;
-    }
-    .contact a{
-      color: rgba(255,255,255,.78);
-      text-decoration: none;
-      border-bottom: 1px solid rgba(255,255,255,.18);
-      padding-bottom: 2px;
-    }
-    .contact a:hover{
-      border-bottom-color: rgba(255,255,255,.42);
-      color: rgba(255,255,255,.92);
-    }
+.manifestoText p{ margin: 0 0 22px 0; }
+.manifestoText .lc{ text-transform: lowercase; }
+.manifestoText .cap{ text-transform: lowercase; margin-top: 28px; }
+.manifestoText p{ margin: 0 0 22px 0; text-transform: lowercase; }
 
-    /* scroll reveal (gentle, non-sticky) */
-    .reveal{
-      opacity: 0;
-      transform: translateY(18px);
-      filter: blur(6px);
-      transition:
-        opacity var(--revealDur) var(--revealEase),
-        transform var(--revealDur) var(--revealEase),
-        filter var(--revealDur) var(--revealEase);
-      will-change: opacity, transform, filter;
-    }
-    .reveal.in{
-      opacity: 1;
-      transform: translateY(0);
-      filter: blur(0);
-    }
+/* DESKTOP: hero stays; below = poem then gibran */
+.belowDesktop{
+display:none;
+padding: 0 6vw;
+box-sizing:border-box;
+}
 
-    /* slightly different reveal for images (more grounded) */
-    .revealImg{
-      opacity: 0;
-      transform: translateY(26px) scale(.985);
-      transition:
-        opacity 1050ms var(--revealEase),
-        transform 1050ms var(--revealEase);
-      will-change: opacity, transform;
-    }
-    .revealImg.in{
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+.belowDesktop .poemBlock{
+margin: 0 auto 64px;
+display:flex;
+justify-content:center;
+}
+.belowDesktop .poemBlock img{
+width:min(720px, 100%);
+height:auto;
+opacity:.95;
+display:block;
+margin: 0 auto;
+}
 
-    /* desktop cohesion: widen pad + calm the rhythm */
-    @media (min-width: 900px){
-      :root{ --stagePad: 44px; }
-      .kicker{ margin-bottom: 18px; }
-      .manifesto .line{ margin-bottom: 26px; }
-      img{ border-radius: 22px; }
-    }
+.belowDesktop .gibranBlock{
+margin: 0 auto 40px;
+display:flex;
+justify-content:center;
+}
+.belowDesktop .gibranBlock img{
+width:min(var(--textMaxW), 100%);
+height:auto;
+opacity:1;
+display:block;
+margin: 0 auto;
+}
 
-    /* requested “scale change” memory */
-    @media (min-width: 1100px){
-      .relic, .veil, .loveImg{
-        transform: scale(1.08);
-        transform-origin: center;
-      }
-      /* keep shadows from feeling too heavy at scale */
-      .veil, .loveImg{
-        box-shadow:
-          0 36px 86px rgba(0,0,0,.60),
-          0 0 0 1px rgba(255,255,255,.05) inset;
-      }
-    }
+@media (min-width: 821px){
+/* HERO becomes single row: show ONLY lt + rt */
+.room{ grid-template-rows: 1fr; }
 
-    /* reduce motion accessibility */
-    @media (prefers-reduced-motion: reduce){
-      .reveal, .revealImg{
-        transition: none !important;
-        transform: none !important;
-        filter: none !important;
-        opacity: 1 !important;
-      }
-      body::before{ opacity:.04; }
-    }
-  </style>
+/* hide the lower two hero cells on desktop (poem + gibran) */
+.lb, .rb{ display:none; }
+
+.belowDesktop{ display:block; }
+}
+
+/* RUNWAY */
+.runway{
+position: relative;
+height: var(--readRunway);
+}
+
+/* SPOTLIGHT BEAM */
+.beam{
+position:absolute;
+left:50%;
+top:-6vh;
+transform:translateX(-50%);
+width: 260px;
+height: calc(100% + 12vh);
+pointer-events:none;
+opacity:.50;
+
+background:
+radial-gradient(ellipse at 50% 0%,
+rgba(255,255,255,.20) 0%,
+rgba(255,255,255,.11) 22%,
+rgba(255,255,255,.05) 44%,
+rgba(255,255,255,.02) 62%,
+rgba(255,255,255,0) 78%
+);
+
+-webkit-mask-image: linear-gradient(to bottom,
+rgba(0,0,0,0) 0%,
+rgba(0,0,0,1) 18%,
+rgba(0,0,0,1) 74%,
+rgba(0,0,0,0) 100%
+);
+mask-image: linear-gradient(to bottom,
+rgba(0,0,0,0) 0%,
+rgba(0,0,0,1) 18%,
+rgba(0,0,0,1) 74%,
+rgba(0,0,0,0) 100%
+);
+
+filter: blur(2.2px);
+}
+
+/* FINAL SEAL GLOW */
+.seal{
+height: 120px;
+margin: 0 6vw 40px;
+pointer-events:none;
+background:
+radial-gradient(
+ellipse at center,
+rgba(255,255,255,.14) 0%,
+rgba(255,255,255,.06) 30%,
+rgba(255,255,255,.02) 55%,
+rgba(0,0,0,0) 70%
+);
+opacity:.65;
+}
+
+/* CONTACT */
+.closing{
+padding: 0 6vw calc(var(--tickerBandH) + 24px);
+box-sizing:border-box;
+font-size: 12px;
+letter-spacing: .16em;
+text-transform: lowercase;
+color: rgba(255,255,255,.75);
+display:flex;
+flex-direction:column;
+gap:10px;
+}
+
+.closing a{
+color: rgba(255,255,255,.75);
+text-decoration:none;
+}
+.closing a:hover{ text-decoration:underline; }
+
+/* TICKER */
+.ticker-band{
+position: fixed;
+left: 0;
+right: 0;
+bottom: 0;
+height: var(--tickerBandH);
+z-index: 10;
+pointer-events:none;
+background: linear-gradient(to bottom,
+rgba(0,0,0,0) 0%,
+rgba(0,0,0,.55) 50%,
+rgba(0,0,0,.90) 100%);
+}
+
+.ticker-wrap{
+position:absolute;
+left:0;
+right:0;
+bottom: var(--tickerBandPadB);
+overflow:hidden;
+opacity: var(--tickerOpacity);
+}
+
+.ticker{
+overflow:hidden;
+white-space:nowrap;
+width:100%;
+}
+
+.tickerTrack{
+display:inline-flex;
+align-items:center;
+gap:24px;
+width:max-content;
+font-size: var(--tickerSize);
+letter-spacing: var(--tickerLetter);
+padding-left: 40px;
+text-transform: lowercase;
+animation: tickerScroll var(--tickerDuration) linear infinite;
+}
+
+@keyframes tickerScroll{
+from{ transform:translateX(0); }
+to{ transform:translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce){
+.tickerTrack{ animation:none; }
+}
+
+/* MOBILE */
+@media (max-width: 820px){
+.room{
+height:auto;
+min-height: calc(100vh - var(--tickerBandH));
+display:flex;
+flex-direction:column;
+padding:18px 16px 28px;
+gap:22px;
+}
+
+.cell{
+overflow:visible;
+padding:12px 0;
+height:auto;
+}
+
+/* ORDER: manifesto -> veil -> poem -> gibran */
+.lt{ order:1; }
+.rt{ order:2; }
+.lb{ order:3; }
+.rb{ order:4; }
+
+.runway{ height: 60vh; }
+.seal{ margin: 0 16px 36px; height: 96px; }
+.closing{ padding: 0 16px calc(var(--tickerBandH) + 24px); }
+
+.beam{
+width: 200px;
+opacity: .46;
+filter: blur(2.0px);
+}
+
+/* Center poem */
+.lb{
+justify-content:center;
+align-items:center;
+}
+.loveImg{
+margin: 0 auto;
+display:block;
+}
+
+/* Center manifesto */
+.manifestoCell{
+justify-content:center;
+align-items:center;
+}
+.manifestoFrame{
+width: 100%;
+max-width: 760px;
+padding: 16px;
+margin: 0 auto;
+}
+.manifestoText{
+font-size: 12.5px;
+max-width: 560px;
+margin: 0 auto;
+text-align: center;
+}
+
+.belowDesktop{ display:none; }
+}
+
+/* ADD THE SCALE CHANGE */
+@media (min-width: 1100px){
+.relic,
+.veil,
+.loveImg{
+transform: scale(1.08);
+transform-origin: center;
+}
+}
+</style>
 </head>
 
-<body>
-  <main class="stage">
+<body class="is-loading">
 
-    <!-- 1) MANIFESTO / INVOCATION -->
-    <section class="invocation reveal" data-reveal>
-      <p class="kicker">Invocation</p>
+<div class="page" id="page">
 
-      <!-- Edit these lines freely; punctuation rule respected: only “to ritual:” and “to boundless love:” -->
-      <p class="manifesto">
-        <span class="line"><strong>to boundless love:</strong></span>
-        <span class="line">to choose tenderness over performance</span>
-        <span class="line">to remain open when it would be easier to close</span>
-        <span class="line">to hold what is holy without possession</span>
+<!-- HERO -->
+<div class="room">
 
-        <span class="line"><strong>ethereality</strong></span>
-        <span class="line">to move through the world like breath through linen</span>
-        <span class="line">to let the unseen be felt without being named</span>
+  <!-- 1) MANIFESTO FIRST -->
+  <div class="cell lt manifestoCell">
+    <div class="manifestoFrame">
+      <div class="manifestoText" aria-label="Manifesto">
+        <p class="lc">i felt love surrounding me,<br>
+        so intensely and densely.</p>
 
-        <span class="line"><strong>bearing witness</strong></span>
-        <span class="line">to look without consuming</span>
-        <span class="line">to honor what is offered</span>
+        <p class="lc">my body and spirit surrendered —<br>
+        i felt free.</p>
 
-        <span class="line"><strong>transformation</strong></span>
-        <span class="line">to let love change the shape of the one who touches it</span>
+        <p class="lc">it came to stay<br>
+        as a new standard of love<br>
+        that the world has to offer.</p>
 
-        <span class="line"><strong>to ritual:</strong></span>
-        <span class="line">to return again and again until the heart remembers</span>
-      </p>
-    </section>
+        <p class="cap">To ritual.<br>
+        To boundless love.</p>
 
-    <div class="spacerXL"></div>
+        <p class="cap">I call you into my life<br>
+        as a gift<br>
+        to all others.</p>
 
-    <!-- 2) VEILED IMAGE -->
-    <section class="imgWrap revealImg" data-reveal-img aria-label="Veiled image">
-      <!-- replace the src with your actual filename/path -->
-      <img class="veil" src="veil.jpg" alt="Veiled" loading="lazy" />
-    </section>
-
-    <div class="spacerXL"></div>
-
-    <!-- 3) POEM (HANDWRITTEN IMAGE) -->
-    <section class="imgWrap revealImg" data-reveal-img aria-label="Handwritten poem">
-      <!-- replace the src with your actual filename/path -->
-      <img class="loveImg" src="poem.png" alt="Poem" loading="lazy" />
-    </section>
-
-    <div class="spacerXL"></div>
-
-    <!-- 4) GIBRAN / WITNESS -->
-    <section class="witness reveal" data-reveal>
-      <blockquote>
-        <!-- paste your exact excerpt here (as selectable text) -->
-        <p>
-          Your pain is the breaking of the shell that encloses your understanding
-        </p>
-        <p>
-          Even as the stone of the fruit must break that its heart may stand in the sun
-          so must you know pain
-        </p>
-      </blockquote>
-      <div class="attrib">— Kahlil Gibran</div>
-    </section>
-
-    <!-- optional: small relic/signature image (kept subtle). remove if you don’t want it -->
-    <div class="spacerL"></div>
-    <section class="imgWrap revealImg" data-reveal-img aria-label="Signature relic">
-      <img class="relic" src="relic.png" alt="Relic" loading="lazy" />
-    </section>
-
-    <footer class="reveal" data-reveal>
-      <div class="contact">
-        <div>a boat in your harbor</div>
-        <!-- replace with your preferred contact -->
-        <div><a href="mailto:hello@yourdomain.com">hello@yourdomain.com</a></div>
+        <p>i felt love surrounding me<br>so intensely and densely</p>
+        <p>my body and spirit surrendered<br>i felt free</p>
+        <p>it came to stay<br>as a new standard of love<br>that the world has to offer</p>
+        <p class="cap">to ritual:<br>to boundless love:</p>
+        <p class="cap">i call you into my life<br>as a gift<br>to all others</p>
       </div>
-    </footer>
+    </div>
+  </div>
 
-  </main>
+  <!-- 2) VEIL SECOND -->
+  <div class="cell rt">
+    <img class="veil" src="IMG_7551.jpeg" alt="Veiled image">
+  </div>
 
-  <script>
-    // Gentle reveal-on-scroll (no sticky behavior, no scroll hijacking)
-    (function () {
-      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reduce) return;
+  <!-- 3) POEM THIRD -->
+  <div class="cell lb">
+    <img class="loveImg" src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
+  </div>
 
-      const revealEls = Array.from(document.querySelectorAll('[data-reveal]'));
-      const revealImgEls = Array.from(document.querySelectorAll('[data-reveal-img]'));
+  <!-- 4) GIBRAN LAST -->
+  <div class="cell rb">
+    <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
+  </div>
 
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) entry.target.classList.add('in');
-        });
-      }, {
-        root: null,
-        threshold: 0.14,
-        rootMargin: '0px 0px -10% 0px'
-      });
+</div>
 
-      const ioImg = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) entry.target.classList.add('in');
-        });
-      }, {
-        root: null,
-        threshold: 0.10,
-        rootMargin: '0px 0px -12% 0px'
-      });
+<!-- DESKTOP: after hero, continue vertically: poem -> gibran -->
+<div class="belowDesktop" aria-hidden="false">
+  <div class="poemBlock">
+    <img class="loveImg" src="Love, Tala, God, and a Branch.png" alt="Love, Tala, God, and a Branch">
+  </div>
 
-      revealEls.forEach(el => io.observe(el));
-      revealImgEls.forEach(el => ioImg.observe(el));
+  <div class="gibranBlock">
+    <img class="relic" src="gibran-screenshot.png" alt="Gibran text screenshot">
+  </div>
+</div>
 
-      // ensure first section feels present quickly
-      window.requestAnimationFrame(() => {
-        revealEls.slice(0,1).forEach(el => el.classList.add('in'));
-      });
-    })();
-  </script>
+<!-- BEAM -->
+<div class="runway">
+  <div class="beam" aria-hidden="true"></div>
+</div>
+
+<div class="seal" aria-hidden="true"></div>
+
+<!-- CONTACT -->
+<div class="closing">
+  <div>contact</div>
+  <a href="mailto:talanatani@gmail.com">talanatani@gmail.com</a>
+  <a href="https://www.instagram.com/tala.natani/" target="_blank" rel="noopener">instagram</a>
+</div>
+
+</div>
+
+<div class="ticker-band" aria-hidden="true">
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <div class="tickerTrack" id="tickerTrack">
+        <span>i am well-able</span>
+        <span>i am valuable</span>
+        <span>i am worthy</span>
+        <span>i am worthy of love</span>
+        <span>i am a masterpiece</span>
+        <span>i am destined</span>
+        <span>i am eternal</span>
+        <span>i am a child of the creator of the universe</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function triggerFadeIn(){
+  document.body.classList.add("is-loading");
+  void document.getElementById("page").offsetHeight;
+  requestAnimationFrame(() => document.body.classList.remove("is-loading"));
+}
+window.addEventListener("DOMContentLoaded", triggerFadeIn);
+window.addEventListener("pageshow", triggerFadeIn);
+
+// TICKER: repeat ~7 times
+const track = document.getElementById("tickerTrack");
+const base = track.innerHTML;
+let repeated = "";
+for (let i = 0; i < 7; i++) repeated += base;
+track.innerHTML = repeated;
+</script>
+
 </body>
 </html>
